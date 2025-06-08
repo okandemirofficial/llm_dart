@@ -19,7 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Documentation**: Updated README.md to reflect standalone library status
   - Added pub.dev package badge and link (<https://pub.dev/packages/llm_dart>)
-  - Removed references to yumcha project as library is now independent
   - Simplified installation instructions (removed unnecessary dio dependency mention)
 
 ## [0.1.0] - 2025-6-8
