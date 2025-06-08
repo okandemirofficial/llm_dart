@@ -4,10 +4,11 @@ import '../../core/registry.dart';
 import '../elevenlabs_provider.dart';
 
 /// Factory for creating ElevenLabs provider instances
-/// 
+///
 /// Note: ElevenLabs is primarily a TTS/STT service and does not support chat functionality.
 /// This factory creates ElevenLabsProvider instances for voice synthesis and recognition.
-class ElevenLabsProviderFactory implements LLMProviderFactory<ElevenLabsProvider> {
+class ElevenLabsProviderFactory
+    implements LLMProviderFactory<ElevenLabsProvider> {
   @override
   String get providerId => 'elevenlabs';
 

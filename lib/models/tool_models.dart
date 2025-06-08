@@ -67,10 +67,11 @@ class ParametersSchema {
   });
 
   Map<String, dynamic> toJson() => {
-    'type': schemaType,
-    'properties': properties.map((key, value) => MapEntry(key, value.toJson())),
-    'required': required,
-  };
+        'type': schemaType,
+        'properties':
+            properties.map((key, value) => MapEntry(key, value.toJson())),
+        'required': required,
+      };
 
   factory ParametersSchema.fromJson(Map<String, dynamic> json) =>
       ParametersSchema(
@@ -103,18 +104,18 @@ class FunctionTool {
   });
 
   Map<String, dynamic> toJson() => {
-    'name': name,
-    'description': description,
-    'parameters': parameters.toJson(),
-  };
+        'name': name,
+        'description': description,
+        'parameters': parameters.toJson(),
+      };
 
   factory FunctionTool.fromJson(Map<String, dynamic> json) => FunctionTool(
-    name: json['name'] as String,
-    description: json['description'] as String,
-    parameters: ParametersSchema.fromJson(
-      json['parameters'] as Map<String, dynamic>,
-    ),
-  );
+        name: json['name'] as String,
+        description: json['description'] as String,
+        parameters: ParametersSchema.fromJson(
+          json['parameters'] as Map<String, dynamic>,
+        ),
+      );
 }
 
 /// Represents a tool that can be used in chat
@@ -128,28 +129,30 @@ class Tool {
   const Tool({required this.toolType, required this.function});
 
   Map<String, dynamic> toJson() => {
-    'type': toolType,
-    'function': function.toJson(),
-  };
+        'type': toolType,
+        'function': function.toJson(),
+      };
 
   factory Tool.fromJson(Map<String, dynamic> json) => Tool(
-    toolType: json['type'] as String,
-    function: FunctionTool.fromJson(json['function'] as Map<String, dynamic>),
-  );
+        toolType: json['type'] as String,
+        function:
+            FunctionTool.fromJson(json['function'] as Map<String, dynamic>),
+      );
 
   /// Create a function tool
   factory Tool.function({
     required String name,
     required String description,
     required ParametersSchema parameters,
-  }) => Tool(
-    toolType: 'function',
-    function: FunctionTool(
-      name: name,
-      description: description,
-      parameters: parameters,
-    ),
-  );
+  }) =>
+      Tool(
+        toolType: 'function',
+        function: FunctionTool(
+          name: name,
+          description: description,
+          parameters: parameters,
+        ),
+      );
 }
 
 /// Tool choice determines how the LLM uses available tools.
@@ -188,9 +191,9 @@ class SpecificToolChoice extends ToolChoice {
 
   @override
   Map<String, dynamic> toJson() => {
-    'type': 'function',
-    'function': {'name': toolName},
-  };
+        'type': 'function',
+        'function': {'name': toolName},
+      };
 }
 
 /// Explicitly disables the use of tools.
