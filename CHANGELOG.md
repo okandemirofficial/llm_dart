@@ -5,14 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2025-6-8
+
+### Fixed
+
+- **Package Configuration**: Updated pubspec.yaml repository URLs
+  - Fixed homepage, repository, and issue_tracker URLs to point to correct standalone repository
+  - Ensures proper package metadata on pub.dev for the independent library
+
 ## [0.1.1] - 2025-6-8
 
 ### Changed
 
 - **Documentation**: Updated README.md to reflect standalone library status
   - Added pub.dev package badge and link (<https://pub.dev/packages/llm_dart>)
+  - Removed references to yumcha project as library is now independent
   - Simplified installation instructions (removed unnecessary dio dependency mention)
-  - Updated example links to point to current repository instead of yumcha monorepo
 
 ## [0.1.0] - 2025-6-8
 
