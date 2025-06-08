@@ -6,8 +6,6 @@ homepage: https://github.com/Latias94/yumcha/tree/main/packages/llm_dart
 repository: https://github.com/Latias94/yumcha
 issue_tracker: https://github.com/Latias94/yumcha/issues
 
-resolution: workspace
-
 topics:
   - ai
   - llms
