@@ -78,11 +78,9 @@ void main() async {
 Future<ChatCapability> createProvider(String backend, String apiKey) async {
   switch (backend.toLowerCase()) {
     case 'openai':
-      // New API - recommended
       return ai().provider('openai').apiKey(apiKey).model('gpt-4o').build();
 
     case 'deepseek':
-      // New API - recommended
       return ai()
           .provider('deepseek')
           .apiKey(apiKey)
@@ -90,7 +88,6 @@ Future<ChatCapability> createProvider(String backend, String apiKey) async {
           .build();
 
     case 'anthropic':
-      // New API - recommended
       return ai()
           .provider('anthropic')
           .apiKey(apiKey)
