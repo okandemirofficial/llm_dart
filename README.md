@@ -1,5 +1,6 @@
 # LLM Dart Library
 
+[![pub package](https://img.shields.io/pub/v/llm_dart.svg)](https://pub.dev/packages/llm_dart)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Dart](https://img.shields.io/badge/Dart-3.5.0+-blue.svg)](https://dart.dev)
 [![Flutter](https://img.shields.io/badge/Flutter-3.8.0+-blue.svg)](https://flutter.dev)
@@ -7,8 +8,6 @@
 A modular Dart library for AI provider interactions, inspired by the Rust [graniet/llm](https://github.com/graniet/llm) library. This library provides a unified interface for interacting with different AI providers using Dio for HTTP requests.
 
 **🧠 Full access to model thinking processes** - llm_dart provides direct access to the internal reasoning and thought processes of supported AI models (Claude, OpenAI o1, DeepSeek, Gemini), giving you unprecedented insight into how AI models arrive at their conclusions.
-
-> **Part of yumcha project**: This library is extracted from the [yumcha](https://github.com/Latias94/yumcha) AI chat client to provide reusable LLM functionality under MIT license, while the main Flutter app uses AGPL v3.
 
 ## Features
 
@@ -40,29 +39,23 @@ A modular Dart library for AI provider interactions, inspired by the Rust [grani
 
 ## Installation
 
-### As part of yumcha project
-
-This library is part of the [yumcha](https://github.com/Latias94/yumcha) monorepo. If you're working with the full project:
-
-```bash
-git clone https://github.com/Latias94/yumcha.git
-cd yumcha
-melos bootstrap
-```
-
-### Standalone usage
-
 Add this to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
   llm_dart: ^0.1.0
-  dio: ^5.8.0  # Required HTTP client
 ```
 
 Then run:
+
 ```bash
 dart pub get
+```
+
+Or install directly using:
+
+```bash
+dart pub add llm_dart
 ```
 
 ## Quick Start
@@ -390,34 +383,34 @@ final provider = await ai()
 
 ## Examples
 
-See the **[examples directory](https://github.com/Latias94/yumcha/tree/main/packages/llm_dart/example)** for comprehensive usage examples and detailed documentation:
+See the **[examples directory](example)** for comprehensive usage examples and detailed documentation:
 
 ### 🟢 Beginner Examples
 
-- **[simple_llm_builder_example.dart](https://github.com/Latias94/yumcha/blob/main/packages/llm_dart/example/simple_llm_builder_example.dart)** - Basic usage with multiple providers
-- **[openai_example.dart](https://github.com/Latias94/yumcha/blob/main/packages/llm_dart/example/openai_example.dart)** - OpenAI provider with all creation methods
-- **[anthropic_example.dart](https://github.com/Latias94/yumcha/blob/main/packages/llm_dart/example/anthropic_example.dart)** - Basic Anthropic Claude usage
-- **[anthropic_extended_thinking_example.dart](https://github.com/Latias94/yumcha/blob/main/packages/llm_dart/example/anthropic_extended_thinking_example.dart)** - Advanced extended thinking features
+- **[simple_llm_builder_example.dart](example/simple_llm_builder_example.dart)** - Basic usage with multiple providers
+- **[openai_example.dart](example/openai_example.dart)** - OpenAI provider with all creation methods
+- **[anthropic_example.dart](example/anthropic_example.dart)** - Basic Anthropic Claude usage
+- **[anthropic_extended_thinking_example.dart](example/anthropic_extended_thinking_example.dart)** - Advanced extended thinking features
 
 ### 🟡 Intermediate Examples
 
-- **[streaming_example.dart](https://github.com/Latias94/yumcha/blob/main/packages/llm_dart/example/streaming_example.dart)** - Real-time streaming responses
-- **[reasoning_example.dart](https://github.com/Latias94/yumcha/blob/main/packages/llm_dart/example/reasoning_example.dart)** - Reasoning models with thinking
-- **[multi_provider_example.dart](https://github.com/Latias94/yumcha/blob/main/packages/llm_dart/example/multi_provider_example.dart)** - Using multiple providers together
+- **[streaming_example.dart](example/streaming_example.dart)** - Real-time streaming responses
+- **[reasoning_example.dart](example/reasoning_example.dart)** - Reasoning models with thinking
+- **[multi_provider_example.dart](example/multi_provider_example.dart)** - Using multiple providers together
 
 ### 🎯 Specialized Provider Examples
 
-- **[elevenlabs_example.dart](https://github.com/Latias94/yumcha/blob/main/packages/llm_dart/example/elevenlabs_example.dart)** - ElevenLabs TTS/STT (Text-to-Speech & Speech-to-Text)
-- **[groq_example.dart](https://github.com/Latias94/yumcha/blob/main/packages/llm_dart/example/groq_example.dart)** - Groq fast inference
-- **[ollama_example.dart](https://github.com/Latias94/yumcha/blob/main/packages/llm_dart/example/ollama_example.dart)** - Local Ollama models
-- **[deepseek_example.dart](https://github.com/Latias94/yumcha/blob/main/packages/llm_dart/example/deepseek_example.dart)** - DeepSeek reasoning models
+- **[elevenlabs_example.dart](example/elevenlabs_example.dart)** - ElevenLabs TTS/STT (Text-to-Speech & Speech-to-Text)
+- **[groq_example.dart](example/groq_example.dart)** - Groq fast inference
+- **[ollama_example.dart](example/ollama_example.dart)** - Local Ollama models
+- **[deepseek_example.dart](example/deepseek_example.dart)** - DeepSeek reasoning models
 
 ### 🔴 Advanced Examples
 
-- **[custom_provider_example.dart](https://github.com/Latias94/yumcha/blob/main/packages/llm_dart/example/custom_provider_example.dart)** - Full custom provider implementation
-- **[api_features_example.dart](https://github.com/Latias94/yumcha/blob/main/packages/llm_dart/example/api_features_example.dart)** - API features and usage patterns showcase
+- **[custom_provider_example.dart](example/custom_provider_example.dart)** - Full custom provider implementation
+- **[api_features_example.dart](example/api_features_example.dart)** - API features and usage patterns showcase
 
-📖 **[Complete Examples Guide](https://github.com/Latias94/yumcha/tree/main/packages/llm_dart/example)** - Detailed documentation, setup instructions, and best practices.
+📖 **[Complete Examples Guide](example)** - Detailed documentation, setup instructions, and best practices.
 
 ## Contributing
 
