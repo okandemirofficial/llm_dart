@@ -13,11 +13,12 @@ import 'models.dart';
 /// This provider implements multiple capabilities and delegates
 /// to specialized capability modules for different functionalities.
 /// Ollama is designed for local deployment and supports various models.
-class OllamaProvider implements 
-    ChatCapability, 
-    CompletionCapability, 
-    EmbeddingCapability, 
-    ModelListingCapability {
+class OllamaProvider
+    implements
+        ChatCapability,
+        CompletionCapability,
+        EmbeddingCapability,
+        ModelListingCapability {
   final OllamaClient _client;
   final OllamaConfig config;
 

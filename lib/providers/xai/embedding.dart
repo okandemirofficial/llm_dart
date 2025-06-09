@@ -44,7 +44,8 @@ class XAIEmbedding implements EmbeddingCapability {
   }
 
   /// Parse embedding response from xAI API
-  List<List<double>> _parseEmbeddingResponse(Map<String, dynamic> responseData) {
+  List<List<double>> _parseEmbeddingResponse(
+      Map<String, dynamic> responseData) {
     final embeddingResponse = XAIEmbeddingResponse.fromJson(responseData);
     return embeddingResponse.data.map((d) => d.embedding).toList();
   }

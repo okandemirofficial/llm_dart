@@ -11,11 +11,7 @@ import 'config.dart';
 ///
 /// This module handles all chat-related functionality for xAI providers,
 /// including streaming and search capabilities. xAI is known for Grok models.
-///
-/// Note: This class does NOT implement ChatCapability interface - only the
-/// main XAIProvider should implement capability interfaces following the
-/// OpenAI architectural pattern.
-class XAIChat {
+class XAIChat implements ChatCapability {
   final XAIClient client;
   final XAIConfig config;
 

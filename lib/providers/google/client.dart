@@ -74,7 +74,8 @@ class GoogleClient {
       } else if (responseBody is ResponseBody) {
         stream = responseBody.stream;
       } else {
-        throw Exception('Unexpected response type: ${responseBody.runtimeType}');
+        throw Exception(
+            'Unexpected response type: ${responseBody.runtimeType}');
       }
 
       await for (final chunk in stream) {

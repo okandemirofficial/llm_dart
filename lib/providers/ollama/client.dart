@@ -45,9 +45,9 @@ class OllamaClient {
     try {
       logger.fine('Ollama request payload: ${jsonEncode(data)}');
       final response = await dio.post(endpoint, data: data);
-      
+
       logger.fine('Ollama HTTP status: ${response.statusCode}');
-      
+
       if (response.statusCode != 200) {
         throw DioException(
           requestOptions: response.requestOptions,
@@ -55,7 +55,7 @@ class OllamaClient {
           message: 'Ollama API returned status ${response.statusCode}',
         );
       }
-      
+
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       logger.severe('HTTP request failed: ${e.message}');
@@ -68,9 +68,9 @@ class OllamaClient {
     try {
       logger.fine('Ollama request: GET $endpoint');
       final response = await dio.get(endpoint);
-      
+
       logger.fine('Ollama HTTP status: ${response.statusCode}');
-      
+
       if (response.statusCode != 200) {
         throw DioException(
           requestOptions: response.requestOptions,
@@ -78,7 +78,7 @@ class OllamaClient {
           message: 'Ollama API returned status ${response.statusCode}',
         );
       }
-      
+
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       logger.severe('HTTP request failed: ${e.message}');
@@ -93,7 +93,7 @@ class OllamaClient {
   ) async* {
     try {
       logger.fine('Ollama streaming request payload: ${jsonEncode(data)}');
-      
+
       final response = await dio.post(
         endpoint,
         data: data,
@@ -119,7 +119,8 @@ class OllamaClient {
       } else if (responseBody is ResponseBody) {
         stream = responseBody.stream;
       } else {
-        throw Exception('Unexpected response type: ${responseBody.runtimeType}');
+        throw Exception(
+            'Unexpected response type: ${responseBody.runtimeType}');
       }
 
       await for (final chunk in stream) {

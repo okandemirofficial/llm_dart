@@ -23,7 +23,7 @@
 /// final response = await provider.chat([
 ///   ChatMessage.user('How do I implement a binary search in Dart?')
 /// ]);
-/// 
+///
 /// // Use streaming for real-time code generation
 /// await for (final event in provider.chatStream([
 ///   ChatMessage.user('Write a Flutter widget for a todo list')
@@ -72,7 +72,8 @@ PhindProvider createPhindCodeProvider({
   String model = 'Phind-70B',
   double? temperature = 0.1, // Lower temperature for more deterministic code
   int? maxTokens = 4000,
-  String? systemPrompt = 'You are an expert programmer. Provide clear, well-commented code solutions.',
+  String? systemPrompt =
+      'You are an expert programmer. Provide clear, well-commented code solutions.',
 }) {
   final config = PhindConfig(
     apiKey: apiKey,
@@ -91,7 +92,8 @@ PhindProvider createPhindExplainerProvider({
   String model = 'Phind-70B',
   double? temperature = 0.3,
   int? maxTokens = 2000,
-  String? systemPrompt = 'You are a coding tutor. Explain code concepts clearly and provide examples.',
+  String? systemPrompt =
+      'You are a coding tutor. Explain code concepts clearly and provide examples.',
 }) {
   final config = PhindConfig(
     apiKey: apiKey,

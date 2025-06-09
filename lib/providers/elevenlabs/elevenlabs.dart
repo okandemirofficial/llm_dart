@@ -25,12 +25,12 @@
 ///   text: 'Hello, world!',
 ///   voice: 'JBFqnCBsd6RMkjVDRZzb',
 /// ));
-/// 
+///
 /// // Speech-to-text
 /// final sttResponse = await provider.speechToText(STTRequest.fromFile(
 ///   'path/to/audio.wav',
 /// ));
-/// 
+///
 /// // Get available voices
 /// final voices = await provider.getVoices();
 /// for (final voice in voices) {
