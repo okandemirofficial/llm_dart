@@ -100,12 +100,6 @@ class LLMBuilder {
     return this;
   }
 
-  /// Enables or disables streaming responses
-  LLMBuilder stream(bool enable) {
-    _config = _config.copyWith(stream: enable);
-    return this;
-  }
-
   /// Sets the top-p (nucleus) sampling parameter
   LLMBuilder topP(double topP) {
     _config = _config.copyWith(topP: topP);

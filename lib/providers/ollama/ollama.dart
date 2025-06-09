@@ -70,7 +70,6 @@ OllamaProvider createOllamaProvider({
     temperature: temperature,
     systemPrompt: systemPrompt,
     timeout: timeout,
-    stream: stream ?? false,
     topP: topP,
     topK: topK,
     tools: tools,

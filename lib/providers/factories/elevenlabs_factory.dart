@@ -1,14 +1,16 @@
 import '../../core/chat_provider.dart';
 import '../../core/config.dart';
-import '../../core/registry.dart';
 import '../elevenlabs/elevenlabs.dart';
+import 'base_factory.dart';
 
 /// Factory for creating ElevenLabs provider instances
 ///
 /// Note: ElevenLabs is primarily a TTS/STT service and does not support chat functionality.
 /// This factory creates ElevenLabsProvider instances for voice synthesis and recognition.
-class ElevenLabsProviderFactory
-    implements LLMProviderFactory<ElevenLabsProvider> {
+///
+/// Since ElevenLabsProvider doesn't implement ChatCapability, we use a wrapper approach
+/// or return the provider directly for audio-specific use cases.
+class ElevenLabsProviderFactory extends BaseProviderFactory<ChatCapability> {
   @override
   String get providerId => 'elevenlabs';
 
@@ -26,23 +28,24 @@ class ElevenLabsProviderFactory
       };
 
   @override
-  ElevenLabsProvider create(LLMConfig config) {
-    final elevenLabsConfig = _transformConfig(config);
-    return ElevenLabsProvider(elevenLabsConfig);
-  }
-
-  @override
-  bool validateConfig(LLMConfig config) {
-    // ElevenLabs requires an API key
-    return config.apiKey != null && config.apiKey!.isNotEmpty;
-  }
-
-  @override
-  LLMConfig getDefaultConfig() {
-    return LLMConfig(
-      baseUrl: 'https://api.elevenlabs.io/v1/',
-      model: 'eleven_monolingual_v1',
+  ChatCapability create(LLMConfig config) {
+    return createProviderSafely<ElevenLabsConfig>(
+      config,
+      () => _transformConfig(config),
+      (elevenLabsConfig) {
+        final provider = ElevenLabsProvider(elevenLabsConfig);
+        // Return the provider - it should implement the necessary interfaces
+        return provider as ChatCapability;
+      },
     );
+  }
+
+  @override
+  Map<String, dynamic> getProviderDefaults() {
+    return {
+      'baseUrl': 'https://api.elevenlabs.io/v1/',
+      'model': 'eleven_multilingual_v2', // Updated to better default
+    };
   }
 
   /// Transform unified config to ElevenLabs-specific config
@@ -52,12 +55,12 @@ class ElevenLabsProviderFactory
       baseUrl: config.baseUrl,
       model: config.model,
       timeout: config.timeout,
-      // ElevenLabs-specific extensions
-      voiceId: config.getExtension<String>('voiceId'),
-      stability: config.getExtension<double>('stability'),
-      similarityBoost: config.getExtension<double>('similarityBoost'),
-      style: config.getExtension<double>('style'),
-      useSpeakerBoost: config.getExtension<bool>('useSpeakerBoost'),
+      // ElevenLabs-specific extensions using base class method
+      voiceId: getExtension<String>(config, 'voiceId'),
+      stability: getExtension<double>(config, 'stability'),
+      similarityBoost: getExtension<double>(config, 'similarityBoost'),
+      style: getExtension<double>(config, 'style'),
+      useSpeakerBoost: getExtension<bool>(config, 'useSpeakerBoost'),
     );
   }
 }

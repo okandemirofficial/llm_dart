@@ -1,5 +1,6 @@
 import '../../models/tool_models.dart';
 import '../../core/config.dart';
+import '../../core/provider_defaults.dart';
 
 /// Anthropic provider configuration
 ///
@@ -24,8 +25,8 @@ class AnthropicConfig {
 
   const AnthropicConfig({
     required this.apiKey,
-    this.baseUrl = 'https://api.anthropic.com/v1/',
-    this.model = 'claude-3-5-sonnet-20241022',
+    this.baseUrl = ProviderDefaults.anthropicBaseUrl,
+    this.model = ProviderDefaults.anthropicDefaultModel,
     this.maxTokens,
     this.temperature,
     this.systemPrompt,
@@ -50,7 +51,7 @@ class AnthropicConfig {
       temperature: config.temperature,
       systemPrompt: config.systemPrompt,
       timeout: config.timeout,
-      stream: config.stream,
+
       topP: config.topP,
       topK: config.topK,
       tools: config.tools,

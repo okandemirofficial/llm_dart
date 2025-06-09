@@ -15,7 +15,6 @@ void main() async {
       .model('grok-3-mini-beta') // Use Grok-3 mini beta model
       .maxTokens(512) // Limit response length
       .temperature(0.7) // Control response randomness (0.0-1.0)
-      .stream(false) // Disable streaming responses
       .build();
 
   // Prepare conversation history with example messages

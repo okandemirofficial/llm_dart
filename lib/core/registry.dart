@@ -274,7 +274,7 @@ class LLMProviderRegistry {
   }
 
   /// Create OpenAI factory if available
-  static LLMProviderFactory? _createOpenAIFactory() {
+  static LLMProviderFactory<ChatCapability>? _createOpenAIFactory() {
     try {
       return OpenAIProviderFactory();
     } catch (e) {
@@ -284,7 +284,7 @@ class LLMProviderRegistry {
   }
 
   /// Create Anthropic factory if available
-  static LLMProviderFactory? _createAnthropicFactory() {
+  static LLMProviderFactory<ChatCapability>? _createAnthropicFactory() {
     try {
       return AnthropicProviderFactory();
     } catch (e) {
@@ -304,7 +304,7 @@ class LLMProviderRegistry {
   }
 
   /// Create Ollama factory if available
-  static LLMProviderFactory? _createOllamaFactory() {
+  static LLMProviderFactory<ChatCapability>? _createOllamaFactory() {
     try {
       return OllamaProviderFactory();
     } catch (e) {
@@ -354,7 +354,7 @@ class LLMProviderRegistry {
   }
 
   /// Create ElevenLabs factory if available (TTS/STT service)
-  static LLMProviderFactory? _createElevenLabsFactory() {
+  static LLMProviderFactory<ChatCapability>? _createElevenLabsFactory() {
     try {
       return ElevenLabsProviderFactory();
     } catch (e) {

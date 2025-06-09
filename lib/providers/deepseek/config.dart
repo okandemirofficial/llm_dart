@@ -1,5 +1,6 @@
 import '../../models/tool_models.dart';
 import '../../core/config.dart';
+import '../../core/provider_defaults.dart';
 
 /// DeepSeek provider configuration
 ///
@@ -13,7 +14,7 @@ class DeepSeekConfig {
   final double? temperature;
   final String? systemPrompt;
   final Duration? timeout;
-  final bool stream;
+
   final double? topP;
   final int? topK;
   final List<Tool>? tools;
@@ -21,13 +22,12 @@ class DeepSeekConfig {
 
   const DeepSeekConfig({
     required this.apiKey,
-    this.baseUrl = 'https://api.deepseek.com/v1/',
-    this.model = 'deepseek-chat',
+    this.baseUrl = ProviderDefaults.deepseekBaseUrl,
+    this.model = ProviderDefaults.deepseekDefaultModel,
     this.maxTokens,
     this.temperature,
     this.systemPrompt,
     this.timeout,
-    this.stream = false,
     this.topP,
     this.topK,
     this.tools,
@@ -44,7 +44,6 @@ class DeepSeekConfig {
       temperature: config.temperature,
       systemPrompt: config.systemPrompt,
       timeout: config.timeout,
-      stream: config.stream,
       topP: config.topP,
       topK: config.topK,
       tools: config.tools,
@@ -84,7 +83,6 @@ class DeepSeekConfig {
     double? temperature,
     String? systemPrompt,
     Duration? timeout,
-    bool? stream,
     double? topP,
     int? topK,
     List<Tool>? tools,
@@ -98,7 +96,6 @@ class DeepSeekConfig {
         temperature: temperature ?? this.temperature,
         systemPrompt: systemPrompt ?? this.systemPrompt,
         timeout: timeout ?? this.timeout,
-        stream: stream ?? this.stream,
         topP: topP ?? this.topP,
         topK: topK ?? this.topK,
         tools: tools ?? this.tools,

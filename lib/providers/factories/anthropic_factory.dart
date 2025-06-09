@@ -1,10 +1,11 @@
 import '../../core/chat_provider.dart';
 import '../../core/config.dart';
-import '../../core/registry.dart';
+import '../../core/provider_defaults.dart';
 import '../anthropic/anthropic.dart';
+import 'base_factory.dart';
 
 /// Factory for creating Anthropic provider instances
-class AnthropicProviderFactory implements LLMProviderFactory<ChatCapability> {
+class AnthropicProviderFactory extends BaseProviderFactory<ChatCapability> {
   @override
   String get providerId => 'anthropic';
 
@@ -26,22 +27,15 @@ class AnthropicProviderFactory implements LLMProviderFactory<ChatCapability> {
 
   @override
   ChatCapability create(LLMConfig config) {
-    final anthropicConfig = AnthropicConfig.fromLLMConfig(config);
-    return AnthropicProvider(anthropicConfig);
-  }
-
-  @override
-  bool validateConfig(LLMConfig config) {
-    // Anthropic requires an API key
-    return config.apiKey != null && config.apiKey!.isNotEmpty;
-  }
-
-  @override
-  LLMConfig getDefaultConfig() {
-    return LLMConfig(
-      baseUrl: 'https://api.anthropic.com/v1/',
-      model:
-          'claude-3-5-sonnet-20241022', // Keep current default for compatibility
+    return createProviderSafely<AnthropicConfig>(
+      config,
+      () => AnthropicConfig.fromLLMConfig(config),
+      (anthropicConfig) => AnthropicProvider(anthropicConfig),
     );
+  }
+
+  @override
+  Map<String, dynamic> getProviderDefaults() {
+    return ProviderDefaults.getDefaults('anthropic');
   }
 }

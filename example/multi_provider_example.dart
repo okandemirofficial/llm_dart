@@ -91,7 +91,6 @@ void main() async {
         .apiKey(Platform.environment['OPENAI_API_KEY'] ?? 'sk-test')
         .model('gpt-4')
         .temperature(0.7)
-        .stream(true) // Enable streaming
         .build();
 
     // All ChatCapability providers support streaming

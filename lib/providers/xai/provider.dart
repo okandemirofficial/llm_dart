@@ -88,7 +88,6 @@ class XAIProvider implements ChatCapability, EmbeddingCapability {
       temperature: temperature,
       systemPrompt: systemPrompt,
       timeout: timeout,
-      stream: stream,
       topP: topP,
       topK: topK,
       tools: tools,

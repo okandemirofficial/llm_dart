@@ -1,10 +1,11 @@
 import '../../core/chat_provider.dart';
 import '../../core/config.dart';
-import '../../core/registry.dart';
+import '../../core/provider_defaults.dart';
 import '../ollama/ollama.dart';
+import 'base_factory.dart';
 
 /// Factory for creating Ollama provider instances
-class OllamaProviderFactory implements LLMProviderFactory<ChatCapability> {
+class OllamaProviderFactory extends LocalProviderFactory<ChatCapability> {
   @override
   String get providerId => 'ollama';
 
@@ -25,22 +26,16 @@ class OllamaProviderFactory implements LLMProviderFactory<ChatCapability> {
 
   @override
   ChatCapability create(LLMConfig config) {
-    final ollamaConfig = _transformConfig(config);
-    return OllamaProvider(ollamaConfig);
-  }
-
-  @override
-  bool validateConfig(LLMConfig config) {
-    // Ollama doesn't require an API key, but needs a model
-    return config.model.isNotEmpty;
-  }
-
-  @override
-  LLMConfig getDefaultConfig() {
-    return LLMConfig(
-      baseUrl: 'http://localhost:11434',
-      model: 'llama3.1',
+    return createProviderSafely<OllamaConfig>(
+      config,
+      () => _transformConfig(config),
+      (ollamaConfig) => OllamaProvider(ollamaConfig),
     );
+  }
+
+  @override
+  Map<String, dynamic> getProviderDefaults() {
+    return ProviderDefaults.getDefaults('ollama');
   }
 
   /// Transform unified config to Ollama-specific config
@@ -53,12 +48,11 @@ class OllamaProviderFactory implements LLMProviderFactory<ChatCapability> {
       temperature: config.temperature,
       systemPrompt: config.systemPrompt,
       timeout: config.timeout,
-      stream: config.stream,
       topP: config.topP,
       topK: config.topK,
       tools: config.tools,
-      // Ollama-specific extensions
-      jsonSchema: config.getExtension('jsonSchema'),
+      // Ollama-specific extensions using safe access
+      jsonSchema: getExtension(config, 'jsonSchema'),
     );
   }
 }

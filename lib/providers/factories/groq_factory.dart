@@ -37,7 +37,6 @@ class GroqProviderFactory implements LLMProviderFactory<ChatCapability> {
       temperature: config.temperature,
       systemPrompt: config.systemPrompt,
       timeout: config.timeout,
-      stream: config.stream,
       topP: config.topP,
       topK: config.topK,
       tools: config.tools,

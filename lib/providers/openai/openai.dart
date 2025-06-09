@@ -24,6 +24,7 @@
 /// final audio = await provider.speech('Hello world');
 /// ```
 
+import '../../core/provider_defaults.dart';
 import 'config.dart';
 import 'provider.dart';
 
@@ -46,8 +47,8 @@ export 'completion.dart';
 /// Create an OpenAI provider with default settings
 OpenAIProvider createOpenAIProvider({
   required String apiKey,
-  String model = 'gpt-4',
-  String baseUrl = 'https://api.openai.com/v1/',
+  String model = ProviderDefaults.openaiDefaultModel,
+  String baseUrl = ProviderDefaults.openaiBaseUrl,
   double? temperature,
   int? maxTokens,
   String? systemPrompt,
@@ -67,7 +68,7 @@ OpenAIProvider createOpenAIProvider({
 /// Create an OpenAI provider for OpenRouter
 OpenAIProvider createOpenRouterProvider({
   required String apiKey,
-  String model = 'openai/gpt-4',
+  String model = ProviderDefaults.openRouterDefaultModel,
   double? temperature,
   int? maxTokens,
   String? systemPrompt,
@@ -75,7 +76,7 @@ OpenAIProvider createOpenRouterProvider({
   final config = OpenAIConfig(
     apiKey: apiKey,
     model: model,
-    baseUrl: 'https://openrouter.ai/api/v1/',
+    baseUrl: ProviderDefaults.openRouterBaseUrl,
     temperature: temperature,
     maxTokens: maxTokens,
     systemPrompt: systemPrompt,
@@ -87,7 +88,7 @@ OpenAIProvider createOpenRouterProvider({
 /// Create an OpenAI provider for Groq
 OpenAIProvider createGroqProvider({
   required String apiKey,
-  String model = 'llama-3.1-70b-versatile',
+  String model = ProviderDefaults.groqDefaultModel,
   double? temperature,
   int? maxTokens,
   String? systemPrompt,
@@ -95,7 +96,7 @@ OpenAIProvider createGroqProvider({
   final config = OpenAIConfig(
     apiKey: apiKey,
     model: model,
-    baseUrl: 'https://api.groq.com/openai/v1/',
+    baseUrl: ProviderDefaults.groqBaseUrl,
     temperature: temperature,
     maxTokens: maxTokens,
     systemPrompt: systemPrompt,
@@ -107,7 +108,7 @@ OpenAIProvider createGroqProvider({
 /// Create an OpenAI provider for DeepSeek
 OpenAIProvider createDeepSeekProvider({
   required String apiKey,
-  String model = 'deepseek-chat',
+  String model = ProviderDefaults.deepseekDefaultModel,
   double? temperature,
   int? maxTokens,
   String? systemPrompt,
@@ -115,7 +116,7 @@ OpenAIProvider createDeepSeekProvider({
   final config = OpenAIConfig(
     apiKey: apiKey,
     model: model,
-    baseUrl: 'https://api.deepseek.com/v1/',
+    baseUrl: ProviderDefaults.deepseekBaseUrl,
     temperature: temperature,
     maxTokens: maxTokens,
     systemPrompt: systemPrompt,
@@ -149,7 +150,7 @@ OpenAIProvider createAzureOpenAIProvider({
 /// Create an OpenAI provider for GitHub Copilot
 OpenAIProvider createCopilotProvider({
   required String apiKey,
-  String model = 'gpt-4',
+  String model = ProviderDefaults.githubCopilotDefaultModel,
   double? temperature,
   int? maxTokens,
   String? systemPrompt,
@@ -157,7 +158,7 @@ OpenAIProvider createCopilotProvider({
   final config = OpenAIConfig(
     apiKey: apiKey,
     model: model,
-    baseUrl: 'https://api.githubcopilot.com/chat/completions',
+    baseUrl: ProviderDefaults.githubCopilotBaseUrl,
     temperature: temperature,
     maxTokens: maxTokens,
     systemPrompt: systemPrompt,
@@ -169,7 +170,7 @@ OpenAIProvider createCopilotProvider({
 /// Create an OpenAI provider for Together AI
 OpenAIProvider createTogetherProvider({
   required String apiKey,
-  String model = 'meta-llama/Llama-3-70b-chat-hf',
+  String model = ProviderDefaults.togetherAIDefaultModel,
   double? temperature,
   int? maxTokens,
   String? systemPrompt,
@@ -177,7 +178,7 @@ OpenAIProvider createTogetherProvider({
   final config = OpenAIConfig(
     apiKey: apiKey,
     model: model,
-    baseUrl: 'https://api.together.xyz/v1/',
+    baseUrl: ProviderDefaults.togetherAIBaseUrl,
     temperature: temperature,
     maxTokens: maxTokens,
     systemPrompt: systemPrompt,

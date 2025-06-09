@@ -1,12 +1,14 @@
 import '../../core/chat_provider.dart';
 import '../../core/config.dart';
-import '../../core/registry.dart';
+import '../../core/provider_defaults.dart';
 import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
 import '../openai/openai.dart';
+import 'base_factory.dart';
 
 /// Factory for creating OpenAI provider instances
-class OpenAIProviderFactory implements LLMProviderFactory<ChatCapability> {
+class OpenAIProviderFactory
+    extends OpenAICompatibleBaseFactory<ChatCapability> {
   @override
   String get providerId => 'openai';
 
@@ -33,8 +35,16 @@ class OpenAIProviderFactory implements LLMProviderFactory<ChatCapability> {
 
   @override
   ChatCapability create(LLMConfig config) {
-    final openaiConfig = _transformConfig(config);
-    return OpenAIProvider(openaiConfig);
+    return createProviderSafely<OpenAIConfig>(
+      config,
+      () => _transformConfig(config),
+      (openaiConfig) => OpenAIProvider(openaiConfig),
+    );
+  }
+
+  @override
+  Map<String, dynamic> getProviderDefaults() {
+    return ProviderDefaults.getDefaults('openai');
   }
 
   /// Transform unified config to OpenAI-specific config
@@ -47,33 +57,18 @@ class OpenAIProviderFactory implements LLMProviderFactory<ChatCapability> {
       temperature: config.temperature,
       systemPrompt: config.systemPrompt,
       timeout: config.timeout,
-      stream: config.stream,
       topP: config.topP,
       topK: config.topK,
       tools: config.tools,
       toolChoice: config.toolChoice,
-      // OpenAI-specific extensions
+      // OpenAI-specific extensions using helper method
       reasoningEffort: ReasoningEffort.fromString(
-          config.getExtension<String>('reasoningEffort')),
-      jsonSchema: config.getExtension<StructuredOutputFormat>('jsonSchema'),
-      voice: config.getExtension<String>('voice'),
+          getExtension<String>(config, 'reasoningEffort')),
+      jsonSchema: getExtension<StructuredOutputFormat>(config, 'jsonSchema'),
+      voice: getExtension<String>(config, 'voice'),
       embeddingEncodingFormat:
-          config.getExtension<String>('embeddingEncodingFormat'),
-      embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
-    );
-  }
-
-  @override
-  bool validateConfig(LLMConfig config) {
-    // OpenAI requires an API key
-    return config.apiKey != null && config.apiKey!.isNotEmpty;
-  }
-
-  @override
-  LLMConfig getDefaultConfig() {
-    return LLMConfig(
-      baseUrl: 'https://api.openai.com/v1/',
-      model: 'gpt-3.5-turbo',
+          getExtension<String>(config, 'embeddingEncodingFormat'),
+      embeddingDimensions: getExtension<int>(config, 'embeddingDimensions'),
     );
   }
 }

@@ -1,5 +1,6 @@
 import '../../core/chat_provider.dart';
 import '../../core/config.dart';
+import '../../core/provider_defaults.dart';
 import '../../core/registry.dart';
 import '../deepseek/deepseek.dart';
 
@@ -37,9 +38,10 @@ class DeepSeekProviderFactory implements LLMProviderFactory<ChatCapability> {
 
   @override
   LLMConfig getDefaultConfig() {
+    final defaults = ProviderDefaults.getDefaults('deepseek');
     return LLMConfig(
-      baseUrl: 'https://api.deepseek.com/v1/',
-      model: 'deepseek-chat',
+      baseUrl: defaults['baseUrl'] as String,
+      model: defaults['model'] as String,
     );
   }
 
@@ -53,7 +55,6 @@ class DeepSeekProviderFactory implements LLMProviderFactory<ChatCapability> {
       temperature: config.temperature,
       systemPrompt: config.systemPrompt,
       timeout: config.timeout,
-      stream: config.stream,
       topP: config.topP,
       topK: config.topK,
       tools: config.tools,

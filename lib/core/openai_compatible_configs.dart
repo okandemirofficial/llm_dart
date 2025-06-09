@@ -1,6 +1,7 @@
 import 'chat_provider.dart';
 import 'config.dart';
 import 'google_openai_transformers.dart';
+import 'provider_defaults.dart';
 
 /// Pre-configured OpenAI-compatible provider configurations
 ///
@@ -14,8 +15,8 @@ class OpenAICompatibleConfigs {
     providerId: 'deepseek-openai',
     displayName: 'DeepSeek (OpenAI-compatible)',
     description: 'DeepSeek AI models using OpenAI-compatible interface',
-    defaultBaseUrl: 'https://api.deepseek.com/v1/',
-    defaultModel: 'deepseek-chat',
+    defaultBaseUrl: ProviderDefaults.deepseekBaseUrl,
+    defaultModel: ProviderDefaults.deepseekDefaultModel,
     supportedCapabilities: {
       LLMCapability.chat,
       LLMCapability.streaming,
@@ -95,8 +96,8 @@ class OpenAICompatibleConfigs {
     providerId: 'xai-openai',
     displayName: 'xAI Grok (OpenAI-compatible)',
     description: 'xAI Grok models using OpenAI-compatible interface',
-    defaultBaseUrl: 'https://api.x.ai/v1/',
-    defaultModel: 'grok-2-latest',
+    defaultBaseUrl: ProviderDefaults.xaiBaseUrl,
+    defaultModel: ProviderDefaults.xaiDefaultModel,
     supportedCapabilities: {
       LLMCapability.chat,
       LLMCapability.streaming,
@@ -128,8 +129,8 @@ class OpenAICompatibleConfigs {
     displayName: 'Groq (OpenAI-compatible)',
     description:
         'Groq AI models using OpenAI-compatible interface for ultra-fast inference',
-    defaultBaseUrl: 'https://api.groq.com/openai/v1/',
-    defaultModel: 'llama-3.3-70b-versatile',
+    defaultBaseUrl: ProviderDefaults.groqBaseUrl,
+    defaultModel: ProviderDefaults.groqDefaultModel,
     supportedCapabilities: {
       LLMCapability.chat,
       LLMCapability.streaming,
@@ -159,8 +160,8 @@ class OpenAICompatibleConfigs {
     providerId: 'phind-openai',
     displayName: 'Phind (OpenAI-compatible)',
     description: 'Phind AI models using OpenAI-compatible interface',
-    defaultBaseUrl: 'https://https://api.phind.com/v1/',
-    defaultModel: 'Phind-70B',
+    defaultBaseUrl: ProviderDefaults.phindBaseUrl,
+    defaultModel: ProviderDefaults.phindDefaultModel,
     supportedCapabilities: {
       LLMCapability.chat,
       LLMCapability.streaming,

@@ -89,7 +89,7 @@ Future<void> streamingReasoningExample() async {
         .model('deepseek-reasoner') // Use DeepSeek-R1 reasoning model
         .maxTokens(2000) // Limit response length
         .timeout(const Duration(seconds: 300)) // Set timeout for reasoning
-        .stream(true) // Enable streaming to see thinking process
+        // Streaming is controlled by using chatStream() to see thinking process
         .build();
 
     // Create a simple reasoning task that demonstrates thinking
@@ -169,7 +169,7 @@ Future<void> nonStreamingReasoningExample() async {
         .model('deepseek-reasoner') // Use DeepSeek-R1 reasoning model
         .maxTokens(2000) // Limit response length
         .timeout(const Duration(seconds: 300)) // Set timeout for reasoning
-        .stream(false) // Disable streaming for complete response
+        // Using chat() method for complete response (non-streaming)
         .build();
 
     // Create a simple reasoning task that demonstrates thinking
@@ -231,7 +231,7 @@ Future<void> openaiCompatibleExample() async {
         .model('deepseek-reasoner') // Use DeepSeek-R1 reasoning model
         .maxTokens(1500) // Limit response length
         .timeout(const Duration(seconds: 300)) // Set timeout
-        .stream(false) // Non-streaming for this example
+        // Using chat() method for non-streaming response
         .build();
 
     // Create a simple reasoning task

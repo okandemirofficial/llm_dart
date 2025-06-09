@@ -27,9 +27,6 @@ class LLMConfig {
   /// Request timeout duration
   final Duration? timeout;
 
-  /// Whether to enable streaming responses by default
-  final bool stream;
-
   /// Top-p (nucleus) sampling parameter
   final double? topP;
 
@@ -59,7 +56,6 @@ class LLMConfig {
     this.temperature,
     this.systemPrompt,
     this.timeout,
-    this.stream = false,
     this.topP,
     this.topK,
     this.tools,
@@ -83,7 +79,6 @@ class LLMConfig {
       temperature: temperature,
       systemPrompt: systemPrompt,
       timeout: timeout,
-      stream: stream,
       topP: topP,
       topK: topK,
       tools: tools,
@@ -106,7 +101,6 @@ class LLMConfig {
     double? temperature,
     String? systemPrompt,
     Duration? timeout,
-    bool? stream,
     double? topP,
     int? topK,
     List<Tool>? tools,
@@ -121,7 +115,6 @@ class LLMConfig {
       temperature: temperature ?? this.temperature,
       systemPrompt: systemPrompt ?? this.systemPrompt,
       timeout: timeout ?? this.timeout,
-      stream: stream ?? this.stream,
       topP: topP ?? this.topP,
       topK: topK ?? this.topK,
       tools: tools ?? this.tools,
@@ -139,7 +132,6 @@ class LLMConfig {
         if (temperature != null) 'temperature': temperature,
         if (systemPrompt != null) 'systemPrompt': systemPrompt,
         if (timeout != null) 'timeout': timeout!.inMilliseconds,
-        'stream': stream,
         if (topP != null) 'topP': topP,
         if (topK != null) 'topK': topK,
         if (tools != null) 'tools': tools!.map((t) => t.toJson()).toList(),
@@ -158,7 +150,6 @@ class LLMConfig {
         timeout: json['timeout'] != null
             ? Duration(milliseconds: json['timeout'] as int)
             : null,
-        stream: json['stream'] as bool? ?? false,
         topP: json['topP'] as double?,
         topK: json['topK'] as int?,
         tools: json['tools'] != null
@@ -205,7 +196,6 @@ class LLMConfig {
           temperature == other.temperature &&
           systemPrompt == other.systemPrompt &&
           timeout == other.timeout &&
-          stream == other.stream &&
           topP == other.topP &&
           topK == other.topK &&
           _listEquals(tools, other.tools) &&
@@ -221,7 +211,6 @@ class LLMConfig {
         temperature,
         systemPrompt,
         timeout,
-        stream,
         topP,
         topK,
         tools,

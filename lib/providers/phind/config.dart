@@ -13,7 +13,7 @@ class PhindConfig {
   final double? temperature;
   final String? systemPrompt;
   final Duration? timeout;
-  final bool stream;
+
   final double? topP;
   final int? topK;
   final List<Tool>? tools;
@@ -27,7 +27,6 @@ class PhindConfig {
     this.temperature,
     this.systemPrompt,
     this.timeout,
-    this.stream = false,
     this.topP,
     this.topK,
     this.tools,
@@ -44,7 +43,6 @@ class PhindConfig {
       temperature: config.temperature,
       systemPrompt: config.systemPrompt,
       timeout: config.timeout,
-      stream: config.stream,
       topP: config.topP,
       topK: config.topK,
       tools: config.tools,
@@ -90,7 +88,6 @@ class PhindConfig {
     double? temperature,
     String? systemPrompt,
     Duration? timeout,
-    bool? stream,
     double? topP,
     int? topK,
     List<Tool>? tools,
@@ -104,7 +101,6 @@ class PhindConfig {
         temperature: temperature ?? this.temperature,
         systemPrompt: systemPrompt ?? this.systemPrompt,
         timeout: timeout ?? this.timeout,
-        stream: stream ?? this.stream,
         topP: topP ?? this.topP,
         topK: topK ?? this.topK,
         tools: tools ?? this.tools,

@@ -14,7 +14,7 @@ void main() async {
       .model('gpt-4') // Use GPT-4 model
       .maxTokens(512) // Limit response length
       .temperature(0.7) // Control response randomness (0.0-1.0)
-      .stream(true) // Enable streaming responses
+      // Streaming is now controlled by using chatStream() instead of chat()
       .systemPrompt(
         'You are a helpful assistant that explains concepts clearly.',
       )

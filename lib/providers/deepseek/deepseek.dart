@@ -54,7 +54,6 @@ DeepSeekProvider createDeepSeekProvider({
     temperature: temperature,
     systemPrompt: systemPrompt,
     timeout: timeout,
-    stream: stream ?? false,
     topP: topP,
     topK: topK,
   );

@@ -96,8 +96,6 @@ Future<ChatCapability> createProvider({
   if (topP != null) builder = builder.topP(topP);
   if (topK != null) builder = builder.topK(topK);
 
-  builder = builder.stream(stream);
-
   // Add extensions if provided
   if (extensions != null) {
     for (final entry in extensions.entries) {

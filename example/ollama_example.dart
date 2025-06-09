@@ -16,7 +16,6 @@ void main() async {
       .model('llama3.2:latest')
       .maxTokens(1000) // Set maximum response length
       .temperature(0.7) // Control response randomness (0.0-1.0)
-      .stream(false) // Disable streaming responses
       .build();
 
   // Prepare conversation history with example messages

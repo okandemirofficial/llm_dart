@@ -42,8 +42,8 @@ class GoogleRequestBodyTransformer implements RequestBodyTransformer {
       // Include thoughts in response (for getting thinking summaries)
       if (includeThoughts != null) {
         thinkingConfig['includeThoughts'] = includeThoughts;
-      } else if (reasoning || config.stream) {
-        // Auto-enable for reasoning or streaming
+      } else if (reasoning) {
+        // Auto-enable for reasoning
         thinkingConfig['includeThoughts'] = true;
       }
 
@@ -110,10 +110,8 @@ class GoogleHeadersTransformer implements HeadersTransformer {
       headers['X-Goog-Include-Thoughts'] = 'true';
     }
 
-    // Add streaming thinking headers if needed
-    if (config.stream && (reasoning || includeThoughts == true)) {
-      headers['X-Goog-Stream-Thoughts'] = 'true';
-    }
+    // Note: Streaming thinking headers are now handled at method call time
+    // since stream parameter has been removed from config
   }
 }
 

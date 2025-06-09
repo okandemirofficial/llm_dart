@@ -1,5 +1,6 @@
 import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
+import '../../core/provider_defaults.dart';
 
 /// OpenAI provider configuration
 ///
@@ -13,7 +14,7 @@ class OpenAIConfig {
   final double? temperature;
   final String? systemPrompt;
   final Duration? timeout;
-  final bool stream;
+
   final double? topP;
   final int? topK;
   final List<Tool>? tools;
@@ -26,13 +27,12 @@ class OpenAIConfig {
 
   const OpenAIConfig({
     required this.apiKey,
-    this.baseUrl = 'https://api.openai.com/v1/',
-    this.model = 'gpt-3.5-turbo',
+    this.baseUrl = ProviderDefaults.openaiBaseUrl,
+    this.model = ProviderDefaults.openaiDefaultModel,
     this.maxTokens,
     this.temperature,
     this.systemPrompt,
     this.timeout,
-    this.stream = false,
     this.topP,
     this.topK,
     this.tools,
@@ -52,7 +52,6 @@ class OpenAIConfig {
     double? temperature,
     String? systemPrompt,
     Duration? timeout,
-    bool? stream,
     double? topP,
     int? topK,
     List<Tool>? tools,
@@ -71,7 +70,6 @@ class OpenAIConfig {
         temperature: temperature ?? this.temperature,
         systemPrompt: systemPrompt ?? this.systemPrompt,
         timeout: timeout ?? this.timeout,
-        stream: stream ?? this.stream,
         topP: topP ?? this.topP,
         topK: topK ?? this.topK,
         tools: tools ?? this.tools,
@@ -105,7 +103,6 @@ class OpenAIConfig {
         other.temperature == temperature &&
         other.systemPrompt == systemPrompt &&
         other.timeout == timeout &&
-        other.stream == stream &&
         other.topP == topP &&
         other.topK == topK &&
         other.tools == tools &&
@@ -127,7 +124,6 @@ class OpenAIConfig {
       temperature,
       systemPrompt,
       timeout,
-      stream,
       topP,
       topK,
       tools,

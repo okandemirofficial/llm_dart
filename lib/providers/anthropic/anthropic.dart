@@ -22,6 +22,7 @@
 /// final response = await provider.chat(messages);
 /// ```
 
+import '../../core/provider_defaults.dart';
 import 'config.dart';
 import 'provider.dart';
 
@@ -51,8 +52,8 @@ AnthropicProvider createAnthropicProvider({
 }) {
   final config = AnthropicConfig(
     apiKey: apiKey,
-    model: model ?? 'claude-3-5-sonnet-20241022',
-    baseUrl: baseUrl ?? 'https://api.anthropic.com/v1/',
+    model: model ?? ProviderDefaults.anthropicDefaultModel,
+    baseUrl: baseUrl ?? ProviderDefaults.anthropicBaseUrl,
     maxTokens: maxTokens,
     temperature: temperature,
     systemPrompt: systemPrompt,
