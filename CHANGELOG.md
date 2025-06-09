@@ -10,15 +10,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **OpenAI Provider**: Replaced with new modular implementation
+  - Renamed `ModularOpenAIProvider` to `OpenAIProvider` (now the default)
+  - Replaced old monolithic `OpenAIProvider` with modular architecture
   - Better maintainability and testing capabilities
   - Improved error handling and type safety
   - Full backward compatibility maintained
   - All existing APIs continue to work unchanged
 
-### Added
+### Removed
 
-- **Modular OpenAI Example**: Comprehensive example demonstrating all OpenAI capabilities
-- **Enhanced Documentation**: Added guides for the new OpenAI provider architecture
+- **OpenAI Compatible Provider**: Removed `OpenAICompatibleProvider` class
+  - Functionality replaced by convenience functions in modular implementation
+  - `createDeepSeekProvider()`, `createGroqProvider()`, etc. provide same functionality
+  - Simplified architecture with better performance
+
+### Migration Guide
+
+- **OpenAI Provider**: No code changes required for basic usage
+  - All existing `OpenAIProvider` usage continues to work
+  - Configuration classes renamed: `ModularOpenAIConfig` → `OpenAIConfig`
+  - Factory classes updated to use full configuration support
 
 ## [0.1.2] - 2025-6-8
 
