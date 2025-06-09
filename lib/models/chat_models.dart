@@ -48,6 +48,12 @@ class FileMime {
 
   const FileMime(this.mimeType);
 
+  // Image types
+  static const png = FileMime('image/png');
+  static const jpeg = FileMime('image/jpeg');
+  static const gif = FileMime('image/gif');
+  static const webp = FileMime('image/webp');
+
   // Common document types
   static const pdf = FileMime('application/pdf');
   static const docx = FileMime(

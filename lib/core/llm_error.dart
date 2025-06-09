@@ -59,6 +59,14 @@ class GenericError extends LLMError {
   String toString() => 'Generic Error: $message';
 }
 
+/// Timeout error for request timeouts
+class TimeoutError extends LLMError {
+  const TimeoutError(super.message);
+
+  @override
+  String toString() => 'Timeout Error: $message';
+}
+
 /// Resource not found error (404)
 class NotFoundError extends LLMError {
   const NotFoundError(super.message);
