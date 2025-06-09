@@ -21,6 +21,7 @@ A comprehensive collection of examples for the LLM Dart library, reorganized by 
 | **Code Assistant** | [05_use_cases/code_assistant.dart](05_use_cases/code_assistant.dart) |
 | **Voice Assistant** | [05_use_cases/voice_assistant.dart](05_use_cases/voice_assistant.dart) |
 | **Flutter Integration** | [06_integration/flutter_app.dart](06_integration/flutter_app.dart) |
+| **MCP Integration** | [07_mcp_integration/mcp_concept_demo.dart](07_mcp_integration/mcp_concept_demo.dart) |
 
 ## 📁 Directory Structure
 
@@ -76,6 +77,16 @@ A comprehensive collection of examples for the LLM Dart library, reorganized by 
 - **[web_service.dart](06_integration/web_service.dart)** - Web service integration
 - **[cli_tool.dart](06_integration/cli_tool.dart)** - Command-line tool development
 - **[batch_processing.dart](06_integration/batch_processing.dart)** - Batch processing tasks
+
+### 🔗 MCP Integration ✅ **FULLY TESTED**
+**For: Users who want to connect LLMs with external tools via Model Context Protocol**
+
+- **[mcp_concept_demo.dart](07_mcp_integration/mcp_concept_demo.dart)** - 🎯 **START HERE** - Core MCP concepts
+- **[simple_mcp_demo.dart](07_mcp_integration/simple_mcp_demo.dart)** - Working MCP + LLM integration example
+- **[test_all_examples.dart](07_mcp_integration/test_all_examples.dart)** - 🧪 **ONE-CLICK TEST** - Test all examples
+- **[basic_mcp_client.dart](07_mcp_integration/basic_mcp_client.dart)** - Basic MCP client connection
+- **[custom_mcp_server.dart](07_mcp_integration/custom_mcp_server.dart)** - Custom MCP server implementation
+- **[mcp_tool_bridge.dart](07_mcp_integration/mcp_tool_bridge.dart)** - Bridge between MCP and llm_dart tools
 
 ## 🎯 Feature Support Matrix
 
