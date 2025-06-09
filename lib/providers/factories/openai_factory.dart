@@ -3,7 +3,7 @@ import '../../core/config.dart';
 import '../../core/registry.dart';
 import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
-import '../openai_provider.dart';
+import '../openai/openai.dart';
 
 /// Factory for creating OpenAI provider instances
 class OpenAIProviderFactory implements LLMProviderFactory<ChatCapability> {
@@ -37,20 +37,6 @@ class OpenAIProviderFactory implements LLMProviderFactory<ChatCapability> {
     return OpenAIProvider(openaiConfig);
   }
 
-  @override
-  bool validateConfig(LLMConfig config) {
-    // OpenAI requires an API key
-    return config.apiKey != null && config.apiKey!.isNotEmpty;
-  }
-
-  @override
-  LLMConfig getDefaultConfig() {
-    return LLMConfig(
-      baseUrl: 'https://api.openai.com/v1/',
-      model: 'gpt-3.5-turbo',
-    );
-  }
-
   /// Transform unified config to OpenAI-specific config
   OpenAIConfig _transformConfig(LLMConfig config) {
     return OpenAIConfig(
@@ -74,6 +60,20 @@ class OpenAIProviderFactory implements LLMProviderFactory<ChatCapability> {
       embeddingEncodingFormat:
           config.getExtension<String>('embeddingEncodingFormat'),
       embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
+    );
+  }
+
+  @override
+  bool validateConfig(LLMConfig config) {
+    // OpenAI requires an API key
+    return config.apiKey != null && config.apiKey!.isNotEmpty;
+  }
+
+  @override
+  LLMConfig getDefaultConfig() {
+    return LLMConfig(
+      baseUrl: 'https://api.openai.com/v1/',
+      model: 'gpt-3.5-turbo',
     );
   }
 }

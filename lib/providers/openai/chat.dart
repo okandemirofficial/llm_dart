@@ -14,7 +14,7 @@ import 'config.dart';
 /// including streaming, tool calling, and reasoning model support.
 class OpenAIChat implements ChatCapability {
   final OpenAIClient client;
-  final ModularOpenAIConfig config;
+  final OpenAIConfig config;
 
   // State tracking for stream processing
   bool _hasReasoningContent = false;

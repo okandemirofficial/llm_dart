@@ -15,7 +15,7 @@ import 'config.dart';
 /// for OpenAI providers.
 class OpenAIFiles implements FileManagementCapability {
   final OpenAIClient client;
-  final ModularOpenAIConfig config;
+  final OpenAIConfig config;
 
   OpenAIFiles(this.client, this.config);
 

@@ -9,7 +9,7 @@ import 'config.dart';
 /// Note: OpenAI has deprecated the completions endpoint in favor of chat completions.
 class OpenAICompletion implements CompletionCapability {
   final OpenAIClient client;
-  final ModularOpenAIConfig config;
+  final OpenAIConfig config;
 
   OpenAICompletion(this.client, this.config);
 

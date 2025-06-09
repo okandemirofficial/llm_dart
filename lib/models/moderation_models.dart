@@ -245,7 +245,8 @@ class ModerationResponse {
       id: json['id'] as String,
       model: json['model'] as String,
       results: (json['results'] as List)
-          .map((item) => ModerationResult.fromJson(item as Map<String, dynamic>))
+          .map(
+              (item) => ModerationResult.fromJson(item as Map<String, dynamic>))
           .toList(),
     );
   }

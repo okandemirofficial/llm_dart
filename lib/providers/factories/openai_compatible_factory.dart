@@ -4,8 +4,7 @@ import '../../core/registry.dart';
 import '../../core/openai_compatible_configs.dart';
 import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
-import '../openai_provider.dart';
-import '../openai_compatible_provider.dart';
+import '../openai/openai.dart';
 
 /// Generic factory for creating OpenAI-compatible provider instances
 ///
@@ -32,15 +31,33 @@ class OpenAICompatibleProviderFactory
   @override
   ChatCapability create(LLMConfig config) {
     final openaiConfig = _transformConfig(config);
-
-    // Use OpenAI-compatible provider if transformers are available
-    if (_config.requestBodyTransformer != null ||
-        _config.headersTransformer != null) {
-      return OpenAICompatibleProvider(openaiConfig, _config, config);
-    }
-
-    // Use standard OpenAI provider for simple cases
     return OpenAIProvider(openaiConfig);
+  }
+
+  /// Transform unified config to OpenAI-compatible config
+  OpenAIConfig _transformConfig(LLMConfig config) {
+    return OpenAIConfig(
+      apiKey: config.apiKey!,
+      baseUrl: config.baseUrl,
+      model: config.model,
+      maxTokens: config.maxTokens,
+      temperature: config.temperature,
+      systemPrompt: config.systemPrompt,
+      timeout: config.timeout,
+      stream: config.stream,
+      topP: config.topP,
+      topK: config.topK,
+      tools: config.tools,
+      toolChoice: config.toolChoice,
+      // OpenAI-compatible extensions
+      reasoningEffort: ReasoningEffort.fromString(
+          config.getExtension<String>('reasoningEffort')),
+      jsonSchema: config.getExtension<StructuredOutputFormat>('jsonSchema'),
+      voice: config.getExtension<String>('voice'),
+      embeddingEncodingFormat:
+          config.getExtension<String>('embeddingEncodingFormat'),
+      embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
+    );
   }
 
   @override
@@ -55,82 +72,6 @@ class OpenAICompatibleProviderFactory
       baseUrl: _config.defaultBaseUrl,
       model: _config.defaultModel,
     );
-  }
-
-  /// Transform unified config to OpenAI-compatible config
-  OpenAIConfig _transformConfig(LLMConfig config) {
-    // Get model-specific capabilities
-    final modelConfig = _config.modelConfigs[config.model];
-
-    // Build the OpenAI config with provider-specific optimizations
-    return OpenAIConfig(
-      apiKey: config.apiKey!,
-      baseUrl: config.baseUrl,
-      model: config.model,
-      maxTokens: _getOptimizedMaxTokens(config, modelConfig),
-      temperature: _getOptimizedTemperature(config, modelConfig),
-      systemPrompt: config.systemPrompt,
-      timeout: config.timeout,
-      stream: config.stream,
-      topP: _getOptimizedTopP(config, modelConfig),
-      topK: config.topK,
-      tools: config.tools,
-      toolChoice: config.toolChoice,
-      // OpenAI-specific extensions
-      reasoningEffort: ReasoningEffort.fromString(_getReasoningEffort(config)),
-      jsonSchema: config.getExtension<StructuredOutputFormat>('jsonSchema'),
-      voice: config.getExtension<String>('voice'),
-      embeddingEncodingFormat:
-          config.getExtension<String>('embeddingEncodingFormat'),
-      embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
-    );
-  }
-
-  /// Get optimized max tokens based on model capabilities
-  int? _getOptimizedMaxTokens(
-      LLMConfig config, ModelCapabilityConfig? modelConfig) {
-    if (config.maxTokens != null) {
-      return config.maxTokens;
-    }
-
-    // Use model's max context length as a reasonable default
-    if (modelConfig?.maxContextLength != null) {
-      // Reserve some tokens for the prompt
-      return (modelConfig!.maxContextLength! * 0.8).round();
-    }
-
-    return null;
-  }
-
-  /// Get optimized temperature based on model capabilities
-  double? _getOptimizedTemperature(
-      LLMConfig config, ModelCapabilityConfig? modelConfig) {
-    // Some reasoning models should have temperature disabled
-    if (modelConfig?.disableTemperature == true) {
-      return null;
-    }
-
-    return config.temperature;
-  }
-
-  /// Get optimized top_p based on model capabilities
-  double? _getOptimizedTopP(
-      LLMConfig config, ModelCapabilityConfig? modelConfig) {
-    // Some reasoning models should have top_p disabled
-    if (modelConfig?.disableTopP == true) {
-      return null;
-    }
-
-    return config.topP;
-  }
-
-  /// Get reasoning effort parameter if supported
-  String? _getReasoningEffort(LLMConfig config) {
-    if (!_config.supportsReasoningEffort) {
-      return null;
-    }
-
-    return config.getExtension<String>('reasoningEffort');
   }
 
   /// Create factory instances for all pre-configured providers

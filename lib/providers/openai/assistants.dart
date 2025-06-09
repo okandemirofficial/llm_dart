@@ -10,7 +10,7 @@ import 'config.dart';
 /// for OpenAI providers.
 class OpenAIAssistants implements AssistantCapability {
   final OpenAIClient client;
-  final ModularOpenAIConfig config;
+  final OpenAIConfig config;
 
   OpenAIAssistants(this.client, this.config);
 

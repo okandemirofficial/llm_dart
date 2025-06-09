@@ -3,7 +3,7 @@ import '../../core/config.dart';
 import '../../core/registry.dart';
 import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
-import '../openai_provider.dart';
+import '../openai/openai.dart';
 
 /// Factory for creating Groq provider instances using OpenAI-compatible interface
 class GroqProviderFactory implements LLMProviderFactory<ChatCapability> {
@@ -30,20 +30,6 @@ class GroqProviderFactory implements LLMProviderFactory<ChatCapability> {
     return OpenAIProvider(groqConfig);
   }
 
-  @override
-  bool validateConfig(LLMConfig config) {
-    // Groq requires an API key
-    return config.apiKey != null && config.apiKey!.isNotEmpty;
-  }
-
-  @override
-  LLMConfig getDefaultConfig() {
-    return LLMConfig(
-      baseUrl: 'https://api.groq.com/openai/v1/',
-      model: 'llama-3.1-70b-versatile',
-    );
-  }
-
   /// Transform unified config to Groq-specific OpenAI config
   OpenAIConfig _transformConfig(LLMConfig config) {
     return OpenAIConfig(
@@ -63,6 +49,20 @@ class GroqProviderFactory implements LLMProviderFactory<ChatCapability> {
       reasoningEffort: ReasoningEffort.fromString(
           config.getExtension<String>('reasoningEffort')),
       jsonSchema: config.getExtension<StructuredOutputFormat>('jsonSchema'),
+    );
+  }
+
+  @override
+  bool validateConfig(LLMConfig config) {
+    // Groq requires an API key
+    return config.apiKey != null && config.apiKey!.isNotEmpty;
+  }
+
+  @override
+  LLMConfig getDefaultConfig() {
+    return LLMConfig(
+      baseUrl: 'https://api.groq.com/openai/v1/',
+      model: 'llama-3.1-70b-versatile',
     );
   }
 }

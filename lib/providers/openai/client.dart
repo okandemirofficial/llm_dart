@@ -17,7 +17,7 @@ import 'config.dart';
 /// - SSE stream parsing
 /// - Provider-specific configurations
 class OpenAIClient {
-  final ModularOpenAIConfig config;
+  final OpenAIConfig config;
   final Logger logger = Logger('OpenAIClient');
   late final Dio dio;
 

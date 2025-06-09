@@ -3,7 +3,7 @@ import '../../core/config.dart';
 import '../../core/registry.dart';
 import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
-import '../openai_provider.dart';
+import '../openai/openai.dart';
 
 /// Factory for creating Phind provider instances using OpenAI-compatible interface
 class PhindProviderFactory implements LLMProviderFactory<ChatCapability> {
@@ -30,20 +30,6 @@ class PhindProviderFactory implements LLMProviderFactory<ChatCapability> {
     return OpenAIProvider(phindConfig);
   }
 
-  @override
-  bool validateConfig(LLMConfig config) {
-    // Phind requires an API key
-    return config.apiKey != null && config.apiKey!.isNotEmpty;
-  }
-
-  @override
-  LLMConfig getDefaultConfig() {
-    return LLMConfig(
-      baseUrl: 'https://https.extension.phind.com/agent/',
-      model: 'Phind-70B',
-    );
-  }
-
   /// Transform unified config to Phind-specific OpenAI config
   OpenAIConfig _transformConfig(LLMConfig config) {
     return OpenAIConfig(
@@ -63,6 +49,20 @@ class PhindProviderFactory implements LLMProviderFactory<ChatCapability> {
       reasoningEffort: ReasoningEffort.fromString(
           config.getExtension<String>('reasoningEffort')),
       jsonSchema: config.getExtension<StructuredOutputFormat>('jsonSchema'),
+    );
+  }
+
+  @override
+  bool validateConfig(LLMConfig config) {
+    // Phind requires an API key
+    return config.apiKey != null && config.apiKey!.isNotEmpty;
+  }
+
+  @override
+  LLMConfig getDefaultConfig() {
+    return LLMConfig(
+      baseUrl: 'https://https.extension.phind.com/agent/',
+      model: 'Phind-70B',
     );
   }
 }

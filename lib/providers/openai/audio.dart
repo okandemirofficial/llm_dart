@@ -12,7 +12,7 @@ import 'config.dart';
 /// for OpenAI providers.
 class OpenAIAudio implements TextToSpeechCapability, SpeechToTextCapability {
   final OpenAIClient client;
-  final ModularOpenAIConfig config;
+  final OpenAIConfig config;
 
   OpenAIAudio(this.client, this.config);
 

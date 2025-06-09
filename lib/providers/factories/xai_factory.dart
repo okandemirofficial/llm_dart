@@ -3,7 +3,7 @@ import '../../core/config.dart';
 import '../../core/registry.dart';
 import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
-import '../openai_provider.dart';
+import '../openai/openai.dart';
 
 /// Factory for creating XAI provider instances using OpenAI-compatible interface
 class XAIProviderFactory implements LLMProviderFactory<ChatCapability> {
@@ -30,20 +30,6 @@ class XAIProviderFactory implements LLMProviderFactory<ChatCapability> {
     return OpenAIProvider(xaiConfig);
   }
 
-  @override
-  bool validateConfig(LLMConfig config) {
-    // XAI requires an API key
-    return config.apiKey != null && config.apiKey!.isNotEmpty;
-  }
-
-  @override
-  LLMConfig getDefaultConfig() {
-    return LLMConfig(
-      baseUrl: 'https://api.x.ai/v1/',
-      model: 'grok-2-latest',
-    );
-  }
-
   /// Transform unified config to XAI-specific OpenAI config
   OpenAIConfig _transformConfig(LLMConfig config) {
     return OpenAIConfig(
@@ -67,6 +53,20 @@ class XAIProviderFactory implements LLMProviderFactory<ChatCapability> {
       embeddingEncodingFormat:
           config.getExtension<String>('embeddingEncodingFormat'),
       embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
+    );
+  }
+
+  @override
+  bool validateConfig(LLMConfig config) {
+    // XAI requires an API key
+    return config.apiKey != null && config.apiKey!.isNotEmpty;
+  }
+
+  @override
+  LLMConfig getDefaultConfig() {
+    return LLMConfig(
+      baseUrl: 'https://api.x.ai/v1/',
+      model: 'grok-2-latest',
     );
   }
 }

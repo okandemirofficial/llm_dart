@@ -211,8 +211,8 @@ class VectorStoreRequest {
     return VectorStoreRequest(
       fileIds: (json['file_ids'] as List?)?.cast<String>(),
       chunkingStrategy: json['chunking_strategy'] as Map<String, dynamic>?,
-      metadata: (json['metadata'] as Map<String, dynamic>?)
-          ?.cast<String, String>(),
+      metadata:
+          (json['metadata'] as Map<String, dynamic>?)?.cast<String, String>(),
     );
   }
 
@@ -329,8 +329,8 @@ class Assistant {
               json['tool_resources'] as Map<String, dynamic>,
             )
           : null,
-      metadata: (json['metadata'] as Map<String, dynamic>?)
-          ?.cast<String, String>(),
+      metadata:
+          (json['metadata'] as Map<String, dynamic>?)?.cast<String, String>(),
       temperature: (json['temperature'] as num?)?.toDouble(),
       topP: (json['top_p'] as num?)?.toDouble(),
       responseFormat: json['response_format'] != null

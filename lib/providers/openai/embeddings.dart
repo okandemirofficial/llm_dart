@@ -8,7 +8,7 @@ import 'config.dart';
 /// This module handles vector embedding generation for OpenAI providers.
 class OpenAIEmbeddings implements EmbeddingCapability {
   final OpenAIClient client;
-  final ModularOpenAIConfig config;
+  final OpenAIConfig config;
 
   OpenAIEmbeddings(this.client, this.config);
 

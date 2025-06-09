@@ -8,7 +8,7 @@ import 'config.dart';
 /// This module handles content moderation functionality for OpenAI providers.
 class OpenAIModeration implements ModerationCapability {
   final OpenAIClient client;
-  final ModularOpenAIConfig config;
+  final OpenAIConfig config;
 
   OpenAIModeration(this.client, this.config);
 

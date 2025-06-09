@@ -44,8 +44,8 @@ export 'moderation.dart';
 export 'assistants.dart';
 export 'completion.dart';
 
-/// Create a modular OpenAI provider with default settings
-ModularOpenAIProvider createOpenAIProvider({
+/// Create an OpenAI provider with default settings
+OpenAIProvider createOpenAIProvider({
   required String apiKey,
   String model = 'gpt-4',
   String baseUrl = 'https://api.openai.com/v1/',
@@ -53,7 +53,7 @@ ModularOpenAIProvider createOpenAIProvider({
   int? maxTokens,
   String? systemPrompt,
 }) {
-  final config = ModularOpenAIConfig(
+  final config = OpenAIConfig(
     apiKey: apiKey,
     model: model,
     baseUrl: baseUrl,
@@ -62,18 +62,18 @@ ModularOpenAIProvider createOpenAIProvider({
     systemPrompt: systemPrompt,
   );
 
-  return ModularOpenAIProvider(config);
+  return OpenAIProvider(config);
 }
 
-/// Create a modular OpenAI provider for OpenRouter
-ModularOpenAIProvider createOpenRouterProvider({
+/// Create an OpenAI provider for OpenRouter
+OpenAIProvider createOpenRouterProvider({
   required String apiKey,
   String model = 'openai/gpt-4',
   double? temperature,
   int? maxTokens,
   String? systemPrompt,
 }) {
-  final config = ModularOpenAIConfig(
+  final config = OpenAIConfig(
     apiKey: apiKey,
     model: model,
     baseUrl: 'https://openrouter.ai/api/v1/',
@@ -82,18 +82,18 @@ ModularOpenAIProvider createOpenRouterProvider({
     systemPrompt: systemPrompt,
   );
 
-  return ModularOpenAIProvider(config);
+  return OpenAIProvider(config);
 }
 
-/// Create a modular OpenAI provider for Groq
-ModularOpenAIProvider createGroqProvider({
+/// Create an OpenAI provider for Groq
+OpenAIProvider createGroqProvider({
   required String apiKey,
   String model = 'llama-3.1-70b-versatile',
   double? temperature,
   int? maxTokens,
   String? systemPrompt,
 }) {
-  final config = ModularOpenAIConfig(
+  final config = OpenAIConfig(
     apiKey: apiKey,
     model: model,
     baseUrl: 'https://api.groq.com/openai/v1/',
@@ -102,18 +102,18 @@ ModularOpenAIProvider createGroqProvider({
     systemPrompt: systemPrompt,
   );
 
-  return ModularOpenAIProvider(config);
+  return OpenAIProvider(config);
 }
 
-/// Create a modular OpenAI provider for DeepSeek
-ModularOpenAIProvider createDeepSeekProvider({
+/// Create an OpenAI provider for DeepSeek
+OpenAIProvider createDeepSeekProvider({
   required String apiKey,
   String model = 'deepseek-chat',
   double? temperature,
   int? maxTokens,
   String? systemPrompt,
 }) {
-  final config = ModularOpenAIConfig(
+  final config = OpenAIConfig(
     apiKey: apiKey,
     model: model,
     baseUrl: 'https://api.deepseek.com/v1/',
@@ -122,11 +122,11 @@ ModularOpenAIProvider createDeepSeekProvider({
     systemPrompt: systemPrompt,
   );
 
-  return ModularOpenAIProvider(config);
+  return OpenAIProvider(config);
 }
 
-/// Create a modular OpenAI provider for Azure OpenAI
-ModularOpenAIProvider createAzureOpenAIProvider({
+/// Create an OpenAI provider for Azure OpenAI
+OpenAIProvider createAzureOpenAIProvider({
   required String apiKey,
   required String endpoint,
   required String deploymentName,
@@ -135,7 +135,7 @@ ModularOpenAIProvider createAzureOpenAIProvider({
   int? maxTokens,
   String? systemPrompt,
 }) {
-  final config = ModularOpenAIConfig(
+  final config = OpenAIConfig(
     apiKey: apiKey,
     model: deploymentName,
     baseUrl: '$endpoint/openai/deployments/$deploymentName/',
@@ -144,18 +144,18 @@ ModularOpenAIProvider createAzureOpenAIProvider({
     systemPrompt: systemPrompt,
   );
 
-  return ModularOpenAIProvider(config);
+  return OpenAIProvider(config);
 }
 
-/// Create a modular OpenAI provider for GitHub Copilot
-ModularOpenAIProvider createCopilotProvider({
+/// Create an OpenAI provider for GitHub Copilot
+OpenAIProvider createCopilotProvider({
   required String apiKey,
   String model = 'gpt-4',
   double? temperature,
   int? maxTokens,
   String? systemPrompt,
 }) {
-  final config = ModularOpenAIConfig(
+  final config = OpenAIConfig(
     apiKey: apiKey,
     model: model,
     baseUrl: 'https://api.githubcopilot.com/chat/completions',
@@ -164,18 +164,18 @@ ModularOpenAIProvider createCopilotProvider({
     systemPrompt: systemPrompt,
   );
 
-  return ModularOpenAIProvider(config);
+  return OpenAIProvider(config);
 }
 
-/// Create a modular OpenAI provider for Together AI
-ModularOpenAIProvider createTogetherProvider({
+/// Create an OpenAI provider for Together AI
+OpenAIProvider createTogetherProvider({
   required String apiKey,
   String model = 'meta-llama/Llama-3-70b-chat-hf',
   double? temperature,
   int? maxTokens,
   String? systemPrompt,
 }) {
-  final config = ModularOpenAIConfig(
+  final config = OpenAIConfig(
     apiKey: apiKey,
     model: model,
     baseUrl: 'https://api.together.xyz/v1/',
@@ -184,5 +184,5 @@ ModularOpenAIProvider createTogetherProvider({
     systemPrompt: systemPrompt,
   );
 
-  return ModularOpenAIProvider(config);
+  return OpenAIProvider(config);
 }

@@ -5,16 +5,16 @@ import 'dart:typed_data';
 enum FilePurpose {
   /// For fine-tuning jobs
   fineTune('fine-tune'),
-  
+
   /// For assistants
   assistants('assistants'),
-  
+
   /// For vision tasks
   vision('vision'),
-  
+
   /// For batch processing
   batch('batch'),
-  
+
   /// For user data
   userData('user_data');
 
@@ -107,7 +107,7 @@ class OpenAIFile {
       filename: json['filename'] as String,
       object: json['object'] as String? ?? 'file',
       purpose: FilePurpose.fromString(json['purpose'] as String),
-      status: json['status'] != null 
+      status: json['status'] != null
           ? FileStatus.fromString(json['status'] as String)
           : null,
       statusDetails: json['status_details'] as String?,
@@ -251,12 +251,12 @@ class ListFilesQuery {
 
   Map<String, dynamic> toQueryParameters() {
     final params = <String, dynamic>{};
-    
+
     if (purpose != null) params['purpose'] = purpose!.value;
     if (limit != null) params['limit'] = limit;
     if (order != null) params['order'] = order;
     if (after != null) params['after'] = after;
-    
+
     return params;
   }
 }

@@ -10,7 +10,7 @@ import 'config.dart';
 /// for OpenAI providers.
 class OpenAIModels implements ModelListingCapability {
   final OpenAIClient client;
-  final ModularOpenAIConfig config;
+  final OpenAIConfig config;
 
   OpenAIModels(this.client, this.config);
 

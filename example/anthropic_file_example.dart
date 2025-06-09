@@ -67,7 +67,6 @@ void main() async {
 
     // Example 4: Error handling for unsupported files
     await errorHandlingExample(llm);
-
   } catch (e) {
     print('❌ Error: $e');
     if (e.toString().contains('401') || e.toString().contains('auth')) {
@@ -86,15 +85,14 @@ Future<void> pdfAnalysisExample(ChatCapability llm) async {
 
   // Simulate PDF content (in real usage, you'd load from file)
   print('📝 Simulating PDF analysis...');
-  print('   In real usage: final pdfBytes = await File("document.pdf").readAsBytes();');
+  print(
+      '   In real usage: final pdfBytes = await File("document.pdf").readAsBytes();');
   print('');
 
   // Create a simulated PDF message
   final messages = [
-    ChatMessage.user(
-      'I have a PDF research paper about renewable energy. '
-      'If I uploaded it, what kind of analysis could you perform?'
-    ),
+    ChatMessage.user('I have a PDF research paper about renewable energy. '
+        'If I uploaded it, what kind of analysis could you perform?'),
   ];
 
   final response = await llm.chat(messages);
@@ -113,7 +111,8 @@ Future<void> pdfAnalysisExample(ChatCapability llm) async {
   print('  ChatMessage.pdf(');
   print('    role: ChatRole.user,');
   print('    data: pdfBytes,');
-  print('    content: "Please summarize the key findings in this research paper",');
+  print(
+      '    content: "Please summarize the key findings in this research paper",');
   print('  ),');
   print('];');
   print('');
@@ -130,21 +129,21 @@ Future<void> fileTypesExample(ChatCapability llm) async {
 
   print('🎯 Anthropic Claude supports:');
   print('');
-  
+
   print('📄 Documents:');
   print('   ✅ PDF (application/pdf) - Full support up to 32MB');
   print('   ❌ Word (.docx) - Not supported');
   print('   ❌ Excel (.xlsx) - Not supported');
   print('   ❌ PowerPoint (.pptx) - Not supported');
   print('');
-  
+
   print('🖼️ Images:');
   print('   ✅ JPEG (image/jpeg) - Supported');
   print('   ✅ PNG (image/png) - Supported');
   print('   ✅ GIF (image/gif) - Supported');
   print('   ✅ WebP (image/webp) - Supported');
   print('');
-  
+
   print('🎵 Audio/Video:');
   print('   ❌ MP3, WAV, MP4 - Not supported by Anthropic');
   print('   💡 Consider using Google AI or OpenAI for audio/video');
@@ -231,12 +230,11 @@ Future<void> errorHandlingExample(ChatCapability llm) async {
 
   // Simulate trying to send an unsupported file type
   print('🧪 Testing unsupported file type...');
-  
+
   // Create a simulated Word document message (which will be rejected)
   final messages = [
     ChatMessage.user(
-      'What would happen if I tried to upload a Word document (.docx) to Claude?'
-    ),
+        'What would happen if I tried to upload a Word document (.docx) to Claude?'),
   ];
 
   final response = await llm.chat(messages);

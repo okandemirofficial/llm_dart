@@ -7,11 +7,11 @@ import 'client.dart';
 import 'config.dart';
 
 /// OpenAI Image Generation capability implementation
-/// 
+///
 /// This module handles image generation functionality for OpenAI providers.
 class OpenAIImages implements ImageGenerationCapability {
   final OpenAIClient client;
-  final ModularOpenAIConfig config;
+  final OpenAIConfig config;
 
   OpenAIImages(this.client, this.config);
 
@@ -36,8 +36,9 @@ class OpenAIImages implements ImageGenerationCapability {
       if (request.quality != null) 'quality': request.quality,
     };
 
-    final responseData = await client.postJson('images/generations', requestBody);
-    
+    final responseData =
+        await client.postJson('images/generations', requestBody);
+
     final data = responseData['data'] as List?;
     if (data == null) {
       throw const ResponseFormatError(
@@ -134,8 +135,9 @@ class OpenAIImages implements ImageGenerationCapability {
       if (promptEnhancement != null) 'prompt_enhancement': promptEnhancement,
     };
 
-    final responseData = await client.postJson('images/generations', requestBody);
-    
+    final responseData =
+        await client.postJson('images/generations', requestBody);
+
     final data = responseData['data'] as List?;
     if (data == null) {
       throw const ResponseFormatError(

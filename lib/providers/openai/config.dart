@@ -1,12 +1,11 @@
 import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
 
-/// Modular OpenAI provider configuration
+/// OpenAI provider configuration
 ///
-/// This class contains all configuration options for the new modular OpenAI providers.
+/// This class contains all configuration options for the OpenAI providers.
 /// It's extracted from the main provider to improve modularity and reusability.
-/// Note: This is separate from the existing OpenAIConfig to avoid naming conflicts.
-class ModularOpenAIConfig {
+class OpenAIConfig {
   final String apiKey;
   final String baseUrl;
   final String model;
@@ -25,7 +24,7 @@ class ModularOpenAIConfig {
   final String? embeddingEncodingFormat;
   final int? embeddingDimensions;
 
-  const ModularOpenAIConfig({
+  const OpenAIConfig({
     required this.apiKey,
     this.baseUrl = 'https://api.openai.com/v1/',
     this.model = 'gpt-3.5-turbo',
@@ -45,7 +44,7 @@ class ModularOpenAIConfig {
     this.embeddingDimensions,
   });
 
-  ModularOpenAIConfig copyWith({
+  OpenAIConfig copyWith({
     String? apiKey,
     String? baseUrl,
     String? model,
@@ -64,7 +63,7 @@ class ModularOpenAIConfig {
     String? embeddingEncodingFormat,
     int? embeddingDimensions,
   }) =>
-      ModularOpenAIConfig(
+      OpenAIConfig(
         apiKey: apiKey ?? this.apiKey,
         baseUrl: baseUrl ?? this.baseUrl,
         model: model ?? this.model,
@@ -87,7 +86,7 @@ class ModularOpenAIConfig {
 
   @override
   String toString() {
-    return 'ModularOpenAIConfig('
+    return 'OpenAIConfig('
         'model: $model, '
         'baseUrl: $baseUrl, '
         'maxTokens: $maxTokens, '
@@ -98,7 +97,7 @@ class ModularOpenAIConfig {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is ModularOpenAIConfig &&
+    return other is OpenAIConfig &&
         other.apiKey == apiKey &&
         other.baseUrl == baseUrl &&
         other.model == model &&

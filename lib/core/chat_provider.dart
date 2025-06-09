@@ -92,18 +92,18 @@ class UsageInfo {
   }
 
   Map<String, dynamic> toJson() => {
-    if (promptTokens != null) 'prompt_tokens': promptTokens,
-    if (completionTokens != null) 'completion_tokens': completionTokens,
-    if (totalTokens != null) 'total_tokens': totalTokens,
-    if (reasoningTokens != null) 'reasoning_tokens': reasoningTokens,
-  };
+        if (promptTokens != null) 'prompt_tokens': promptTokens,
+        if (completionTokens != null) 'completion_tokens': completionTokens,
+        if (totalTokens != null) 'total_tokens': totalTokens,
+        if (reasoningTokens != null) 'reasoning_tokens': reasoningTokens,
+      };
 
   factory UsageInfo.fromJson(Map<String, dynamic> json) => UsageInfo(
-    promptTokens: json['prompt_tokens'] as int?,
-    completionTokens: json['completion_tokens'] as int?,
-    totalTokens: json['total_tokens'] as int?,
-    reasoningTokens: json['reasoning_tokens'] as int?,
-  );
+        promptTokens: json['prompt_tokens'] as int?,
+        completionTokens: json['completion_tokens'] as int?,
+        totalTokens: json['total_tokens'] as int?,
+        reasoningTokens: json['reasoning_tokens'] as int?,
+      );
 
   @override
   String toString() {
@@ -243,13 +243,13 @@ class CompletionRequest {
   });
 
   Map<String, dynamic> toJson() => {
-    'prompt': prompt,
-    if (maxTokens != null) 'max_tokens': maxTokens,
-    if (temperature != null) 'temperature': temperature,
-    if (topP != null) 'top_p': topP,
-    if (topK != null) 'top_k': topK,
-    if (stop != null) 'stop': stop,
-  };
+        'prompt': prompt,
+        if (maxTokens != null) 'max_tokens': maxTokens,
+        if (temperature != null) 'temperature': temperature,
+        if (topP != null) 'top_p': topP,
+        if (topK != null) 'top_k': topK,
+        if (stop != null) 'stop': stop,
+      };
 }
 
 /// Completion response from text completion providers

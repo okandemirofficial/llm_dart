@@ -23,7 +23,7 @@ export 'models/moderation_models.dart';
 export 'models/assistant_models.dart';
 
 // Provider exports
-export 'providers/openai_provider.dart';
+export 'providers/openai/openai.dart';
 export 'providers/anthropic_provider.dart';
 export 'providers/google_provider.dart';
 export 'providers/deepseek_provider.dart';

@@ -18,9 +18,9 @@ import 'moderation.dart';
 import 'assistants.dart';
 import 'completion.dart';
 
-/// Modular OpenAI Provider implementation
+/// OpenAI Provider implementation
 ///
-/// This provider demonstrates the new modular architecture inspired by async-openai.
+/// This provider uses a modular architecture inspired by async-openai.
 /// Instead of a monolithic class, capabilities are implemented in separate modules
 /// and composed together in this main provider class.
 ///
@@ -30,7 +30,7 @@ import 'completion.dart';
 /// - Better Maintainability: Changes to one capability don't affect others
 /// - Cleaner Code: Smaller, focused classes instead of one giant class
 /// - Reusability: Modules can be reused across different provider implementations
-class ModularOpenAIProvider
+class OpenAIProvider
     implements
         ChatCapability,
         EmbeddingCapability,
@@ -44,7 +44,7 @@ class ModularOpenAIProvider
         CompletionCapability,
         ProviderCapabilities {
   final OpenAIClient _client;
-  final ModularOpenAIConfig config;
+  final OpenAIConfig config;
 
   // Capability modules
   late final OpenAIChat _chat;
@@ -57,7 +57,7 @@ class ModularOpenAIProvider
   late final OpenAIAssistants _assistants;
   late final OpenAICompletion _completion;
 
-  ModularOpenAIProvider(this.config) : _client = OpenAIClient(config) {
+  OpenAIProvider(this.config) : _client = OpenAIClient(config) {
     // Initialize capability modules
     _chat = OpenAIChat(_client, config);
     _embeddings = OpenAIEmbeddings(_client, config);
@@ -70,7 +70,7 @@ class ModularOpenAIProvider
     _completion = OpenAICompletion(_client, config);
   }
 
-  String get providerName => 'OpenAI (Modular)';
+  String get providerName => 'OpenAI';
 
   // ========== ProviderCapabilities ==========
 
@@ -325,30 +325,9 @@ class ModularOpenAIProvider
 
   @override
   String toString() {
-    return 'ModularOpenAIProvider('
+    return 'OpenAIProvider('
         'model: ${config.model}, '
         'baseUrl: ${config.baseUrl}'
         ')';
   }
-}
-
-/// Factory function to create a modular OpenAI provider
-///
-/// This demonstrates how the new modular approach can be used
-/// while maintaining the same external API.
-ModularOpenAIProvider createModularOpenAIProvider(ModularOpenAIConfig config) {
-  return ModularOpenAIProvider(config);
-}
-
-/// Migration helper: Convert old config to new modular provider
-///
-/// This function helps migrate from the old monolithic provider
-/// to the new modular one with minimal code changes.
-ModularOpenAIProvider migrateToModular(dynamic oldConfig) {
-  if (oldConfig is ModularOpenAIConfig) {
-    return ModularOpenAIProvider(oldConfig);
-  }
-
-  // Handle other config types if needed
-  throw ArgumentError('Unsupported config type: ${oldConfig.runtimeType}');
 }
