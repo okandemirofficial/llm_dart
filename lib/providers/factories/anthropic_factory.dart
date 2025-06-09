@@ -1,7 +1,7 @@
 import '../../core/chat_provider.dart';
 import '../../core/config.dart';
 import '../../core/registry.dart';
-import '../anthropic_provider.dart';
+import '../anthropic/anthropic.dart';
 
 /// Factory for creating Anthropic provider instances
 class AnthropicProviderFactory implements LLMProviderFactory<ChatCapability> {

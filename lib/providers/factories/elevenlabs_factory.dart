@@ -1,7 +1,7 @@
 import '../../core/chat_provider.dart';
 import '../../core/config.dart';
 import '../../core/registry.dart';
-import '../elevenlabs_provider.dart';
+import '../elevenlabs/elevenlabs.dart';
 
 /// Factory for creating ElevenLabs provider instances
 ///

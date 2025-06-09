@@ -1,0 +1,176 @@
+import 'dart:typed_data';
+import 'package:dio/dio.dart';
+import 'package:logging/logging.dart';
+
+import '../../core/llm_error.dart';
+import 'config.dart';
+
+/// ElevenLabs HTTP client implementation
+///
+/// This module handles all HTTP communication with the ElevenLabs API.
+/// ElevenLabs provides text-to-speech and speech-to-text services.
+class ElevenLabsClient {
+  static final Logger _logger = Logger('ElevenLabsClient');
+
+  final ElevenLabsConfig config;
+  final Dio _dio;
+
+  ElevenLabsClient(this.config) : _dio = _createDio(config);
+
+  /// Logger instance for debugging
+  Logger get logger => _logger;
+
+  /// Make a GET request and return JSON response
+  Future<Map<String, dynamic>> getJson(String endpoint) async {
+    try {
+      final response = await _dio.get(endpoint);
+
+      if (response.statusCode != 200) {
+        throw ProviderError(
+          'ElevenLabs API returned status ${response.statusCode}: ${response.data}',
+        );
+      }
+
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  /// Make a GET request and return list response
+  Future<List<dynamic>> getList(String endpoint) async {
+    try {
+      final response = await _dio.get(endpoint);
+
+      if (response.statusCode != 200) {
+        throw ProviderError(
+          'ElevenLabs API returned status ${response.statusCode}: ${response.data}',
+        );
+      }
+
+      return response.data as List<dynamic>;
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  /// Make a POST request and return binary response (for TTS)
+  Future<Uint8List> postBinary(
+    String endpoint,
+    Map<String, dynamic> data, {
+    Map<String, String>? queryParams,
+  }) async {
+    try {
+      final response = await _dio.post(
+        endpoint,
+        data: data,
+        queryParameters: queryParams,
+        options: Options(responseType: ResponseType.bytes),
+      );
+
+      if (response.statusCode != 200) {
+        throw ProviderError(
+          'ElevenLabs API returned status ${response.statusCode}',
+        );
+      }
+
+      return Uint8List.fromList(response.data as List<int>);
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  /// Make a POST request with form data and return JSON response (for STT)
+  Future<Map<String, dynamic>> postFormData(
+    String endpoint,
+    FormData formData,
+  ) async {
+    try {
+      final response = await _dio.post(
+        endpoint,
+        data: formData,
+        options: Options(headers: {'xi-api-key': config.apiKey}),
+      );
+
+      if (response.statusCode != 200) {
+        throw ProviderError(
+          'ElevenLabs STT API returned status ${response.statusCode}',
+        );
+      }
+
+      // Handle both JSON and string responses like original implementation
+      final responseData = response.data;
+      if (responseData is Map<String, dynamic>) {
+        return responseData;
+      } else if (responseData is String) {
+        // Try to parse as JSON if it's a string
+        try {
+          final Map<String, dynamic> parsed = {};
+          // For simple text responses, wrap in a text field
+          parsed['text'] = responseData;
+          return parsed;
+        } catch (e) {
+          throw ResponseFormatError(
+            'Failed to parse ElevenLabs STT response: $e',
+            responseData,
+          );
+        }
+      } else {
+        return responseData as Map<String, dynamic>;
+      }
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      if (e is LLMError) rethrow;
+      throw GenericError('Unexpected error: $e');
+    }
+  }
+
+  /// Get response headers from last request
+  String? getContentType(Response response) {
+    return response.headers.value('content-type');
+  }
+
+  /// Create configured Dio instance for ElevenLabs API
+  static Dio _createDio(ElevenLabsConfig config) {
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: config.baseUrl,
+        connectTimeout: config.timeout ?? const Duration(seconds: 60),
+        receiveTimeout: config.timeout ?? const Duration(seconds: 60),
+        headers: {
+          'xi-api-key': config.apiKey,
+          'Content-Type': 'application/json',
+        },
+      ),
+    );
+
+    return dio;
+  }
+
+  /// Handle Dio errors and convert to appropriate LLMError
+  LLMError _handleDioError(DioException e) {
+    switch (e.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return HttpError('Request timeout: ${e.message}');
+      case DioExceptionType.badResponse:
+        final statusCode = e.response?.statusCode;
+        final data = e.response?.data;
+        if (statusCode == 401) {
+          return const AuthError('Invalid ElevenLabs API key');
+        } else if (statusCode == 429) {
+          return const ProviderError('Rate limit exceeded');
+        } else {
+          return ProviderError('HTTP $statusCode: $data');
+        }
+      case DioExceptionType.cancel:
+        return const GenericError('Request was cancelled');
+      case DioExceptionType.connectionError:
+        return HttpError('Connection error: ${e.message}');
+      default:
+        return HttpError('Network error: ${e.message}');
+    }
+  }
+}

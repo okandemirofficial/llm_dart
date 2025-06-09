@@ -1,7 +1,7 @@
 import '../../core/chat_provider.dart';
 import '../../core/config.dart';
 import '../../core/registry.dart';
-import '../ollama_provider.dart';
+import '../ollama/ollama.dart';
 
 /// Factory for creating Ollama provider instances
 class OllamaProviderFactory implements LLMProviderFactory<ChatCapability> {

@@ -2,7 +2,7 @@
 ///
 /// This library provides a unified interface for interacting with different
 /// AI providers, starting with OpenAI. It's designed to be modular and
-/// extensible, following the architecture of the Rust llm library.
+/// extensible
 library;
 
 // Core exports
@@ -23,16 +23,16 @@ export 'models/moderation_models.dart';
 export 'models/assistant_models.dart';
 
 // Provider exports
-export 'providers/openai/openai.dart';
-export 'providers/anthropic_provider.dart';
-export 'providers/google_provider.dart';
-export 'providers/deepseek_provider.dart';
-export 'providers/ollama_provider.dart';
-export 'providers/xai_provider.dart'
-    show XAIProvider, XAIConfig, SearchParameters, SearchSource;
-export 'providers/phind_provider.dart';
-export 'providers/groq_provider.dart';
-export 'providers/elevenlabs_provider.dart';
+export 'providers/openai/openai.dart'
+    hide createDeepSeekProvider, createGroqProvider;
+export 'providers/anthropic/anthropic.dart';
+export 'providers/google/google.dart';
+export 'providers/deepseek/deepseek.dart';
+export 'providers/ollama/ollama.dart';
+export 'providers/xai/xai.dart';
+export 'providers/phind/phind.dart';
+export 'providers/groq/groq.dart';
+export 'providers/elevenlabs/elevenlabs.dart';
 
 // Builder exports
 export 'builder/llm_builder.dart';

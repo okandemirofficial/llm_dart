@@ -2,10 +2,9 @@ import '../../core/chat_provider.dart';
 import '../../core/config.dart';
 import '../../core/registry.dart';
 import '../../models/tool_models.dart';
-import '../../models/chat_models.dart';
-import '../openai/openai.dart';
+import '../xai/xai.dart';
 
-/// Factory for creating XAI provider instances using OpenAI-compatible interface
+/// Factory for creating XAI provider instances using native XAI interface
 class XAIProviderFactory implements LLMProviderFactory<ChatCapability> {
   @override
   String get providerId => 'xai';
@@ -14,7 +13,8 @@ class XAIProviderFactory implements LLMProviderFactory<ChatCapability> {
   String get displayName => 'xAI (Grok)';
 
   @override
-  String get description => 'xAI Grok models using OpenAI-compatible interface';
+  String get description =>
+      'xAI Grok models with search and reasoning capabilities';
 
   @override
   Set<LLMCapability> get supportedCapabilities => {
@@ -27,12 +27,12 @@ class XAIProviderFactory implements LLMProviderFactory<ChatCapability> {
   @override
   ChatCapability create(LLMConfig config) {
     final xaiConfig = _transformConfig(config);
-    return OpenAIProvider(xaiConfig);
+    return XAIProvider(xaiConfig);
   }
 
-  /// Transform unified config to XAI-specific OpenAI config
-  OpenAIConfig _transformConfig(LLMConfig config) {
-    return OpenAIConfig(
+  /// Transform unified config to XAI-specific config
+  XAIConfig _transformConfig(LLMConfig config) {
+    return XAIConfig(
       apiKey: config.apiKey!,
       baseUrl: config.baseUrl,
       model: config.model,
@@ -45,14 +45,13 @@ class XAIProviderFactory implements LLMProviderFactory<ChatCapability> {
       topK: config.topK,
       tools: config.tools,
       toolChoice: config.toolChoice,
-      // XAI-specific extensions (using OpenAI format)
-      reasoningEffort: ReasoningEffort.fromString(
-          config.getExtension<String>('reasoningEffort')),
+      // XAI-specific extensions
       jsonSchema: config.getExtension<StructuredOutputFormat>('jsonSchema'),
-      voice: config.getExtension<String>('voice'),
       embeddingEncodingFormat:
           config.getExtension<String>('embeddingEncodingFormat'),
       embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
+      searchParameters:
+          config.getExtension<SearchParameters>('searchParameters'),
     );
   }
 

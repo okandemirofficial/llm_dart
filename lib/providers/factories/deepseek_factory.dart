@@ -1,7 +1,7 @@
 import '../../core/chat_provider.dart';
 import '../../core/config.dart';
 import '../../core/registry.dart';
-import '../deepseek_provider.dart';
+import '../deepseek/deepseek.dart';
 
 /// Factory for creating DeepSeek provider instances
 class DeepSeekProviderFactory implements LLMProviderFactory<ChatCapability> {

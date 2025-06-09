@@ -26,16 +26,40 @@ class OpenAIEmbeddings implements EmbeddingCapability {
 
     final data = responseData['data'] as List?;
     if (data == null) {
-      throw const ResponseFormatError(
-        'Invalid embedding response format',
-        'Missing data field',
+      throw ResponseFormatError(
+        'Invalid embedding response format: missing data field',
+        responseData.toString(),
       );
     }
 
-    final embeddings =
-        data.map((item) => (item['embedding'] as List).cast<double>()).toList();
+    try {
+      final embeddings = data.map((item) {
+        if (item is! Map<String, dynamic>) {
+          throw ResponseFormatError(
+            'Invalid embedding item format: expected Map<String, dynamic>',
+            item.toString(),
+          );
+        }
 
-    return embeddings;
+        final embedding = item['embedding'];
+        if (embedding is! List) {
+          throw ResponseFormatError(
+            'Invalid embedding format: expected List',
+            embedding.toString(),
+          );
+        }
+
+        return embedding.cast<double>();
+      }).toList();
+
+      return embeddings;
+    } catch (e) {
+      if (e is LLMError) rethrow;
+      throw ResponseFormatError(
+        'Failed to parse embedding response: $e',
+        responseData.toString(),
+      );
+    }
   }
 
   /// Get embedding dimensions for a model

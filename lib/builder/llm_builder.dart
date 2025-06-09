@@ -7,8 +7,8 @@ import '../models/chat_models.dart';
 
 /// Builder for configuring and instantiating LLM providers
 ///
-/// Provides a fluent interface similar to the Rust llm crate for setting
-/// various configuration options like model selection, API keys, generation parameters, etc.
+/// Provides a fluent interface for setting various configuration
+/// options like model selection, API keys, generation parameters, etc.
 ///
 /// The new version uses the provider registry system for extensibility.
 class LLMBuilder {

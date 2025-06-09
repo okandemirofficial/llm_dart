@@ -20,6 +20,11 @@ class OpenAIAudio implements TextToSpeechCapability, SpeechToTextCapability {
 
   @override
   Future<TTSResponse> textToSpeech(TTSRequest request) async {
+    // Basic validation - let the provider handle specific limits
+    if (request.text.isEmpty) {
+      throw const InvalidRequestError('Text input cannot be empty');
+    }
+
     final requestBody = <String, dynamic>{
       'model': request.model ?? 'tts-1',
       'input': request.text,
@@ -73,6 +78,13 @@ class OpenAIAudio implements TextToSpeechCapability, SpeechToTextCapability {
 
   @override
   Future<STTResponse> speechToText(STTRequest request) async {
+    // Basic validation - let the provider handle specific limits
+    if (request.audioData == null && request.filePath == null) {
+      throw const InvalidRequestError(
+        'Either audioData or filePath must be provided',
+      );
+    }
+
     final formData = FormData();
 
     if (request.audioData != null) {
@@ -88,10 +100,6 @@ class OpenAIAudio implements TextToSpeechCapability, SpeechToTextCapability {
     } else if (request.filePath != null) {
       formData.files.add(
         MapEntry('file', await MultipartFile.fromFile(request.filePath!)),
-      );
-    } else {
-      throw const InvalidRequestError(
-        'Either audioData or filePath must be provided',
       );
     }
 

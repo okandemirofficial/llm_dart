@@ -10,7 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **OpenAI Provider**: Replaced with new modular implementation
-  - Renamed `ModularOpenAIProvider` to `OpenAIProvider` (now the default)
   - Replaced old monolithic `OpenAIProvider` with modular architecture
   - Better maintainability and testing capabilities
   - Improved error handling and type safety

@@ -46,13 +46,29 @@ class OpenAIChat implements ChatCapability {
     // Reset stream state
     _resetStreamState();
 
-    // Create SSE stream
-    final stream = client.postStreamRaw(chatEndpoint, requestBody);
+    try {
+      // Create SSE stream
+      final stream = client.postStreamRaw(chatEndpoint, requestBody);
 
-    await for (final chunk in stream) {
-      final events = _parseStreamEvents(chunk);
-      for (final event in events) {
-        yield event;
+      await for (final chunk in stream) {
+        try {
+          final events = _parseStreamEvents(chunk);
+          for (final event in events) {
+            yield event;
+          }
+        } catch (e) {
+          // Log parsing errors but continue processing
+          client.logger.warning('Failed to parse stream chunk: $e');
+          // Optionally yield an error event instead of throwing
+          // yield ErrorEvent(GenericError('Stream parsing error: $e'));
+        }
+      }
+    } catch (e) {
+      // Handle stream creation or connection errors
+      if (e is LLMError) {
+        rethrow;
+      } else {
+        throw GenericError('Stream error: $e');
       }
     }
   }
@@ -87,6 +103,14 @@ class OpenAIChat implements ChatCapability {
     bool stream,
   ) {
     final apiMessages = client.buildApiMessages(messages);
+
+    // Handle system prompt: prefer explicit system messages over config
+    final hasSystemMessage = messages.any((m) => m.role == ChatRole.system);
+
+    // Only add config system prompt if no explicit system message exists
+    if (!hasSystemMessage && config.systemPrompt != null) {
+      apiMessages.insert(0, {'role': 'system', 'content': config.systemPrompt});
+    }
 
     final body = <String, dynamic>{
       'model': config.model,
@@ -168,9 +192,12 @@ class OpenAIChat implements ChatCapability {
     }
 
     // Handle extra_body parameters (for OpenAI-compatible interfaces)
+    // This merges provider-specific parameters from extra_body into the main request body
     final extraBody = body['extra_body'] as Map<String, dynamic>?;
     if (extraBody != null) {
+      // Merge extra_body contents into the main body
       body.addAll(extraBody);
+      // Remove the extra_body field itself as it should not be sent to the API
       body.remove('extra_body');
     }
 

@@ -1,5 +1,4 @@
 /// Error types that can occur when interacting with LLM providers.
-/// Based on the Rust llm library error handling.
 abstract class LLMError implements Exception {
   final String message;
 
@@ -153,6 +152,12 @@ class HttpErrorMapper {
   /// Map HTTP status code to appropriate LLM error
   static LLMError mapStatusCode(int statusCode, String message,
       [Map<String, dynamic>? responseData]) {
+    // Check for specific error types based on response data
+    if (responseData != null) {
+      final specificError = _mapSpecificError(message, responseData);
+      if (specificError != null) return specificError;
+    }
+
     switch (statusCode) {
       case 400:
         return InvalidRequestError(message);
@@ -192,6 +197,52 @@ class HttpErrorMapper {
           return HttpError('HTTP $statusCode: $message');
         }
     }
+  }
+
+  /// Map specific error types based on error content
+  static LLMError? _mapSpecificError(
+      String message, Map<String, dynamic> responseData) {
+    final error = responseData['error'] as Map<String, dynamic>?;
+    if (error == null) return null;
+
+    final errorType = error['type'] as String?;
+    final errorCode = error['code'] as String?;
+
+    // Content filter errors
+    if (errorType == 'content_filter' ||
+        errorCode == 'content_filter' ||
+        message.toLowerCase().contains('content policy') ||
+        message.toLowerCase().contains('content filter')) {
+      return ContentFilterError(message, filterType: errorType ?? errorCode);
+    }
+
+    // Model not available errors
+    if (errorType == 'model_not_found' ||
+        errorCode == 'model_not_found' ||
+        message.toLowerCase().contains('model') &&
+            message.toLowerCase().contains('not found')) {
+      final model = error['model'] as String? ??
+          responseData['model'] as String? ??
+          'unknown';
+      return ModelNotAvailableError(model);
+    }
+
+    // Quota exceeded errors
+    if (errorType == 'insufficient_quota' ||
+        errorCode == 'insufficient_quota' ||
+        message.toLowerCase().contains('quota') ||
+        message.toLowerCase().contains('billing')) {
+      String? quotaType;
+      if (message.toLowerCase().contains('token'))
+        quotaType = 'tokens';
+      else if (message.toLowerCase().contains('request'))
+        quotaType = 'requests';
+      else if (message.toLowerCase().contains('credit')) quotaType = 'credits';
+
+      return QuotaExceededError(message, quotaType: quotaType);
+    }
+
+    return null;
   }
 
   /// Extract retry-after duration from response headers

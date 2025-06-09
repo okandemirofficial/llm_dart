@@ -59,6 +59,9 @@ class OpenAIClient {
   /// Returns:
   /// - `Map<String, dynamic>` - Parsed JSON data if found
   /// - `null` - If chunk should be skipped (e.g., ping, done signal)
+  ///
+  /// Throws:
+  /// - `ResponseFormatError` - If critical parsing errors occur
   Map<String, dynamic>? parseSSEChunk(String chunk) {
     for (final line in chunk.split('\n')) {
       final trimmedLine = line.trim();
@@ -77,11 +80,33 @@ class OpenAIClient {
         }
 
         try {
-          final json = jsonDecode(data) as Map<String, dynamic>;
+          final json = jsonDecode(data);
+          if (json is! Map<String, dynamic>) {
+            logger.warning('SSE chunk is not a JSON object: $data');
+            continue;
+          }
+
+          // Check for error in the SSE data
+          if (json.containsKey('error')) {
+            final error = json['error'] as Map<String, dynamic>?;
+            if (error != null) {
+              final message = error['message'] as String? ?? 'Unknown error';
+              final type = error['type'] as String?;
+              final code = error['code'] as String?;
+
+              throw ResponseFormatError(
+                'SSE stream error: $message${type != null ? ' (type: $type)' : ''}${code != null ? ' (code: $code)' : ''}',
+                data,
+              );
+            }
+          }
+
           return json;
         } catch (e) {
-          // Skip malformed JSON chunks
-          logger.warning('Failed to parse SSE chunk JSON: $e');
+          if (e is LLMError) rethrow;
+
+          // Log and skip malformed JSON chunks, but don't fail the entire stream
+          logger.warning('Failed to parse SSE chunk JSON: $e, data: $data');
           continue;
         }
       }
@@ -93,6 +118,11 @@ class OpenAIClient {
   /// Convert ChatMessage to OpenAI API format
   Map<String, dynamic> convertMessage(ChatMessage message) {
     final result = <String, dynamic>{'role': message.role.name};
+
+    // Add name field if present (useful for system messages)
+    if (message.name != null) {
+      result['name'] = message.name;
+    }
 
     switch (message.messageType) {
       case TextMessage():
@@ -135,13 +165,11 @@ class OpenAIClient {
   }
 
   /// Build API messages array from ChatMessage list
+  ///
+  /// Note: System prompt should be added by the calling module if needed,
+  /// not here to avoid duplication.
   List<Map<String, dynamic>> buildApiMessages(List<ChatMessage> messages) {
     final apiMessages = <Map<String, dynamic>>[];
-
-    // Add system message if configured
-    if (config.systemPrompt != null) {
-      apiMessages.add({'role': 'system', 'content': config.systemPrompt});
-    }
 
     // Convert messages to OpenAI format
     for (final message in messages) {
@@ -372,7 +400,19 @@ class OpenAIClient {
         _handleErrorResponse(response, endpoint);
       }
 
-      final stream = response.data as Stream<List<int>>;
+      // Handle ResponseBody properly for streaming
+      final responseBody = response.data;
+      Stream<List<int>> stream;
+
+      if (responseBody is Stream<List<int>>) {
+        stream = responseBody;
+      } else if (responseBody is ResponseBody) {
+        stream = responseBody.stream;
+      } else {
+        throw GenericError(
+            'Unexpected response type: ${responseBody.runtimeType}');
+      }
+
       await for (final chunk in stream) {
         final chunkString = String.fromCharCodes(chunk);
         yield chunkString;
@@ -393,14 +433,21 @@ class OpenAIClient {
         return const GenericError('Request timeout');
       case DioExceptionType.badResponse:
         final statusCode = e.response?.statusCode;
-        if (statusCode == 401) {
-          return const AuthError('Invalid API key');
-        } else if (statusCode == 429) {
-          return const ProviderError('Rate limit exceeded');
+        final responseData = e.response?.data;
+
+        if (statusCode != null) {
+          // Use HttpErrorMapper for consistent error handling
+          final errorMessage =
+              _extractErrorMessage(responseData) ?? 'HTTP error: $statusCode';
+          final responseMap =
+              responseData is Map<String, dynamic> ? responseData : null;
+
+          return HttpErrorMapper.mapStatusCode(
+              statusCode, errorMessage, responseMap);
         } else {
           return ResponseFormatError(
-            'HTTP error: $statusCode',
-            e.response?.data?.toString() ?? '',
+            'HTTP error without status code',
+            responseData?.toString() ?? '',
           );
         }
       case DioExceptionType.cancel:
@@ -414,18 +461,47 @@ class OpenAIClient {
     }
   }
 
+  /// Extract error message from OpenAI API response
+  String? _extractErrorMessage(dynamic responseData) {
+    if (responseData is Map<String, dynamic>) {
+      // OpenAI error format: {"error": {"message": "...", "type": "...", "code": "..."}}
+      final error = responseData['error'] as Map<String, dynamic>?;
+      if (error != null) {
+        final message = error['message'] as String?;
+        final type = error['type'] as String?;
+        final code = error['code'] as String?;
+
+        if (message != null) {
+          final parts = <String>[message];
+          if (type != null) parts.add('type: $type');
+          if (code != null) parts.add('code: $code');
+          return parts.join(', ');
+        }
+      }
+
+      // Fallback: look for direct message field
+      final directMessage = responseData['message'] as String?;
+      if (directMessage != null) return directMessage;
+    }
+
+    return null;
+  }
+
   /// Handle error responses with specific error types
   void _handleErrorResponse(Response response, String endpoint) {
     final statusCode = response.statusCode;
     final errorData = response.data;
 
-    if (statusCode == 401) {
-      throw AuthError('Invalid OpenAI API key for $endpoint');
-    } else if (statusCode == 429) {
-      throw ProviderError('Rate limit exceeded for $endpoint');
+    if (statusCode != null) {
+      final errorMessage = _extractErrorMessage(errorData) ??
+          'OpenAI $endpoint API returned error status: $statusCode';
+      final responseMap = errorData is Map<String, dynamic> ? errorData : null;
+
+      throw HttpErrorMapper.mapStatusCode(
+          statusCode, errorMessage, responseMap);
     } else {
       throw ResponseFormatError(
-        'OpenAI $endpoint API returned error status: $statusCode',
+        'OpenAI $endpoint API returned unknown error',
         errorData?.toString() ?? '',
       );
     }

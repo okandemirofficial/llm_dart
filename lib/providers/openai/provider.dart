@@ -315,12 +315,85 @@ class OpenAIProvider
   /// Check if a model is valid and accessible
   Future<({bool valid, String? error})> checkModel() async {
     try {
-      final messages = [ChatMessage.user('hi')];
-      await _chat.chatWithTools(messages, null);
+      final requestBody = {
+        'model': config.model,
+        'messages': [
+          {'role': 'user', 'content': 'hi'}
+        ],
+        'stream': false,
+        'max_tokens': 1, // Minimal tokens to reduce cost
+      };
+
+      await _client.postJson('chat/completions', requestBody);
       return (valid: true, error: null);
     } catch (e) {
       return (valid: false, error: e.toString());
     }
+  }
+
+  /// Generate suggestions for follow-up questions
+  ///
+  /// This method uses the standard chat API with a specialized prompt to generate
+  /// relevant follow-up questions based on the conversation history.
+  /// This is a common pattern used by many chatbot implementations.
+  Future<List<String>> generateSuggestions(List<ChatMessage> messages) async {
+    try {
+      // Don't generate suggestions for empty conversations
+      if (messages.isEmpty) {
+        return [];
+      }
+
+      // Build conversation context (limit to recent messages to avoid token limits)
+      final recentMessages = messages.length > 10
+          ? messages.sublist(messages.length - 10)
+          : messages;
+
+      final conversationContext =
+          recentMessages.map((m) => '${m.role.name}: ${m.content}').join('\n');
+
+      final systemPrompt = '''
+You are a helpful assistant that generates relevant follow-up questions based on conversation history.
+
+Rules:
+1. Generate 3-5 questions that naturally continue the conversation
+2. Questions should be specific and actionable
+3. Avoid repeating topics already covered
+4. Return only the questions, one per line
+5. No numbering, bullets, or extra formatting
+6. Keep questions concise and clear
+''';
+
+      final userPrompt = '''
+Based on this conversation, suggest follow-up questions:
+
+$conversationContext
+''';
+
+      final response = await _chat.chatWithTools(
+          [ChatMessage.system(systemPrompt), ChatMessage.user(userPrompt)],
+          null);
+
+      return _parseQuestions(response.text ?? '');
+    } catch (e) {
+      // Suggestions are optional, so we log the error but don't throw
+      _client.logger.warning('Failed to generate suggestions: $e');
+      return [];
+    }
+  }
+
+  /// Parse questions from LLM response text
+  List<String> _parseQuestions(String responseText) {
+    return responseText
+        .split('\n')
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty && line.contains('?'))
+        .map((line) {
+          // Remove common prefixes like "1.", "- ", "• ", etc.
+          return line.replaceAll(RegExp(r'^[\d\-•\*\s]*'), '').trim();
+        })
+        .where((question) => question.isNotEmpty)
+        .take(5) // Limit to 5 questions max
+        .toList();
   }
 
   @override

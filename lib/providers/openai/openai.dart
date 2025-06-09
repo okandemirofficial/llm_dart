@@ -1,7 +1,6 @@
 /// Modular OpenAI Provider
 ///
 /// This library provides a modular implementation of the OpenAI provider
-/// inspired by the async-openai Rust library architecture.
 ///
 /// **Key Benefits:**
 /// - Single Responsibility: Each module handles one capability

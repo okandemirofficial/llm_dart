@@ -316,10 +316,14 @@ class ChatMessage {
   /// The text content of the message
   final String content;
 
+  /// Optional name for the participant (useful for system messages)
+  final String? name;
+
   const ChatMessage({
     required this.role,
     required this.messageType,
     required this.content,
+    this.name,
   });
 
   /// Create a user message
@@ -337,10 +341,15 @@ class ChatMessage {
       );
 
   /// Create a system message
-  factory ChatMessage.system(String content) => ChatMessage(
+  factory ChatMessage.system(
+    String content, {
+    String? name,
+  }) =>
+      ChatMessage(
         role: ChatRole.system,
         messageType: const TextMessage(),
         content: content,
+        name: name,
       );
 
   /// Create an image message

@@ -3,7 +3,7 @@ import 'package:llm_dart/llm_dart.dart';
 
 /// Simple example demonstrating the unified LLMBuilder interface
 ///
-/// This example shows how to use the LLMBuilder similar to the Rust llm crate:
+/// This example shows how to use the LLMBuilder:
 /// - Create providers using the unified builder pattern
 /// - Switch between different backends easily
 /// - Use the same interface regardless of provider

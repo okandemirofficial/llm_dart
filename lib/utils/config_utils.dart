@@ -112,6 +112,11 @@ class ConfigUtils {
       'content': message.content,
     };
 
+    // Add name field if present
+    if (message.name != null) {
+      result['name'] = message.name;
+    }
+
     // Handle tool calls for assistant messages
     if (message.messageType is ToolUseMessage) {
       final toolUseMessage = message.messageType as ToolUseMessage;

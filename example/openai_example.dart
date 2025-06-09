@@ -289,19 +289,19 @@ Future<void> demonstrateConvenienceFunctions(String apiKey) async {
     );
     print('   ✓ createOpenRouterProvider() - OpenRouter compatibility');
 
-    // Using Groq
-    createGroqProvider(
+    // Using Groq (from modular provider)
+    GroqProvider(GroqConfig(
       apiKey: apiKey,
       model: 'llama-3.1-70b-versatile',
-    );
-    print('   ✓ createGroqProvider() - Groq compatibility');
+    ));
+    print('   ✓ GroqProvider() - Groq compatibility');
 
-    // Using DeepSeek
-    createDeepSeekProvider(
+    // Using DeepSeek (from modular provider)
+    DeepSeekProvider(DeepSeekConfig(
       apiKey: apiKey,
       model: 'deepseek-chat',
-    );
-    print('   ✓ createDeepSeekProvider() - DeepSeek compatibility');
+    ));
+    print('   ✓ DeepSeekProvider() - DeepSeek compatibility');
 
     print('   ✓ All convenience functions working correctly\n');
   } catch (e) {

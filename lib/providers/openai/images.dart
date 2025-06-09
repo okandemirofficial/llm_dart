@@ -41,31 +41,66 @@ class OpenAIImages implements ImageGenerationCapability {
 
     final data = responseData['data'] as List?;
     if (data == null) {
-      throw const ResponseFormatError(
-        'Invalid response format from OpenAI image generation API',
-        'Missing data field',
+      throw ResponseFormatError(
+        'Invalid response format from OpenAI image generation API: missing data field',
+        responseData.toString(),
       );
     }
 
     // Extract images from response
-    final images = data.map((item) {
-      final itemMap = item as Map<String, dynamic>;
-      return GeneratedImage(
-        url: itemMap['url'] as String?,
-        data: itemMap['b64_json'] != null
-            ? base64Decode(itemMap['b64_json'] as String)
-            : null,
-        revisedPrompt: itemMap['revised_prompt'] as String?,
-        format: 'png', // OpenAI DALL-E generates PNG images
-      );
-    }).toList();
+    try {
+      final images = data.map((item) {
+        if (item is! Map<String, dynamic>) {
+          throw ResponseFormatError(
+            'Invalid image item format: expected Map<String, dynamic>',
+            item.toString(),
+          );
+        }
 
-    return ImageGenerationResponse(
-      images: images,
-      model: request.model ?? config.model,
-      revisedPrompt: images.isNotEmpty ? images.first.revisedPrompt : null,
-      usage: null, // OpenAI doesn't provide usage info for image generation
-    );
+        final itemMap = item;
+        List<int>? imageData;
+
+        // Safely decode base64 data if present
+        if (itemMap['b64_json'] != null) {
+          try {
+            final b64String = itemMap['b64_json'] as String;
+            imageData = base64Decode(b64String);
+          } catch (e) {
+            throw ResponseFormatError(
+              'Failed to decode base64 image data: $e',
+              itemMap['b64_json'].toString(),
+            );
+          }
+        }
+
+        return GeneratedImage(
+          url: itemMap['url'] as String?,
+          data: imageData,
+          revisedPrompt: itemMap['revised_prompt'] as String?,
+          format: 'png', // OpenAI DALL-E generates PNG images
+        );
+      }).toList();
+
+      if (images.isEmpty) {
+        throw const ResponseFormatError(
+          'No images returned from OpenAI image generation API',
+          'Empty data array',
+        );
+      }
+
+      return ImageGenerationResponse(
+        images: images,
+        model: request.model ?? config.model,
+        revisedPrompt: images.isNotEmpty ? images.first.revisedPrompt : null,
+        usage: null, // OpenAI doesn't provide usage info for image generation
+      );
+    } catch (e) {
+      if (e is LLMError) rethrow;
+      throw ResponseFormatError(
+        'Failed to parse image generation response: $e',
+        responseData.toString(),
+      );
+    }
   }
 
   @override
@@ -109,50 +144,5 @@ class OpenAIImages implements ImageGenerationCapability {
         .where((url) => url != null)
         .cast<String>()
         .toList();
-  }
-
-  /// Generate images using OpenAI's DALL-E models (legacy method)
-  Future<List<String>> generateImageLegacy({
-    String? model,
-    required String prompt,
-    String? negativePrompt,
-    String? imageSize,
-    int? batchSize,
-    String? seed,
-    int? numInferenceSteps,
-    double? guidanceScale,
-    bool? promptEnhancement,
-  }) async {
-    final requestBody = <String, dynamic>{
-      'model': model ?? config.model,
-      'prompt': prompt,
-      if (negativePrompt != null) 'negative_prompt': negativePrompt,
-      if (imageSize != null) 'image_size': imageSize,
-      if (batchSize != null) 'batch_size': batchSize,
-      if (seed != null) 'seed': int.tryParse(seed),
-      if (numInferenceSteps != null) 'num_inference_steps': numInferenceSteps,
-      if (guidanceScale != null) 'guidance_scale': guidanceScale,
-      if (promptEnhancement != null) 'prompt_enhancement': promptEnhancement,
-    };
-
-    final responseData =
-        await client.postJson('images/generations', requestBody);
-
-    final data = responseData['data'] as List?;
-    if (data == null) {
-      throw const ResponseFormatError(
-        'Invalid response format from OpenAI image generation API',
-        'Missing data field',
-      );
-    }
-
-    // Extract URLs from response
-    final urls = data
-        .map((item) => (item as Map<String, dynamic>)['url'] as String?)
-        .where((url) => url != null)
-        .cast<String>()
-        .toList();
-
-    return urls;
   }
 }

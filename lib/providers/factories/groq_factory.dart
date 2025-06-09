@@ -1,11 +1,9 @@
 import '../../core/chat_provider.dart';
 import '../../core/config.dart';
 import '../../core/registry.dart';
-import '../../models/tool_models.dart';
-import '../../models/chat_models.dart';
-import '../openai/openai.dart';
+import '../groq/groq.dart';
 
-/// Factory for creating Groq provider instances using OpenAI-compatible interface
+/// Factory for creating Groq provider instances
 class GroqProviderFactory implements LLMProviderFactory<ChatCapability> {
   @override
   String get providerId => 'groq';
@@ -14,8 +12,7 @@ class GroqProviderFactory implements LLMProviderFactory<ChatCapability> {
   String get displayName => 'Groq';
 
   @override
-  String get description =>
-      'Groq AI models using OpenAI-compatible interface for ultra-fast inference';
+  String get description => 'Groq AI models for ultra-fast inference';
 
   @override
   Set<LLMCapability> get supportedCapabilities => {
@@ -27,12 +24,12 @@ class GroqProviderFactory implements LLMProviderFactory<ChatCapability> {
   @override
   ChatCapability create(LLMConfig config) {
     final groqConfig = _transformConfig(config);
-    return OpenAIProvider(groqConfig);
+    return GroqProvider(groqConfig);
   }
 
-  /// Transform unified config to Groq-specific OpenAI config
-  OpenAIConfig _transformConfig(LLMConfig config) {
-    return OpenAIConfig(
+  /// Transform unified config to Groq-specific config
+  GroqConfig _transformConfig(LLMConfig config) {
+    return GroqConfig(
       apiKey: config.apiKey!,
       baseUrl: config.baseUrl,
       model: config.model,
@@ -45,10 +42,6 @@ class GroqProviderFactory implements LLMProviderFactory<ChatCapability> {
       topK: config.topK,
       tools: config.tools,
       toolChoice: config.toolChoice,
-      // Groq-specific extensions (using OpenAI format)
-      reasoningEffort: ReasoningEffort.fromString(
-          config.getExtension<String>('reasoningEffort')),
-      jsonSchema: config.getExtension<StructuredOutputFormat>('jsonSchema'),
     );
   }
 

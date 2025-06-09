@@ -3,7 +3,7 @@ import '../../core/config.dart';
 import '../../core/registry.dart';
 import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
-import '../google_provider.dart';
+import '../google/google.dart';
 
 /// Factory for creating Google (Gemini) provider instances
 class GoogleProviderFactory implements LLMProviderFactory<ChatCapability> {
