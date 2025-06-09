@@ -18,6 +18,9 @@ export 'models/chat_models.dart';
 export 'models/tool_models.dart';
 export 'models/audio_models.dart';
 export 'models/image_models.dart';
+export 'models/file_models.dart';
+export 'models/moderation_models.dart';
+export 'models/assistant_models.dart';
 
 // Provider exports
 export 'providers/openai_provider.dart';
@@ -36,6 +39,8 @@ export 'builder/llm_builder.dart';
 
 // Utility exports
 export 'utils/config_utils.dart';
+export 'utils/capability_utils.dart';
+export 'utils/provider_registry.dart';
 
 // Convenience functions for creating providers
 import 'builder/llm_builder.dart';

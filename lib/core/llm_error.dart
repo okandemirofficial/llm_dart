@@ -60,6 +60,14 @@ class GenericError extends LLMError {
   String toString() => 'Generic Error: $message';
 }
 
+/// Resource not found error (404)
+class NotFoundError extends LLMError {
+  const NotFoundError(super.message);
+
+  @override
+  String toString() => 'Not Found Error: $message';
+}
+
 /// JSON serialization/deserialization errors
 class JsonError extends LLMError {
   const JsonError(super.message);

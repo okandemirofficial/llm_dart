@@ -10,15 +10,14 @@ import '../models/chat_models.dart';
 import '../models/tool_models.dart';
 import '../models/audio_models.dart';
 import '../models/image_models.dart';
+import '../models/file_models.dart';
+import '../models/moderation_models.dart';
+import '../models/assistant_models.dart';
 import '../utils/reasoning_utils.dart';
 import '../utils/config_utils.dart';
 
 /// OpenAI provider implementation with enhanced features:
 ///
-/// **Recent Improvements (aligned with Rust implementation):**
-/// 1. **Dedicated SSE parsing**: Added _parseSSEChunk() method for better stream handling
-/// 2. **Enhanced error handling**: Specific error types for different HTTP status codes
-/// 3. **Optimized logging**: Conditional logging checks to improve performance
 ///
 /// **Features:**
 /// - All standard LLM provider interfaces (chat, embeddings, TTS, STT, models)
@@ -175,7 +174,11 @@ class OpenAIProvider extends BaseHttpProvider
         SpeechToTextCapability,
         ModelListingCapability,
         CompletionCapability,
-        ImageGenerationCapability {
+        ImageGenerationCapability,
+        FileManagementCapability,
+        ModerationCapability,
+        AssistantCapability,
+        ProviderCapabilities {
   final OpenAIConfig config;
 
   OpenAIProvider(this.config)
@@ -554,8 +557,10 @@ class OpenAIProvider extends BaseHttpProvider
       // Filter out thinking tags for models that use <think> tags
       if (ReasoningUtils.containsThinkingTags(content)) {
         // Extract thinking content and add to buffer
-        final thinkMatch =
-            RegExp(r'<think>(.*?)</think>', dotAll: true).firstMatch(content);
+        final thinkMatch = RegExp(
+          r'<think>(.*?)</think>',
+          dotAll: true,
+        ).firstMatch(content);
         if (thinkMatch != null) {
           final thinkingText = thinkMatch.group(1)?.trim();
           if (thinkingText != null && thinkingText.isNotEmpty) {
@@ -951,7 +956,8 @@ class OpenAIProvider extends BaseHttpProvider
   // ImageGenerationCapability implementation
   @override
   Future<ImageGenerationResponse> generateImages(
-      ImageGenerationRequest request) async {
+    ImageGenerationRequest request,
+  ) async {
     if (config.apiKey.isEmpty) {
       throw const AuthError('Missing OpenAI API key');
     }
@@ -1041,13 +1047,7 @@ class OpenAIProvider extends BaseHttpProvider
 
   @override
   List<String> getSupportedSizes() {
-    return [
-      '256x256',
-      '512x512',
-      '1024x1024',
-      '1792x1024',
-      '1024x1792',
-    ];
+    return ['256x256', '512x512', '1024x1024', '1792x1024', '1024x1792'];
   }
 
   @override
@@ -1068,17 +1068,19 @@ class OpenAIProvider extends BaseHttpProvider
     double? guidanceScale,
     bool? promptEnhancement,
   }) async {
-    final response = await generateImages(ImageGenerationRequest(
-      prompt: prompt,
-      model: model,
-      negativePrompt: negativePrompt,
-      size: imageSize,
-      count: batchSize,
-      seed: seed != null ? int.tryParse(seed) : null,
-      steps: numInferenceSteps,
-      guidanceScale: guidanceScale,
-      enhancePrompt: promptEnhancement,
-    ));
+    final response = await generateImages(
+      ImageGenerationRequest(
+        prompt: prompt,
+        model: model,
+        negativePrompt: negativePrompt,
+        size: imageSize,
+        count: batchSize,
+        seed: seed != null ? int.tryParse(seed) : null,
+        steps: numInferenceSteps,
+        guidanceScale: guidanceScale,
+        enhancePrompt: promptEnhancement,
+      ),
+    );
 
     return response.images
         .map((img) => img.url)
@@ -1303,7 +1305,7 @@ class OpenAIProvider extends BaseHttpProvider
       final requestBody = {
         'model': config.model,
         'messages': [
-          {'role': 'user', 'content': 'hi'}
+          {'role': 'user', 'content': 'hi'},
         ],
         'stream': false,
         'max_tokens': 1, // Minimal tokens to reduce cost
@@ -1324,7 +1326,7 @@ class OpenAIProvider extends BaseHttpProvider
       if (response.statusCode != 200) {
         return (
           valid: false,
-          error: 'Model check failed with status: ${response.statusCode}'
+          error: 'Model check failed with status: ${response.statusCode}',
         );
       }
 
@@ -1396,7 +1398,10 @@ class OpenAIProvider extends BaseHttpProvider
       VoiceInfo(id: 'onyx', name: 'Onyx', description: 'Deep male voice'),
       VoiceInfo(id: 'nova', name: 'Nova', description: 'Female voice'),
       VoiceInfo(
-          id: 'shimmer', name: 'Shimmer', description: 'Soft female voice'),
+        id: 'shimmer',
+        name: 'Shimmer',
+        description: 'Soft female voice',
+      ),
     ];
   }
 
@@ -1416,21 +1421,23 @@ class OpenAIProvider extends BaseHttpProvider
       final formData = FormData();
 
       if (request.audioData != null) {
-        formData.files.add(MapEntry(
-          'file',
-          MultipartFile.fromBytes(
-            request.audioData!,
-            filename: 'audio.${request.format ?? 'wav'}',
+        formData.files.add(
+          MapEntry(
+            'file',
+            MultipartFile.fromBytes(
+              request.audioData!,
+              filename: 'audio.${request.format ?? 'wav'}',
+            ),
           ),
-        ));
+        );
       } else if (request.filePath != null) {
-        formData.files.add(MapEntry(
-          'file',
-          await MultipartFile.fromFile(request.filePath!),
-        ));
+        formData.files.add(
+          MapEntry('file', await MultipartFile.fromFile(request.filePath!)),
+        );
       } else {
         throw const InvalidRequestError(
-            'Either audioData or filePath must be provided');
+          'Either audioData or filePath must be provided',
+        );
       }
 
       formData.fields.add(MapEntry('model', request.model ?? 'whisper-1'));
@@ -1441,8 +1448,9 @@ class OpenAIProvider extends BaseHttpProvider
         formData.fields.add(MapEntry('timestamp_granularities[]', 'word'));
       }
       if (request.temperature != null) {
-        formData.fields
-            .add(MapEntry('temperature', request.temperature.toString()));
+        formData.fields.add(
+          MapEntry('temperature', request.temperature.toString()),
+        );
       }
 
       final response = await dio.post('audio/transcriptions', data: formData);
@@ -1592,4 +1600,548 @@ class OpenAIProvider extends BaseHttpProvider
       LanguageInfo(code: 'su', name: 'Sundanese'),
     ];
   }
+
+  // FileManagementCapability implementation
+  @override
+  Future<OpenAIFile> uploadFile(CreateFileRequest request) async {
+    if (config.apiKey.isEmpty) {
+      throw const AuthError('Missing OpenAI API key');
+    }
+
+    try {
+      final formData = FormData.fromMap({
+        'purpose': request.purpose.value,
+        'file': MultipartFile.fromBytes(
+          request.file,
+          filename: request.filename,
+        ),
+      });
+
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI request: POST /files');
+        logger.fine('OpenAI request headers: ${dio.options.headers}');
+      }
+
+      final response = await dio.post('files', data: formData);
+
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI HTTP status: ${response.statusCode}');
+      }
+
+      if (response.statusCode != 200) {
+        final statusCode = response.statusCode;
+        final errorData = response.data;
+
+        if (statusCode == 401) {
+          throw const AuthError('Invalid OpenAI API key for file upload');
+        } else if (statusCode == 429) {
+          throw const ProviderError('Rate limit exceeded for file upload');
+        } else {
+          throw ResponseFormatError(
+            'OpenAI file upload API returned error status: $statusCode',
+            errorData?.toString() ?? '',
+          );
+        }
+      }
+
+      return OpenAIFile.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw handleDioError(e);
+    } catch (e) {
+      throw GenericError('Unexpected error: $e');
+    }
+  }
+
+  @override
+  Future<ListFilesResponse> listFiles([ListFilesQuery? query]) async {
+    if (config.apiKey.isEmpty) {
+      throw const AuthError('Missing OpenAI API key');
+    }
+
+    try {
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI request: GET /files');
+        logger.fine('OpenAI request headers: ${dio.options.headers}');
+      }
+
+      final response = query != null
+          ? await dio.get('files', queryParameters: query.toQueryParameters())
+          : await dio.get('files');
+
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI HTTP status: ${response.statusCode}');
+      }
+
+      if (response.statusCode != 200) {
+        final statusCode = response.statusCode;
+        final errorData = response.data;
+
+        if (statusCode == 401) {
+          throw const AuthError('Invalid OpenAI API key for listing files');
+        } else if (statusCode == 429) {
+          throw const ProviderError('Rate limit exceeded for listing files');
+        } else {
+          throw ResponseFormatError(
+            'OpenAI list files API returned error status: $statusCode',
+            errorData?.toString() ?? '',
+          );
+        }
+      }
+
+      return ListFilesResponse.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw handleDioError(e);
+    } catch (e) {
+      throw GenericError('Unexpected error: $e');
+    }
+  }
+
+  @override
+  Future<OpenAIFile> retrieveFile(String fileId) async {
+    if (config.apiKey.isEmpty) {
+      throw const AuthError('Missing OpenAI API key');
+    }
+
+    try {
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI request: GET /files/$fileId');
+        logger.fine('OpenAI request headers: ${dio.options.headers}');
+      }
+
+      final response = await dio.get('files/$fileId');
+
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI HTTP status: ${response.statusCode}');
+      }
+
+      if (response.statusCode != 200) {
+        final statusCode = response.statusCode;
+        final errorData = response.data;
+
+        if (statusCode == 401) {
+          throw const AuthError('Invalid OpenAI API key for retrieving file');
+        } else if (statusCode == 404) {
+          throw const NotFoundError('File not found');
+        } else if (statusCode == 429) {
+          throw const ProviderError('Rate limit exceeded for retrieving file');
+        } else {
+          throw ResponseFormatError(
+            'OpenAI retrieve file API returned error status: $statusCode',
+            errorData?.toString() ?? '',
+          );
+        }
+      }
+
+      return OpenAIFile.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw handleDioError(e);
+    } catch (e) {
+      throw GenericError('Unexpected error: $e');
+    }
+  }
+
+  @override
+  Future<DeleteFileResponse> deleteFile(String fileId) async {
+    if (config.apiKey.isEmpty) {
+      throw const AuthError('Missing OpenAI API key');
+    }
+
+    try {
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI request: DELETE /files/$fileId');
+        logger.fine('OpenAI request headers: ${dio.options.headers}');
+      }
+
+      final response = await dio.delete('files/$fileId');
+
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI HTTP status: ${response.statusCode}');
+      }
+
+      if (response.statusCode != 200) {
+        final statusCode = response.statusCode;
+        final errorData = response.data;
+
+        if (statusCode == 401) {
+          throw const AuthError('Invalid OpenAI API key for deleting file');
+        } else if (statusCode == 404) {
+          throw const NotFoundError('File not found');
+        } else if (statusCode == 429) {
+          throw const ProviderError('Rate limit exceeded for deleting file');
+        } else {
+          throw ResponseFormatError(
+            'OpenAI delete file API returned error status: $statusCode',
+            errorData?.toString() ?? '',
+          );
+        }
+      }
+
+      return DeleteFileResponse.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw handleDioError(e);
+    } catch (e) {
+      throw GenericError('Unexpected error: $e');
+    }
+  }
+
+  @override
+  Future<List<int>> getFileContent(String fileId) async {
+    if (config.apiKey.isEmpty) {
+      throw const AuthError('Missing OpenAI API key');
+    }
+
+    try {
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI request: GET /files/$fileId/content');
+        logger.fine('OpenAI request headers: ${dio.options.headers}');
+      }
+
+      final response = await dio.get(
+        'files/$fileId/content',
+        options: Options(responseType: ResponseType.bytes),
+      );
+
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI HTTP status: ${response.statusCode}');
+      }
+
+      if (response.statusCode != 200) {
+        final statusCode = response.statusCode;
+
+        if (statusCode == 401) {
+          throw const AuthError('Invalid OpenAI API key for file content');
+        } else if (statusCode == 404) {
+          throw const GenericError('File not found');
+        } else if (statusCode == 429) {
+          throw const ProviderError('Rate limit exceeded for file content');
+        } else {
+          throw ResponseFormatError(
+            'OpenAI file content API returned error status: $statusCode',
+            'Binary response data',
+          );
+        }
+      }
+
+      return response.data as List<int>;
+    } on DioException catch (e) {
+      throw handleDioError(e);
+    } catch (e) {
+      throw GenericError('Unexpected error: $e');
+    }
+  }
+
+  // ModerationCapability implementation
+  @override
+  Future<ModerationResponse> moderate(ModerationRequest request) async {
+    if (config.apiKey.isEmpty) {
+      throw const AuthError('Missing OpenAI API key');
+    }
+
+    try {
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI request: POST /moderations');
+        logger.fine('OpenAI request headers: ${dio.options.headers}');
+      }
+
+      final response = await dio.post('moderations', data: request.toJson());
+
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI HTTP status: ${response.statusCode}');
+      }
+
+      if (response.statusCode != 200) {
+        final statusCode = response.statusCode;
+        final errorData = response.data;
+
+        if (statusCode == 401) {
+          throw const AuthError('Invalid OpenAI API key for moderation');
+        } else if (statusCode == 429) {
+          throw const ProviderError('Rate limit exceeded for moderation');
+        } else {
+          throw ResponseFormatError(
+            'OpenAI moderation API returned error status: $statusCode',
+            errorData?.toString() ?? '',
+          );
+        }
+      }
+
+      return ModerationResponse.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw handleDioError(e);
+    } catch (e) {
+      throw GenericError('Unexpected error: $e');
+    }
+  }
+
+  // AssistantCapability implementation
+  @override
+  Future<Assistant> createAssistant(CreateAssistantRequest request) async {
+    if (config.apiKey.isEmpty) {
+      throw const AuthError('Missing OpenAI API key');
+    }
+
+    try {
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI request: POST /assistants');
+        logger.fine('OpenAI request headers: ${dio.options.headers}');
+      }
+
+      final response = await dio.post('assistants', data: request.toJson());
+
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI HTTP status: ${response.statusCode}');
+      }
+
+      if (response.statusCode != 200) {
+        final statusCode = response.statusCode;
+        final errorData = response.data;
+
+        if (statusCode == 401) {
+          throw const AuthError(
+            'Invalid OpenAI API key for creating assistant',
+          );
+        } else if (statusCode == 429) {
+          throw const ProviderError(
+            'Rate limit exceeded for creating assistant',
+          );
+        } else {
+          throw ResponseFormatError(
+            'OpenAI create assistant API returned error status: $statusCode',
+            errorData?.toString() ?? '',
+          );
+        }
+      }
+
+      return Assistant.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw handleDioError(e);
+    } catch (e) {
+      throw GenericError('Unexpected error: $e');
+    }
+  }
+
+  @override
+  Future<ListAssistantsResponse> listAssistants([
+    ListAssistantsQuery? query,
+  ]) async {
+    if (config.apiKey.isEmpty) {
+      throw const AuthError('Missing OpenAI API key');
+    }
+
+    try {
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI request: GET /assistants');
+        logger.fine('OpenAI request headers: ${dio.options.headers}');
+      }
+
+      final response = query != null
+          ? await dio.get(
+              'assistants',
+              queryParameters: query.toQueryParameters(),
+            )
+          : await dio.get('assistants');
+
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI HTTP status: ${response.statusCode}');
+      }
+
+      if (response.statusCode != 200) {
+        final statusCode = response.statusCode;
+        final errorData = response.data;
+
+        if (statusCode == 401) {
+          throw const AuthError(
+            'Invalid OpenAI API key for listing assistants',
+          );
+        } else if (statusCode == 429) {
+          throw const ProviderError(
+            'Rate limit exceeded for listing assistants',
+          );
+        } else {
+          throw ResponseFormatError(
+            'OpenAI list assistants API returned error status: $statusCode',
+            errorData?.toString() ?? '',
+          );
+        }
+      }
+
+      return ListAssistantsResponse.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+    } on DioException catch (e) {
+      throw handleDioError(e);
+    } catch (e) {
+      throw GenericError('Unexpected error: $e');
+    }
+  }
+
+  @override
+  Future<Assistant> retrieveAssistant(String assistantId) async {
+    if (config.apiKey.isEmpty) {
+      throw const AuthError('Missing OpenAI API key');
+    }
+
+    try {
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI request: GET /assistants/$assistantId');
+        logger.fine('OpenAI request headers: ${dio.options.headers}');
+      }
+
+      final response = await dio.get('assistants/$assistantId');
+
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI HTTP status: ${response.statusCode}');
+      }
+
+      if (response.statusCode != 200) {
+        final statusCode = response.statusCode;
+        final errorData = response.data;
+
+        if (statusCode == 401) {
+          throw const AuthError(
+            'Invalid OpenAI API key for retrieving assistant',
+          );
+        } else if (statusCode == 404) {
+          throw const GenericError('Assistant not found');
+        } else if (statusCode == 429) {
+          throw const ProviderError(
+            'Rate limit exceeded for retrieving assistant',
+          );
+        } else {
+          throw ResponseFormatError(
+            'OpenAI retrieve assistant API returned error status: $statusCode',
+            errorData?.toString() ?? '',
+          );
+        }
+      }
+
+      return Assistant.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw handleDioError(e);
+    } catch (e) {
+      throw GenericError('Unexpected error: $e');
+    }
+  }
+
+  @override
+  Future<Assistant> modifyAssistant(
+    String assistantId,
+    ModifyAssistantRequest request,
+  ) async {
+    if (config.apiKey.isEmpty) {
+      throw const AuthError('Missing OpenAI API key');
+    }
+
+    try {
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI request: POST /assistants/$assistantId');
+        logger.fine('OpenAI request headers: ${dio.options.headers}');
+      }
+
+      final response = await dio.post(
+        'assistants/$assistantId',
+        data: request.toJson(),
+      );
+
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI HTTP status: ${response.statusCode}');
+      }
+
+      if (response.statusCode != 200) {
+        final statusCode = response.statusCode;
+        final errorData = response.data;
+
+        if (statusCode == 401) {
+          throw const AuthError(
+            'Invalid OpenAI API key for modifying assistant',
+          );
+        } else if (statusCode == 404) {
+          throw const GenericError('Assistant not found');
+        } else if (statusCode == 429) {
+          throw const ProviderError(
+            'Rate limit exceeded for modifying assistant',
+          );
+        } else {
+          throw ResponseFormatError(
+            'OpenAI modify assistant API returned error status: $statusCode',
+            errorData?.toString() ?? '',
+          );
+        }
+      }
+
+      return Assistant.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw handleDioError(e);
+    } catch (e) {
+      throw GenericError('Unexpected error: $e');
+    }
+  }
+
+  @override
+  Future<DeleteAssistantResponse> deleteAssistant(String assistantId) async {
+    if (config.apiKey.isEmpty) {
+      throw const AuthError('Missing OpenAI API key');
+    }
+
+    try {
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI request: DELETE /assistants/$assistantId');
+        logger.fine('OpenAI request headers: ${dio.options.headers}');
+      }
+
+      final response = await dio.delete('assistants/$assistantId');
+
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine('OpenAI HTTP status: ${response.statusCode}');
+      }
+
+      if (response.statusCode != 200) {
+        final statusCode = response.statusCode;
+        final errorData = response.data;
+
+        if (statusCode == 401) {
+          throw const AuthError(
+            'Invalid OpenAI API key for deleting assistant',
+          );
+        } else if (statusCode == 404) {
+          throw const GenericError('Assistant not found');
+        } else if (statusCode == 429) {
+          throw const ProviderError(
+            'Rate limit exceeded for deleting assistant',
+          );
+        } else {
+          throw ResponseFormatError(
+            'OpenAI delete assistant API returned error status: $statusCode',
+            errorData?.toString() ?? '',
+          );
+        }
+      }
+
+      return DeleteAssistantResponse.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+    } on DioException catch (e) {
+      throw handleDioError(e);
+    } catch (e) {
+      throw GenericError('Unexpected error: $e');
+    }
+  }
+
+  // ProviderCapabilities implementation
+  @override
+  Set<LLMCapability> get supportedCapabilities => {
+        LLMCapability.chat,
+        LLMCapability.embedding,
+        LLMCapability.textToSpeech,
+        LLMCapability.speechToText,
+        LLMCapability.modelListing,
+        LLMCapability.imageGeneration,
+        LLMCapability.fileManagement,
+        LLMCapability.moderation,
+        LLMCapability.assistants,
+      };
+
+  @override
+  bool supports(LLMCapability capability) =>
+      supportedCapabilities.contains(capability);
 }

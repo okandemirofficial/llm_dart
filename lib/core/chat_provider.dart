@@ -2,6 +2,9 @@ import '../models/chat_models.dart';
 import '../models/tool_models.dart';
 import '../models/audio_models.dart';
 import '../models/image_models.dart';
+import '../models/file_models.dart';
+import '../models/moderation_models.dart';
+import '../models/assistant_models.dart';
 import 'llm_error.dart';
 
 /// Enumeration of LLM capabilities that providers can support
@@ -38,6 +41,15 @@ enum LLMCapability {
 
   /// Image generation capabilities
   imageGeneration,
+
+  /// File management capabilities
+  fileManagement,
+
+  /// Content moderation capabilities
+  moderation,
+
+  /// Assistant capabilities
+  assistants,
 }
 
 /// Response from a chat provider
@@ -80,18 +92,18 @@ class UsageInfo {
   }
 
   Map<String, dynamic> toJson() => {
-        if (promptTokens != null) 'prompt_tokens': promptTokens,
-        if (completionTokens != null) 'completion_tokens': completionTokens,
-        if (totalTokens != null) 'total_tokens': totalTokens,
-        if (reasoningTokens != null) 'reasoning_tokens': reasoningTokens,
-      };
+    if (promptTokens != null) 'prompt_tokens': promptTokens,
+    if (completionTokens != null) 'completion_tokens': completionTokens,
+    if (totalTokens != null) 'total_tokens': totalTokens,
+    if (reasoningTokens != null) 'reasoning_tokens': reasoningTokens,
+  };
 
   factory UsageInfo.fromJson(Map<String, dynamic> json) => UsageInfo(
-        promptTokens: json['prompt_tokens'] as int?,
-        completionTokens: json['completion_tokens'] as int?,
-        totalTokens: json['total_tokens'] as int?,
-        reasoningTokens: json['reasoning_tokens'] as int?,
-      );
+    promptTokens: json['prompt_tokens'] as int?,
+    completionTokens: json['completion_tokens'] as int?,
+    totalTokens: json['total_tokens'] as int?,
+    reasoningTokens: json['reasoning_tokens'] as int?,
+  );
 
   @override
   String toString() {
@@ -231,13 +243,13 @@ class CompletionRequest {
   });
 
   Map<String, dynamic> toJson() => {
-        'prompt': prompt,
-        if (maxTokens != null) 'max_tokens': maxTokens,
-        if (temperature != null) 'temperature': temperature,
-        if (topP != null) 'top_p': topP,
-        if (topK != null) 'top_k': topK,
-        if (stop != null) 'stop': stop,
-      };
+    'prompt': prompt,
+    if (maxTokens != null) 'max_tokens': maxTokens,
+    if (temperature != null) 'temperature': temperature,
+    if (topP != null) 'top_p': topP,
+    if (topK != null) 'top_k': topK,
+    if (stop != null) 'stop': stop,
+  };
 }
 
 /// Completion response from text completion providers
@@ -312,7 +324,8 @@ abstract class ModelListingCapability {
 abstract class ImageGenerationCapability {
   /// Generate images with full configuration support
   Future<ImageGenerationResponse> generateImages(
-      ImageGenerationRequest request);
+    ImageGenerationRequest request,
+  );
 
   /// Simple image generation (convenience method)
   Future<List<String>> generateImage({
@@ -326,17 +339,19 @@ abstract class ImageGenerationCapability {
     double? guidanceScale,
     bool? promptEnhancement,
   }) async {
-    final response = await generateImages(ImageGenerationRequest(
-      prompt: prompt,
-      model: model,
-      negativePrompt: negativePrompt,
-      size: imageSize,
-      count: batchSize,
-      seed: seed != null ? int.tryParse(seed) : null,
-      steps: numInferenceSteps,
-      guidanceScale: guidanceScale,
-      enhancePrompt: promptEnhancement,
-    ));
+    final response = await generateImages(
+      ImageGenerationRequest(
+        prompt: prompt,
+        model: model,
+        negativePrompt: negativePrompt,
+        size: imageSize,
+        count: batchSize,
+        seed: seed != null ? int.tryParse(seed) : null,
+        steps: numInferenceSteps,
+        guidanceScale: guidanceScale,
+        enhancePrompt: promptEnhancement,
+      ),
+    );
 
     return response.images
         .map((img) => img.url)
@@ -395,3 +410,48 @@ abstract class FullLLMProvider
         EmbeddingCapability,
         ModelListingCapability,
         ProviderCapabilities {}
+
+/// File management capability for uploading and managing files
+abstract class FileManagementCapability {
+  /// Upload a file
+  Future<OpenAIFile> uploadFile(CreateFileRequest request);
+
+  /// List files
+  Future<ListFilesResponse> listFiles([ListFilesQuery? query]);
+
+  /// Retrieve a file
+  Future<OpenAIFile> retrieveFile(String fileId);
+
+  /// Delete a file
+  Future<DeleteFileResponse> deleteFile(String fileId);
+
+  /// Get file content
+  Future<List<int>> getFileContent(String fileId);
+}
+
+/// Content moderation capability
+abstract class ModerationCapability {
+  /// Moderate content for policy violations
+  Future<ModerationResponse> moderate(ModerationRequest request);
+}
+
+/// Assistant management capability
+abstract class AssistantCapability {
+  /// Create an assistant
+  Future<Assistant> createAssistant(CreateAssistantRequest request);
+
+  /// List assistants
+  Future<ListAssistantsResponse> listAssistants([ListAssistantsQuery? query]);
+
+  /// Retrieve an assistant
+  Future<Assistant> retrieveAssistant(String assistantId);
+
+  /// Modify an assistant
+  Future<Assistant> modifyAssistant(
+    String assistantId,
+    ModifyAssistantRequest request,
+  );
+
+  /// Delete an assistant
+  Future<DeleteAssistantResponse> deleteAssistant(String assistantId);
+}

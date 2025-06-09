@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - Not yet released (WIP)
+
+### Changed
+
+- **OpenAI Provider**: Replaced with new modular implementation
+  - Better maintainability and testing capabilities
+  - Improved error handling and type safety
+  - Full backward compatibility maintained
+  - All existing APIs continue to work unchanged
+
+### Added
+
+- **Modular OpenAI Example**: Comprehensive example demonstrating all OpenAI capabilities
+- **Enhanced Documentation**: Added guides for the new OpenAI provider architecture
+
 ## [0.1.2] - 2025-6-8
 
 ### Fixed

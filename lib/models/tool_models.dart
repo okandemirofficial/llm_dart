@@ -67,11 +67,10 @@ class ParametersSchema {
   });
 
   Map<String, dynamic> toJson() => {
-        'type': schemaType,
-        'properties':
-            properties.map((key, value) => MapEntry(key, value.toJson())),
-        'required': required,
-      };
+    'type': schemaType,
+    'properties': properties.map((key, value) => MapEntry(key, value.toJson())),
+    'required': required,
+  };
 
   factory ParametersSchema.fromJson(Map<String, dynamic> json) =>
       ParametersSchema(
@@ -104,18 +103,65 @@ class FunctionTool {
   });
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'description': description,
-        'parameters': parameters.toJson(),
-      };
+    'name': name,
+    'description': description,
+    'parameters': parameters.toJson(),
+  };
 
   factory FunctionTool.fromJson(Map<String, dynamic> json) => FunctionTool(
-        name: json['name'] as String,
-        description: json['description'] as String,
-        parameters: ParametersSchema.fromJson(
-          json['parameters'] as Map<String, dynamic>,
-        ),
-      );
+    name: json['name'] as String,
+    description: json['description'] as String,
+    parameters: ParametersSchema.fromJson(
+      json['parameters'] as Map<String, dynamic>,
+    ),
+  );
+}
+
+/// Represents a function object for assistants (similar to FunctionTool but with optional parameters)
+class FunctionObject {
+  /// The name of the function
+  final String name;
+
+  /// Description of what the function does
+  final String? description;
+
+  /// The parameters schema for the function (optional for assistants)
+  final Map<String, dynamic>? parameters;
+
+  /// Whether to enable strict schema adherence
+  final bool? strict;
+
+  const FunctionObject({
+    required this.name,
+    this.description,
+    this.parameters,
+    this.strict,
+  });
+
+  Map<String, dynamic> toJson() {
+    final json = <String, dynamic>{'name': name};
+
+    if (description != null) {
+      json['description'] = description;
+    }
+
+    if (parameters != null) {
+      json['parameters'] = parameters;
+    }
+
+    if (strict != null) {
+      json['strict'] = strict;
+    }
+
+    return json;
+  }
+
+  factory FunctionObject.fromJson(Map<String, dynamic> json) => FunctionObject(
+    name: json['name'] as String,
+    description: json['description'] as String?,
+    parameters: json['parameters'] as Map<String, dynamic>?,
+    strict: json['strict'] as bool?,
+  );
 }
 
 /// Represents a tool that can be used in chat
@@ -129,30 +175,28 @@ class Tool {
   const Tool({required this.toolType, required this.function});
 
   Map<String, dynamic> toJson() => {
-        'type': toolType,
-        'function': function.toJson(),
-      };
+    'type': toolType,
+    'function': function.toJson(),
+  };
 
   factory Tool.fromJson(Map<String, dynamic> json) => Tool(
-        toolType: json['type'] as String,
-        function:
-            FunctionTool.fromJson(json['function'] as Map<String, dynamic>),
-      );
+    toolType: json['type'] as String,
+    function: FunctionTool.fromJson(json['function'] as Map<String, dynamic>),
+  );
 
   /// Create a function tool
   factory Tool.function({
     required String name,
     required String description,
     required ParametersSchema parameters,
-  }) =>
-      Tool(
-        toolType: 'function',
-        function: FunctionTool(
-          name: name,
-          description: description,
-          parameters: parameters,
-        ),
-      );
+  }) => Tool(
+    toolType: 'function',
+    function: FunctionTool(
+      name: name,
+      description: description,
+      parameters: parameters,
+    ),
+  );
 }
 
 /// Tool choice determines how the LLM uses available tools.
@@ -191,9 +235,9 @@ class SpecificToolChoice extends ToolChoice {
 
   @override
   Map<String, dynamic> toJson() => {
-        'type': 'function',
-        'function': {'name': toolName},
-      };
+    'type': 'function',
+    'function': {'name': toolName},
+  };
 }
 
 /// Explicitly disables the use of tools.

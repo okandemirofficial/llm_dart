@@ -1,0 +1,143 @@
+import '../../models/tool_models.dart';
+import '../../models/chat_models.dart';
+
+/// Modular OpenAI provider configuration
+///
+/// This class contains all configuration options for the new modular OpenAI providers.
+/// It's extracted from the main provider to improve modularity and reusability.
+/// Note: This is separate from the existing OpenAIConfig to avoid naming conflicts.
+class ModularOpenAIConfig {
+  final String apiKey;
+  final String baseUrl;
+  final String model;
+  final int? maxTokens;
+  final double? temperature;
+  final String? systemPrompt;
+  final Duration? timeout;
+  final bool stream;
+  final double? topP;
+  final int? topK;
+  final List<Tool>? tools;
+  final ToolChoice? toolChoice;
+  final ReasoningEffort? reasoningEffort;
+  final StructuredOutputFormat? jsonSchema;
+  final String? voice;
+  final String? embeddingEncodingFormat;
+  final int? embeddingDimensions;
+
+  const ModularOpenAIConfig({
+    required this.apiKey,
+    this.baseUrl = 'https://api.openai.com/v1/',
+    this.model = 'gpt-3.5-turbo',
+    this.maxTokens,
+    this.temperature,
+    this.systemPrompt,
+    this.timeout,
+    this.stream = false,
+    this.topP,
+    this.topK,
+    this.tools,
+    this.toolChoice,
+    this.reasoningEffort,
+    this.jsonSchema,
+    this.voice,
+    this.embeddingEncodingFormat,
+    this.embeddingDimensions,
+  });
+
+  ModularOpenAIConfig copyWith({
+    String? apiKey,
+    String? baseUrl,
+    String? model,
+    int? maxTokens,
+    double? temperature,
+    String? systemPrompt,
+    Duration? timeout,
+    bool? stream,
+    double? topP,
+    int? topK,
+    List<Tool>? tools,
+    ToolChoice? toolChoice,
+    ReasoningEffort? reasoningEffort,
+    StructuredOutputFormat? jsonSchema,
+    String? voice,
+    String? embeddingEncodingFormat,
+    int? embeddingDimensions,
+  }) =>
+      ModularOpenAIConfig(
+        apiKey: apiKey ?? this.apiKey,
+        baseUrl: baseUrl ?? this.baseUrl,
+        model: model ?? this.model,
+        maxTokens: maxTokens ?? this.maxTokens,
+        temperature: temperature ?? this.temperature,
+        systemPrompt: systemPrompt ?? this.systemPrompt,
+        timeout: timeout ?? this.timeout,
+        stream: stream ?? this.stream,
+        topP: topP ?? this.topP,
+        topK: topK ?? this.topK,
+        tools: tools ?? this.tools,
+        toolChoice: toolChoice ?? this.toolChoice,
+        reasoningEffort: reasoningEffort ?? this.reasoningEffort,
+        jsonSchema: jsonSchema ?? this.jsonSchema,
+        voice: voice ?? this.voice,
+        embeddingEncodingFormat:
+            embeddingEncodingFormat ?? this.embeddingEncodingFormat,
+        embeddingDimensions: embeddingDimensions ?? this.embeddingDimensions,
+      );
+
+  @override
+  String toString() {
+    return 'ModularOpenAIConfig('
+        'model: $model, '
+        'baseUrl: $baseUrl, '
+        'maxTokens: $maxTokens, '
+        'temperature: $temperature'
+        ')';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ModularOpenAIConfig &&
+        other.apiKey == apiKey &&
+        other.baseUrl == baseUrl &&
+        other.model == model &&
+        other.maxTokens == maxTokens &&
+        other.temperature == temperature &&
+        other.systemPrompt == systemPrompt &&
+        other.timeout == timeout &&
+        other.stream == stream &&
+        other.topP == topP &&
+        other.topK == topK &&
+        other.tools == tools &&
+        other.toolChoice == toolChoice &&
+        other.reasoningEffort == reasoningEffort &&
+        other.jsonSchema == jsonSchema &&
+        other.voice == voice &&
+        other.embeddingEncodingFormat == embeddingEncodingFormat &&
+        other.embeddingDimensions == embeddingDimensions;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      apiKey,
+      baseUrl,
+      model,
+      maxTokens,
+      temperature,
+      systemPrompt,
+      timeout,
+      stream,
+      topP,
+      topK,
+      tools,
+      toolChoice,
+      reasoningEffort,
+      jsonSchema,
+      voice,
+      embeddingEncodingFormat,
+      embeddingDimensions,
+    );
+  }
+}
