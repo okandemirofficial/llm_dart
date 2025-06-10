@@ -406,9 +406,6 @@ class ImageInput {
   /// Image data as bytes
   final List<int>? data;
 
-  /// Image file path (for file-based inputs)
-  final String? filePath;
-
   /// Image URL (for URL-based inputs)
   final String? url;
 
@@ -417,14 +414,9 @@ class ImageInput {
 
   const ImageInput({
     this.data,
-    this.filePath,
     this.url,
     this.format,
   });
-
-  /// Create from file path
-  factory ImageInput.fromFile(String filePath, {String? format}) =>
-      ImageInput(filePath: filePath, format: format);
 
   /// Create from URL
   factory ImageInput.fromUrl(String url, {String? format}) =>
@@ -436,7 +428,6 @@ class ImageInput {
 
   Map<String, dynamic> toJson() => {
         if (data != null) 'data': data,
-        if (filePath != null) 'file_path': filePath,
         if (url != null) 'url': url,
         if (format != null) 'format': format,
       };
@@ -444,7 +435,6 @@ class ImageInput {
   factory ImageInput.fromJson(Map<String, dynamic> json) => ImageInput(
         data:
             json['data'] != null ? List<int>.from(json['data'] as List) : null,
-        filePath: json['file_path'] as String?,
         url: json['url'] as String?,
         format: json['format'] as String?,
       );
@@ -452,7 +442,6 @@ class ImageInput {
   @override
   String toString() => 'ImageInput('
       'hasData: ${data != null}, '
-      'filePath: $filePath, '
       'url: $url, '
       'format: $format'
       ')';

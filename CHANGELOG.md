@@ -11,8 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Web Platform Support**: Removed `dart:io` dependency to enable Web and WASM compatibility
   - Removed `uploadFileFromPath()` method from OpenAI Files API
+  - Removed `filePath` property from `ImageInput` class for cross-platform compatibility
   - Enables WASM compatibility for future Dart Web applications
   - Use `uploadFile()` or `uploadFileFromBytes()` methods instead for cross-platform file uploads
+  - Use `ImageInput.fromBytes()` or `ImageInput.fromUrl()` instead of file path-based image inputs
 
 ## [0.2.0] - 2025-6-10
 

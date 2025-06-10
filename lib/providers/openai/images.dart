@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
@@ -124,17 +123,9 @@ class OpenAIImages implements ImageGenerationCapability {
     // Add image data
     if (request.image.data != null) {
       formData['image'] = request.image.data!;
-    } else if (request.image.filePath != null) {
-      final file = File(request.image.filePath!);
-      if (!await file.exists()) {
-        throw InvalidRequestError(
-          'Image file does not exist: ${request.image.filePath}',
-        );
-      }
-      formData['image'] = await file.readAsBytes();
     } else {
       throw const InvalidRequestError(
-        'Image data or file path is required for image editing',
+        'Image data is required for image editing',
       );
     }
 
@@ -142,15 +133,8 @@ class OpenAIImages implements ImageGenerationCapability {
     if (request.mask != null) {
       if (request.mask!.data != null) {
         formData['mask'] = request.mask!.data!;
-      } else if (request.mask!.filePath != null) {
-        final maskFile = File(request.mask!.filePath!);
-        if (!await maskFile.exists()) {
-          throw InvalidRequestError(
-            'Mask file does not exist: ${request.mask!.filePath}',
-          );
-        }
-        formData['mask'] = await maskFile.readAsBytes();
       }
+      // Note: filePath support removed for Web platform compatibility
     }
 
     final responseData = await _postMultipartForm('images/edits', formData);
@@ -173,17 +157,9 @@ class OpenAIImages implements ImageGenerationCapability {
     // Add image data
     if (request.image.data != null) {
       formData['image'] = request.image.data!;
-    } else if (request.image.filePath != null) {
-      final file = File(request.image.filePath!);
-      if (!await file.exists()) {
-        throw InvalidRequestError(
-          'Image file does not exist: ${request.image.filePath}',
-        );
-      }
-      formData['image'] = await file.readAsBytes();
     } else {
       throw const InvalidRequestError(
-        'Image data or file path is required for image variation',
+        'Image data is required for image variation',
       );
     }
 
