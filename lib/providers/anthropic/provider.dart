@@ -208,56 +208,6 @@ class AnthropicProvider
     return _files.getFileContent(fileId);
   }
 
-  // ========== Legacy File Management Methods ==========
-
-  /// Upload a file to Anthropic (legacy method)
-  ///
-  /// **API Reference:** https://docs.anthropic.com/en/api/files-create
-  ///
-  /// Uploads a file to Anthropic's file storage for use in conversations.
-  /// Returns an [AnthropicFile] object with metadata about the uploaded file.
-  Future<AnthropicFile> uploadFileAnthropic(
-      AnthropicFileUploadRequest request) async {
-    return _files.uploadFileAnthropic(request);
-  }
-
-  /// List files in the workspace (legacy method)
-  ///
-  /// **API Reference:** https://docs.anthropic.com/en/api/files-list
-  ///
-  /// Returns a paginated list of files with optional filtering.
-  Future<AnthropicFileListResponse> listFilesAnthropic(
-      [AnthropicFileListQuery? query]) async {
-    return _files.listFilesAnthropic(query);
-  }
-
-  /// Get file metadata
-  ///
-  /// **API Reference:** https://docs.anthropic.com/en/api/files-metadata
-  ///
-  /// Returns metadata for a specific file including size, type, and creation date.
-  Future<AnthropicFile> getFileMetadata(String fileId) async {
-    return _files.getFileMetadata(fileId);
-  }
-
-  /// Download file content
-  ///
-  /// **API Reference:** https://docs.anthropic.com/en/api/files-content
-  ///
-  /// Downloads the raw content of a file as bytes.
-  Future<List<int>> downloadFile(String fileId) async {
-    return _files.downloadFile(fileId);
-  }
-
-  /// Delete a file (legacy method)
-  ///
-  /// **API Reference:** https://docs.anthropic.com/en/api/files-delete
-  ///
-  /// Permanently deletes a file from the workspace.
-  Future<bool> deleteFileAnthropic(String fileId) async {
-    return _files.deleteFileAnthropic(fileId);
-  }
-
   /// Upload file from bytes with automatic filename
   Future<FileObject> uploadFileFromBytes(
     List<int> bytes, {
