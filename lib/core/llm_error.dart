@@ -352,11 +352,13 @@ class HttpErrorMapper {
         message.toLowerCase().contains('quota') ||
         message.toLowerCase().contains('billing')) {
       String? quotaType;
-      if (message.toLowerCase().contains('token'))
+      if (message.toLowerCase().contains('token')) {
         quotaType = 'tokens';
-      else if (message.toLowerCase().contains('request'))
+      } else if (message.toLowerCase().contains('request')) {
         quotaType = 'requests';
-      else if (message.toLowerCase().contains('credit')) quotaType = 'credits';
+      } else if (message.toLowerCase().contains('credit')) {
+        quotaType = 'credits';
+      }
 
       return QuotaExceededError(message, quotaType: quotaType);
     }
