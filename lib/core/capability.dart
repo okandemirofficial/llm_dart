@@ -647,11 +647,43 @@ abstract class ModelListingCapability {
 }
 
 /// Capability interface for image generation
+///
+/// Supports image generation, editing, and variation creation across different providers.
+/// Reference: https://platform.openai.com/docs/api-reference/images
 abstract class ImageGenerationCapability {
-  /// Generate images with full configuration support
+  /// Generate images from text prompts
+  ///
+  /// Creates one or more images based on a text description.
   Future<ImageGenerationResponse> generateImages(
     ImageGenerationRequest request,
   );
+
+  /// Edit an existing image based on a prompt
+  ///
+  /// Creates an edited or extended image given an original image and a prompt.
+  /// The original image must have transparent areas that indicate where to edit.
+  Future<ImageGenerationResponse> editImage(
+    ImageEditRequest request,
+  );
+
+  /// Create variations of an existing image
+  ///
+  /// Creates variations of a given image without requiring a text prompt.
+  Future<ImageGenerationResponse> createVariation(
+    ImageVariationRequest request,
+  );
+
+  /// Get supported image sizes for this provider
+  List<String> getSupportedSizes();
+
+  /// Get supported response formats for this provider
+  List<String> getSupportedFormats();
+
+  /// Check if the provider supports image editing
+  bool get supportsImageEditing => true;
+
+  /// Check if the provider supports image variations
+  bool get supportsImageVariations => true;
 
   /// Simple image generation (convenience method)
   Future<List<String>> generateImage({
@@ -685,12 +717,6 @@ abstract class ImageGenerationCapability {
         .cast<String>()
         .toList();
   }
-
-  /// Get supported image sizes
-  List<String> getSupportedSizes();
-
-  /// Get supported image formats
-  List<String> getSupportedFormats();
 }
 
 /// Capability interface for text completion (non-chat)

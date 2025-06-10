@@ -56,6 +56,21 @@ class ProviderDefaults {
     'webm',
   ];
 
+  // OpenAI supported image sizes
+  static const List<String> openaiSupportedImageSizes = [
+    '256x256', // DALL-E 2 only
+    '512x512', // DALL-E 2 only
+    '1024x1024', // Both DALL-E 2 and 3
+    '1792x1024', // DALL-E 3 only (landscape)
+    '1024x1792', // DALL-E 3 only (portrait)
+  ];
+
+  // OpenAI supported image formats
+  static const List<String> openaiSupportedImageFormats = [
+    'url', // Image URL (default)
+    'b64_json', // Base64 encoded JSON
+  ];
+
   // Anthropic
   static const String anthropicBaseUrl = 'https://api1.oaipro.com/v1/';
   static const String anthropicDefaultModel = 'claude-3-5-sonnet-20241022';
@@ -129,6 +144,8 @@ class ProviderDefaults {
           'supportedVoices': openaiSupportedVoices,
           'supportedTTSFormats': openaiSupportedTTSFormats,
           'supportedSTTFormats': openaiSupportedSTTFormats,
+          'supportedImageSizes': openaiSupportedImageSizes,
+          'supportedImageFormats': openaiSupportedImageFormats,
         };
       case 'anthropic':
         return {

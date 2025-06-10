@@ -25,12 +25,19 @@ OpenAI is the industry leader in AI with comprehensive features and robust APIs.
 - Image generation with DALL-E
 - Multi-modal conversations
 
-### 🎵 Audio Processing
-**[audio_processing.dart](audio_processing.dart)** - Speech and audio features
+### 🎵 Audio Capabilities
+**[audio_capabilities.dart](audio_capabilities.dart)** - Speech and audio features
 - Speech-to-text with Whisper
 - Text-to-speech generation
 - Audio file processing
-- Real-time audio streaming
+- Audio translation
+
+### 🎨 Image Generation
+**[image_generation.dart](image_generation.dart)** - DALL-E image generation
+- DALL-E 2 and DALL-E 3 generation
+- Image editing and variations
+- Advanced configuration options
+- Quality and style settings
 
 ### 🤖 Assistants API
 **[assistants.dart](assistants.dart)** - OpenAI Assistants
@@ -71,8 +78,11 @@ dart run basic_usage.dart
 # Try advanced features
 dart run advanced_features.dart
 
-# Test vision capabilities
-dart run vision_example.dart
+# Test audio capabilities
+dart run audio_capabilities.dart
+
+# Test image generation
+dart run image_generation.dart
 ```
 
 ## 💡 Best Practices

@@ -39,6 +39,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Graceful degradation with `UnsupportedError` for unsupported features
   - Cross-provider audio functionality comparison and benchmarking support
 
+- **DALL-E Image Generation Support**: Complete OpenAI image API implementation
+  - Image generation, editing, and variations with DALL-E 2/3
+  - Enhanced `ImageGenerationCapability` interface with new methods
+  - Support for multiple formats, sizes, and quality options
+
 ### Changed
 
 - **All Providers**: Refactored to modular architecture
@@ -72,6 +77,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Improved OpenAI audio support with translation capabilities
   - Enhanced ElevenLabs audio support with streaming and real-time features
   - Better error handling and feature detection for audio operations
+
+- **Image Generation**: Enhanced OpenAI provider with complete DALL-E support
+  - Extended `ImageGenerationCapability` interface with editing and variation methods
+  - Updated multi-modal examples with real image generation implementations
 
 ### Removed
 
@@ -108,6 +117,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Audio translation now available through `translateAudio()` method (OpenAI only)
   - Enhanced audio models support advanced features like character timing and speaker diarization
   - Convenience methods (`speech()`, `transcribe()`, `translate()`) automatically available
+
+- **Image Generation**: Enhanced capabilities with new features
+  - New `editImage()` and `createVariation()` methods available for DALL-E 2
+  - Use `provider.supportsImageEditing` and `provider.supportsImageVariations` for feature detection
 
 ## [0.1.2] - 2025-6-8
 
