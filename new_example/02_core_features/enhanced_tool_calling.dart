@@ -80,25 +80,26 @@ Future<void> demonstrateToolValidation(ChatCapability provider) async {
 
     if (response.toolCalls != null && response.toolCalls!.isNotEmpty) {
       print('   🔧 Tool calls made:');
-      
+
       for (final toolCall in response.toolCalls!) {
         print('      • Function: ${toolCall.function.name}');
         print('      • Arguments: ${toolCall.function.arguments}');
-        
+
         // Validate tool call
         try {
-          final isValid = ToolValidator.validateToolCall(toolCall, calculatorTool);
+          final isValid =
+              ToolValidator.validateToolCall(toolCall, calculatorTool);
           print('      • Validation: ${isValid ? '✅ Valid' : '❌ Invalid'}');
-          
+
           // Simulate tool execution
-          final args = jsonDecode(toolCall.function.arguments) as Map<String, dynamic>;
+          final args =
+              jsonDecode(toolCall.function.arguments) as Map<String, dynamic>;
           final expression = args['expression'] as String;
           final precision = args['precision'] as int? ?? 2;
-          
+
           // Simple calculation simulation
           final result = _simulateCalculation(expression, precision);
           print('      • Result: $result');
-          
         } catch (e) {
           if (e is ToolValidationError) {
             print('      • Validation Error: ${e.message}');
@@ -160,20 +161,19 @@ Future<void> demonstrateToolChoiceStrategies(ChatCapability provider) async {
 
   for (final (strategyName, toolChoice) in strategies) {
     print('   Testing $strategyName tool choice:');
-    
+
     try {
       // Validate tool choice
       ToolValidator.validateToolChoice(toolChoice, tools);
       print('      • Tool choice validation: ✅ Valid');
-      
+
       // Note: This would require EnhancedChatCapability implementation
       print('      • Strategy: $strategyName');
       print('      • Behavior: ${_describeToolChoiceBehavior(toolChoice)}');
-      
     } catch (e) {
       print('      • Tool choice validation: ❌ $e');
     }
-    
+
     print('');
   }
 
@@ -181,7 +181,8 @@ Future<void> demonstrateToolChoiceStrategies(ChatCapability provider) async {
 }
 
 /// Demonstrate structured outputs with tools
-Future<void> demonstrateStructuredOutputWithTools(ChatCapability provider) async {
+Future<void> demonstrateStructuredOutputWithTools(
+    ChatCapability provider) async {
   print('📊 Structured Output with Tools:\n');
 
   try {
@@ -198,7 +199,10 @@ Future<void> demonstrateStructuredOutputWithTools(ChatCapability provider) async
             'items': {'type': 'string'},
             'description': 'List of tools used'
           },
-          'confidence': {'type': 'number', 'description': 'Confidence score 0-1'},
+          'confidence': {
+            'type': 'number',
+            'description': 'Confidence score 0-1'
+          },
           'recommendations': {
             'type': 'array',
             'items': {'type': 'string'},
@@ -215,7 +219,8 @@ Future<void> demonstrateStructuredOutputWithTools(ChatCapability provider) async
       ToolValidator.validateStructuredOutput(structuredFormat);
       print('   📋 Structured output validation: ✅ Valid');
       print('   📋 Schema: ${structuredFormat.name}');
-      print('   📋 OpenAI format: ${structuredFormat.toOpenAIResponseFormat()}');
+      print(
+          '   📋 OpenAI format: ${structuredFormat.toOpenAIResponseFormat()}');
     } catch (e) {
       print('   📋 Structured output validation: ❌ $e');
     }
@@ -232,7 +237,7 @@ Future<void> demonstrateProviderSpecificFeatures() async {
 
   // Test tool choice format conversion
   final toolChoice = const SpecificToolChoice('my_function');
-  
+
   print('   Tool Choice Format Conversion:');
   print('      • OpenAI format: ${toolChoice.toOpenAIJson()}');
   print('      • Anthropic format: ${toolChoice.toAnthropicJson()}');
@@ -244,7 +249,7 @@ Future<void> demonstrateProviderSpecificFeatures() async {
     toolTimeout: Duration(seconds: 30),
     continueOnError: true,
   );
-  
+
   print('\n   Parallel Tool Configuration:');
   print('      • Max parallel: ${parallelConfig.maxParallel}');
   print('      • Timeout: ${parallelConfig.toolTimeout?.inSeconds}s');

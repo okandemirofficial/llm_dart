@@ -33,7 +33,7 @@ class DeepSeekErrorHandler {
 
     if (statusCode != null) {
       String errorMessage = 'DeepSeek API error';
-      
+
       // Extract error message from DeepSeek response format
       if (responseData is Map<String, dynamic>) {
         final error = responseData['error'];
@@ -76,7 +76,8 @@ class DeepSeekErrorHandler {
         // DeepSeek: Authentication Fails
         if (message.toLowerCase().contains('authentication fails') ||
             message.toLowerCase().contains('wrong api key')) {
-          return AuthError('Authentication failed: Check your DeepSeek API key');
+          return AuthError(
+              'Authentication failed: Check your DeepSeek API key');
         }
         break;
 

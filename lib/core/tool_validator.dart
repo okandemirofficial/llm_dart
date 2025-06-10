@@ -4,7 +4,7 @@ import '../models/chat_models.dart';
 import 'llm_error.dart';
 
 /// Tool validation utility for ensuring tool calls and parameters are valid
-/// 
+///
 /// This class provides static methods for validating tool calls against their
 /// definitions and ensuring parameter types and requirements are met.
 class ToolValidator {
@@ -26,7 +26,8 @@ class ToolValidator {
     // Parse and validate arguments
     Map<String, dynamic> arguments;
     try {
-      arguments = jsonDecode(toolCall.function.arguments) as Map<String, dynamic>;
+      arguments =
+          jsonDecode(toolCall.function.arguments) as Map<String, dynamic>;
     } catch (e) {
       throw ToolValidationError(
         'Invalid JSON in tool arguments: $e',
@@ -103,30 +104,37 @@ class ToolValidator {
     switch (property.propertyType) {
       case 'string':
         if (value is! String) {
-          errors.add('Parameter $paramName must be a string, got ${value.runtimeType}');
-        } else if (property.enumList != null && !property.enumList!.contains(value)) {
-          errors.add('Parameter $paramName must be one of ${property.enumList}, got $value');
+          errors.add(
+              'Parameter $paramName must be a string, got ${value.runtimeType}');
+        } else if (property.enumList != null &&
+            !property.enumList!.contains(value)) {
+          errors.add(
+              'Parameter $paramName must be one of ${property.enumList}, got $value');
         }
         break;
 
       case 'number':
       case 'integer':
         if (value is! num) {
-          errors.add('Parameter $paramName must be a number, got ${value.runtimeType}');
+          errors.add(
+              'Parameter $paramName must be a number, got ${value.runtimeType}');
         } else if (property.propertyType == 'integer' && value is! int) {
-          errors.add('Parameter $paramName must be an integer, got ${value.runtimeType}');
+          errors.add(
+              'Parameter $paramName must be an integer, got ${value.runtimeType}');
         }
         break;
 
       case 'boolean':
         if (value is! bool) {
-          errors.add('Parameter $paramName must be a boolean, got ${value.runtimeType}');
+          errors.add(
+              'Parameter $paramName must be a boolean, got ${value.runtimeType}');
         }
         break;
 
       case 'array':
         if (value is! List) {
-          errors.add('Parameter $paramName must be an array, got ${value.runtimeType}');
+          errors.add(
+              'Parameter $paramName must be an array, got ${value.runtimeType}');
         } else if (property.items != null) {
           // Validate array items
           for (int i = 0; i < value.length; i++) {
@@ -142,7 +150,8 @@ class ToolValidator {
 
       case 'object':
         if (value is! Map<String, dynamic>) {
-          errors.add('Parameter $paramName must be an object, got ${value.runtimeType}');
+          errors.add(
+              'Parameter $paramName must be an object, got ${value.runtimeType}');
         }
         break;
 
@@ -160,10 +169,12 @@ class ToolValidator {
   /// [availableTools] - List of available tools
   ///
   /// Returns true if valid, throws ToolValidationError if invalid
-  static bool validateToolChoice(ToolChoice toolChoice, List<Tool> availableTools) {
+  static bool validateToolChoice(
+      ToolChoice toolChoice, List<Tool> availableTools) {
     switch (toolChoice) {
       case SpecificToolChoice(toolName: final name):
-        final toolExists = availableTools.any((tool) => tool.function.name == name);
+        final toolExists =
+            availableTools.any((tool) => tool.function.name == name);
         if (!toolExists) {
           throw ToolValidationError(
             'Specified tool "$name" not found in available tools',
@@ -188,12 +199,13 @@ class ToolValidator {
   /// Returns true if valid, throws StructuredOutputError if invalid
   static bool validateStructuredOutput(StructuredOutputFormat format) {
     if (format.name.isEmpty) {
-      throw const StructuredOutputError('Structured output name cannot be empty');
+      throw const StructuredOutputError(
+          'Structured output name cannot be empty');
     }
 
     if (format.schema != null) {
       final schema = format.schema!;
-      
+
       // Basic JSON schema validation
       if (schema['type'] == null) {
         throw StructuredOutputError(
