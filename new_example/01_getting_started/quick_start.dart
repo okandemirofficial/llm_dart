@@ -92,59 +92,59 @@ Future<void> quickStartWithGroq() async {
   }
 }
 
-/// 使用本地Ollama (完全免费)
+/// Use local Ollama (completely free)
 Future<void> quickStartWithOllama() async {
-  print('🏠 方法3：使用本地Ollama (免费)');
+  print('🏠 Method 3: Using local Ollama (free)');
 
   try {
-    // 创建Ollama提供商 (不需要API key)
+    // Create Ollama provider (no API key needed)
     final provider = await ai()
-        .ollama() // 选择Ollama
-        .baseUrl('http://localhost:11434') // 本地地址
-        .model('llama3.1') // 本地模型
+        .ollama() // Choose Ollama
+        .baseUrl('http://localhost:11434') // Local address
+        .model('llama3.1') // Local model
         .temperature(0.7)
         .build();
 
-    // 发送消息
+    // Send message
     final messages = [
       ChatMessage.user('Hello! Introduce yourself in one sentence.')
     ];
 
     final response = await provider.chat(messages);
 
-    print('   AI回复: ${response.text}');
-    print('   ✅ Ollama调用成功 (完全本地！)\n');
+    print('   AI Reply: ${response.text}');
+    print('   ✅ Ollama call successful (completely local!)\n');
   } catch (e) {
-    print('   ❌ Ollama调用失败: $e');
-    print('   💡 请确保Ollama正在运行: ollama serve');
-    print('   💡 并安装模型: ollama pull llama3.1\n');
+    print('   ❌ Ollama call failed: $e');
+    print('   💡 Please ensure Ollama is running: ollama serve');
+    print('   💡 And install model: ollama pull llama3.1\n');
   }
 }
 
-/// 🎯 关键要点总结：
+/// 🎯 Key Points Summary:
 ///
-/// 1. 三种创建方式：
-///    - ai().openai()    - 类型安全的提供商方法
-///    - ai().provider()  - 通用的提供商方法
-///    - createProvider() - 便捷函数
+/// 1. Three creation methods:
+///    - ai().openai()    - Type-safe provider method
+///    - ai().provider()  - Generic provider method
+///    - createProvider() - Convenience function
 ///
-/// 2. 基础配置：
-///    - apiKey: API密钥
-///    - model: 模型名称
-///    - temperature: 创造性 (0-1)
-///    - maxTokens: 最大输出长度
+/// 2. Basic configuration:
+///    - apiKey: API key
+///    - model: Model name
+///    - temperature: Creativity (0-1)
+///    - maxTokens: Maximum output length
 ///
-/// 3. 发送消息：
-///    - ChatMessage.user() - 用户消息
-///    - ChatMessage.system() - 系统提示
-///    - ChatMessage.assistant() - AI回复
+/// 3. Sending messages:
+///    - ChatMessage.user() - User message
+///    - ChatMessage.system() - System prompt
+///    - ChatMessage.assistant() - AI reply
 ///
-/// 4. 获取响应：
-///    - response.text - 文本内容
-///    - response.usage - 使用统计
-///    - response.thinking - 思维过程 (部分模型)
+/// 4. Getting responses:
+///    - response.text - Text content
+///    - response.usage - Usage statistics
+///    - response.thinking - Thinking process (some models)
 ///
-/// 🚀 下一步：
-/// - 运行 provider_comparison.dart 对比不同提供商
-/// - 查看 basic_configuration.dart 学习更多配置
-/// - 探索 ../02_core_features/ 了解高级功能
+/// 🚀 Next steps:
+/// - Run provider_comparison.dart to compare different providers
+/// - Check basic_configuration.dart to learn more configurations
+/// - Explore ../02_core_features/ for advanced features

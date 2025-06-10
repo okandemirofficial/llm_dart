@@ -48,40 +48,40 @@ void main() async {
   provideRecommendations(results);
 }
 
-/// 创建所有可用的提供商
+/// Create all available providers
 Future<Map<String, ChatCapability?>> createProviders() async {
   final providers = <String, ChatCapability?>{};
 
-  // OpenAI - 最稳定可靠
+  // OpenAI
   try {
     final openaiKey = Platform.environment['OPENAI_API_KEY'] ?? 'sk-TESTKEY';
     providers['OpenAI'] = await ai()
         .openai()
         .apiKey(openaiKey)
-        .model('gpt-4o-mini') // 便宜快速的模型
+        .model('gpt-4o-mini')
         .temperature(0.7)
         .build();
   } catch (e) {
     providers['OpenAI'] = null;
-    print('⚠️  OpenAI创建失败: $e');
+    print('⚠️  OpenAI creation failed: $e');
   }
 
-  // Anthropic Claude - 最佳推理
+  // Anthropic Claude
   try {
     final anthropicKey =
         Platform.environment['ANTHROPIC_API_KEY'] ?? 'sk-ant-TESTKEY';
     providers['Anthropic'] = await ai()
         .anthropic()
         .apiKey(anthropicKey)
-        .model('claude-3-5-haiku-20241022') // 快速模型
+        .model('claude-3-5-haiku-20241022')
         .temperature(0.7)
         .build();
   } catch (e) {
     providers['Anthropic'] = null;
-    print('⚠️  Anthropic创建失败: $e');
+    print('⚠️  Anthropic creation failed: $e');
   }
 
-  // Groq - 最快速度
+  // Groq
   try {
     final groqKey = Platform.environment['GROQ_API_KEY'] ?? 'gsk-TESTKEY';
     providers['Groq'] = await ai()
@@ -92,10 +92,10 @@ Future<Map<String, ChatCapability?>> createProviders() async {
         .build();
   } catch (e) {
     providers['Groq'] = null;
-    print('⚠️  Groq创建失败: $e');
+    print('⚠️  Groq creation failed: $e');
   }
 
-  // DeepSeek - 高性价比
+  // DeepSeek
   try {
     final deepseekKey =
         Platform.environment['DEEPSEEK_API_KEY'] ?? 'sk-TESTKEY';
@@ -107,10 +107,10 @@ Future<Map<String, ChatCapability?>> createProviders() async {
         .build();
   } catch (e) {
     providers['DeepSeek'] = null;
-    print('⚠️  DeepSeek创建失败: $e');
+    print('⚠️  DeepSeek creation failed: $e');
   }
 
-  // Ollama - 本地免费
+  // Ollama
   try {
     providers['Ollama'] = await ai()
         .ollama()
@@ -120,13 +120,13 @@ Future<Map<String, ChatCapability?>> createProviders() async {
         .build();
   } catch (e) {
     providers['Ollama'] = null;
-    print('⚠️  Ollama创建失败: $e');
+    print('⚠️  Ollama creation failed: $e');
   }
 
   return providers;
 }
 
-/// 测试单个提供商
+/// Test a single provider
 Future<ProviderResult> testProvider(
     String name, ChatCapability provider, String question) async {
   final stopwatch = Stopwatch()..start();
@@ -140,7 +140,7 @@ Future<ProviderResult> testProvider(
     return ProviderResult(
       name: name,
       success: true,
-      response: response.text ?? '无响应',
+      response: response.text ?? 'No response',
       responseTime: stopwatch.elapsedMilliseconds,
       usage: response.usage,
       thinking: response.thinking,
@@ -151,17 +151,17 @@ Future<ProviderResult> testProvider(
     return ProviderResult(
       name: name,
       success: false,
-      response: '错误: $e',
+      response: 'Error: $e',
       responseTime: stopwatch.elapsedMilliseconds,
     );
   }
 }
 
-/// 显示对比结果
+/// Display comparison results
 void displayComparison(Map<String, ProviderResult> results) {
-  print('📊 对比结果:\n');
+  print('📊 Comparison Results:\n');
 
-  // 按响应时间排序
+  // Sort by response time
   final sortedResults = results.values.toList()
     ..sort((a, b) => a.responseTime.compareTo(b.responseTime));
 
@@ -169,79 +169,84 @@ void displayComparison(Map<String, ProviderResult> results) {
     print('🤖 ${result.name}:');
 
     if (result.success) {
-      print('   ✅ 状态: 成功');
-      print('   ⏱️  响应时间: ${result.responseTime}ms');
-      print('   💬 回复: ${result.response}');
+      print('   ✅ Status: Success');
+      print('   ⏱️  Response Time: ${result.responseTime}ms');
+      print('   💬 Reply: ${result.response}');
 
       if (result.usage != null) {
-        print('   📊 Token使用: ${result.usage!.totalTokens}');
+        print('   📊 Token Usage: ${result.usage!.totalTokens}');
       }
 
       if (result.thinking != null && result.thinking!.isNotEmpty) {
-        print('   🧠 思维过程: 可用');
+        print('   🧠 Thinking Process: Available');
       }
     } else {
-      print('   ❌ 状态: 失败');
-      print('   💬 错误: ${result.response}');
+      print('   ❌ Status: Failed');
+      print('   💬 Error: ${result.response}');
     }
 
     print('');
   }
 }
 
-/// 提供选择建议
+/// Provide selection recommendations
 void provideRecommendations(Map<String, ProviderResult> results) {
-  print('🎯 选择建议:\n');
+  print('🎯 Selection Recommendations:\n');
 
   final successfulProviders = results.values.where((r) => r.success).toList();
 
   if (successfulProviders.isEmpty) {
-    print('❌ 没有可用的提供商，请检查API key设置');
+    print('❌ No available providers, please check API key settings');
     return;
   }
 
-  // 最快的提供商
+  // Fastest provider
   final fastest = successfulProviders
       .reduce((a, b) => a.responseTime < b.responseTime ? a : b);
-  print('⚡ 最快响应: ${fastest.name} (${fastest.responseTime}ms)');
+  print('⚡ Fastest Response: ${fastest.name} (${fastest.responseTime}ms)');
 
-  // 推荐场景
-  print('\n📋 使用场景推荐:');
+  // Usage scenario recommendations
+  print('\n📋 Usage Scenario Recommendations:');
 
   for (final result in successfulProviders) {
     switch (result.name) {
       case 'OpenAI':
-        print('   🔵 OpenAI: 新手首选，稳定可靠，生态完善');
+        print(
+            '   🔵 OpenAI: Beginner\'s choice, stable and reliable, complete ecosystem');
         break;
       case 'Anthropic':
-        print('   🟣 Anthropic: 复杂推理，思维过程，安全性高');
+        print(
+            '   🟣 Anthropic: Complex reasoning, thinking process, high safety');
         break;
       case 'Groq':
-        print('   🟢 Groq: 实时应用，快速响应，成本较低');
+        print('   🟢 Groq: Real-time applications, fast response, lower cost');
         break;
       case 'DeepSeek':
-        print('   🔴 DeepSeek: 高性价比，中文友好，推理能力强');
+        print(
+            '   🔴 DeepSeek: High cost-effectiveness, Chinese-friendly, strong reasoning');
         break;
       case 'Ollama':
-        print('   🟡 Ollama: 本地部署，完全免费，隐私保护');
+        print(
+            '   🟡 Ollama: Local deployment, completely free, privacy protection');
         break;
     }
   }
 
-  print('\n💡 选择建议:');
-  print('   • 新手学习: OpenAI (稳定可靠)');
-  print('   • 生产环境: Anthropic (质量最高)');
-  print('   • 实时应用: Groq (速度最快)');
-  print('   • 成本敏感: DeepSeek (性价比高)');
-  print('   • 隐私要求: Ollama (本地部署)');
+  print('\n💡 Selection Suggestions:');
+  print('   • Beginner learning: OpenAI (stable and reliable)');
+  print('   • Production environment: Anthropic (highest quality)');
+  print('   • Real-time applications: Groq (fastest speed)');
+  print('   • Cost-sensitive: DeepSeek (high cost-effectiveness)');
+  print('   • Privacy requirements: Ollama (local deployment)');
 
-  print('\n🚀 下一步:');
-  print('   • 运行 basic_configuration.dart 学习配置优化');
-  print('   • 查看 ../02_core_features/ 了解高级功能');
-  print('   • 选择 ../04_providers/ 深入特定提供商');
+  print('\n🚀 Next Steps:');
+  print(
+      '   • Run basic_configuration.dart to learn configuration optimization');
+  print('   • Check ../02_core_features/ for advanced features');
+  print('   • Choose ../04_providers/ for specific provider deep dive');
 }
 
-/// 提供商测试结果
+/// Provider test result
 class ProviderResult {
   final String name;
   final bool success;

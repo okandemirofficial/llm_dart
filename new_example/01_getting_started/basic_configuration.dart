@@ -12,7 +12,6 @@ import 'package:llm_dart/llm_dart.dart';
 ///
 /// Before running, set your preferred provider's API key:
 /// export OPENAI_API_KEY="your-key"
-/// export GROQ_API_KEY="your-key"
 void main() async {
   print('🔧 Basic Configuration Guide\n');
 
