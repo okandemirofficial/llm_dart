@@ -33,6 +33,7 @@ export 'provider.dart';
 
 // Capability modules
 export 'chat.dart';
+export 'files.dart';
 
 /// Create an Anthropic provider with default configuration
 AnthropicProvider createAnthropicProvider({

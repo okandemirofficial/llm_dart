@@ -154,14 +154,14 @@ Future<void> demonstrateFileManagement(OpenAIProvider provider) async {
     // Upload a sample file
     final sampleData =
         Uint8List.fromList('Hello, this is a test file!'.codeUnits);
-    final uploadedFile = await provider.uploadFile(CreateFileRequest(
+    final uploadedFile = await provider.uploadFile(FileUploadRequest(
       file: sampleData,
       filename: 'test.txt',
       purpose: FilePurpose.assistants,
     ));
 
     print('   Uploaded file: ${uploadedFile.id} (${uploadedFile.filename})');
-    print('   File size: ${uploadedFile.bytes} bytes');
+    print('   File size: ${uploadedFile.sizeBytes} bytes');
 
     // List files
     final filesResponse = await provider.listFiles();

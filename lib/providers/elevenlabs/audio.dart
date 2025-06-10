@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 
-import '../../core/chat_provider.dart';
+import '../../core/capability.dart';
 import '../../core/llm_error.dart';
 import '../../models/audio_models.dart';
 import 'client.dart';

@@ -1,4 +1,4 @@
-import '../../core/chat_provider.dart';
+import '../../core/capability.dart';
 import '../../core/config.dart';
 import '../../core/registry.dart';
 import '../../models/tool_models.dart';
@@ -52,6 +52,7 @@ class XAIProviderFactory implements LLMProviderFactory<ChatCapability> {
       embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
       searchParameters:
           config.getExtension<SearchParameters>('searchParameters'),
+      originalConfig: config,
     );
   }
 

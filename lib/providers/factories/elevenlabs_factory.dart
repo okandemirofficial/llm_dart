@@ -1,4 +1,4 @@
-import '../../core/chat_provider.dart';
+import '../../core/capability.dart';
 import '../../core/config.dart';
 import '../elevenlabs/elevenlabs.dart';
 import 'base_factory.dart';
@@ -61,6 +61,7 @@ class ElevenLabsProviderFactory extends BaseProviderFactory<ChatCapability> {
       similarityBoost: getExtension<double>(config, 'similarityBoost'),
       style: getExtension<double>(config, 'style'),
       useSpeakerBoost: getExtension<bool>(config, 'useSpeakerBoost'),
+      originalConfig: config,
     );
   }
 }

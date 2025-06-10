@@ -412,20 +412,35 @@ abstract class FullLLMProvider
         ProviderCapabilities {}
 
 /// File management capability for uploading and managing files
+///
+/// This interface provides a unified API for file operations across different
+/// providers (OpenAI, Anthropic, etc.).
 abstract class FileManagementCapability {
   /// Upload a file
-  Future<OpenAIFile> uploadFile(CreateFileRequest request);
+  ///
+  /// Uploads a file to the provider's storage. The file can then be
+  /// referenced in other API calls.
+  Future<FileObject> uploadFile(FileUploadRequest request);
 
   /// List files
-  Future<ListFilesResponse> listFiles([ListFilesQuery? query]);
+  ///
+  /// Returns a paginated list of files. Supports both OpenAI-style
+  /// and Anthropic-style pagination parameters.
+  Future<FileListResponse> listFiles([FileListQuery? query]);
 
-  /// Retrieve a file
-  Future<OpenAIFile> retrieveFile(String fileId);
+  /// Retrieve file metadata
+  ///
+  /// Returns metadata for a specific file including size, type, and creation date.
+  Future<FileObject> retrieveFile(String fileId);
 
   /// Delete a file
-  Future<DeleteFileResponse> deleteFile(String fileId);
+  ///
+  /// Permanently deletes a file from the provider's storage.
+  Future<FileDeleteResponse> deleteFile(String fileId);
 
   /// Get file content
+  ///
+  /// Downloads the raw content of a file as bytes.
   Future<List<int>> getFileContent(String fileId);
 }
 

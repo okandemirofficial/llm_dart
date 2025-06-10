@@ -1,5 +1,6 @@
 import '../models/tool_models.dart';
-import 'chat_provider.dart';
+import '../models/chat_models.dart';
+import 'capability.dart';
 
 /// Unified configuration class for all LLM providers
 ///
@@ -39,6 +40,15 @@ class LLMConfig {
   /// Tool choice strategy
   final ToolChoice? toolChoice;
 
+  /// Stop sequences for generation
+  final List<String>? stopSequences;
+
+  /// User identifier for tracking and analytics
+  final String? user;
+
+  /// Service tier for API requests
+  final ServiceTier? serviceTier;
+
   /// Provider-specific configuration extensions
   ///
   /// This map allows providers to store their unique configuration
@@ -60,6 +70,9 @@ class LLMConfig {
     this.topK,
     this.tools,
     this.toolChoice,
+    this.stopSequences,
+    this.user,
+    this.serviceTier,
     this.extensions = const {},
   });
 
@@ -83,6 +96,9 @@ class LLMConfig {
       topK: topK,
       tools: tools,
       toolChoice: toolChoice,
+      stopSequences: stopSequences,
+      user: user,
+      serviceTier: serviceTier,
       extensions: {...extensions, ...newExtensions},
     );
   }
@@ -105,6 +121,9 @@ class LLMConfig {
     int? topK,
     List<Tool>? tools,
     ToolChoice? toolChoice,
+    List<String>? stopSequences,
+    String? user,
+    ServiceTier? serviceTier,
     Map<String, dynamic>? extensions,
   }) {
     return LLMConfig(
@@ -119,6 +138,9 @@ class LLMConfig {
       topK: topK ?? this.topK,
       tools: tools ?? this.tools,
       toolChoice: toolChoice ?? this.toolChoice,
+      stopSequences: stopSequences ?? this.stopSequences,
+      user: user ?? this.user,
+      serviceTier: serviceTier ?? this.serviceTier,
       extensions: extensions ?? this.extensions,
     );
   }
@@ -136,6 +158,9 @@ class LLMConfig {
         if (topK != null) 'topK': topK,
         if (tools != null) 'tools': tools!.map((t) => t.toJson()).toList(),
         if (toolChoice != null) 'toolChoice': toolChoice!.toJson(),
+        if (stopSequences != null) 'stopSequences': stopSequences,
+        if (user != null) 'user': user,
+        if (serviceTier != null) 'serviceTier': serviceTier!.value,
         'extensions': extensions,
       };
 
@@ -160,6 +185,11 @@ class LLMConfig {
         toolChoice: json['toolChoice'] != null
             ? _parseToolChoice(json['toolChoice'] as Map<String, dynamic>)
             : null,
+        stopSequences: json['stopSequences'] != null
+            ? List<String>.from(json['stopSequences'] as List)
+            : null,
+        user: json['user'] as String?,
+        serviceTier: ServiceTier.fromString(json['serviceTier'] as String?),
         extensions: json['extensions'] as Map<String, dynamic>? ?? {},
       );
 
@@ -200,6 +230,9 @@ class LLMConfig {
           topK == other.topK &&
           _listEquals(tools, other.tools) &&
           toolChoice == other.toolChoice &&
+          _listEquals(stopSequences, other.stopSequences) &&
+          user == other.user &&
+          serviceTier == other.serviceTier &&
           _mapEquals(extensions, other.extensions);
 
   @override
@@ -215,6 +248,9 @@ class LLMConfig {
         topK,
         tools,
         toolChoice,
+        stopSequences,
+        user,
+        serviceTier,
         extensions,
       );
 

@@ -13,6 +13,12 @@ import 'config.dart';
 /// - Error handling
 /// - SSE stream parsing
 /// - Provider-specific configurations
+///
+/// **API Documentation:**
+/// - API Overview: https://docs.anthropic.com/en/api/overview
+/// - Authentication: https://docs.anthropic.com/en/api/overview#authentication
+/// - Versioning: https://docs.anthropic.com/en/api/versioning
+/// - Beta Features: https://docs.anthropic.com/en/api/overview#beta-features
 class AnthropicClient {
   final AnthropicConfig config;
   final Logger logger = Logger('AnthropicClient');
@@ -26,21 +32,39 @@ class AnthropicClient {
       receiveTimeout: config.timeout,
       sendTimeout: config.timeout,
     ));
+
+    // Add request interceptor to set endpoint-specific headers
+    dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        // Update headers based on endpoint
+        final endpoint = options.path;
+        final headers = _buildHeaders(endpoint: endpoint);
+        options.headers.addAll(headers);
+        handler.next(options);
+      },
+    ));
   }
 
   /// Build headers for Anthropic API requests
-  Map<String, String> _buildHeaders() {
+  Map<String, String> _buildHeaders({String? endpoint}) {
     final headers = ConfigUtils.buildAnthropicHeaders(config.apiKey);
 
     // Add beta headers for new features
     final betaFeatures = <String>[];
 
-    // Always add output-128k support for thinking and extended features
-    betaFeatures.add('output-128k-2025-02-19');
+    // Add thinking/reasoning beta if enabled
+    if (config.reasoning) {
+      betaFeatures.add('extended-thinking-2025-02-19');
+    }
 
-    // Add interleaved thinking if enabled
-    if (config.interleavedThinking) {
+    // Add interleaved thinking if enabled (Claude 4 only)
+    if (config.interleavedThinking && config.supportsInterleavedThinking) {
       betaFeatures.add('interleaved-thinking-2025-05-14');
+    }
+
+    // Add files API beta for file-related endpoints
+    if (endpoint != null && endpoint.startsWith('files')) {
+      betaFeatures.add('files-api-2025-04-14');
     }
 
     if (betaFeatures.isNotEmpty) {
@@ -60,6 +84,53 @@ class AnthropicClient {
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       logger.severe('HTTP request failed: ${e.message}');
+      rethrow;
+    }
+  }
+
+  /// Make a GET request and return JSON response
+  Future<Map<String, dynamic>> getJson(String endpoint) async {
+    try {
+      final response = await dio.get(endpoint);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      logger.severe('HTTP GET request failed: ${e.message}');
+      rethrow;
+    }
+  }
+
+  /// Make a POST request with form data
+  Future<Map<String, dynamic>> postForm(
+      String endpoint, FormData formData) async {
+    try {
+      final response = await dio.post(endpoint, data: formData);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      logger.severe('HTTP form request failed: ${e.message}');
+      rethrow;
+    }
+  }
+
+  /// Make a DELETE request
+  Future<void> delete(String endpoint) async {
+    try {
+      await dio.delete(endpoint);
+    } on DioException catch (e) {
+      logger.severe('HTTP DELETE request failed: ${e.message}');
+      rethrow;
+    }
+  }
+
+  /// Make a GET request and return raw bytes
+  Future<List<int>> getRaw(String endpoint) async {
+    try {
+      final response = await dio.get(
+        endpoint,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      return response.data as List<int>;
+    } on DioException catch (e) {
+      logger.severe('HTTP raw request failed: ${e.message}');
       rethrow;
     }
   }

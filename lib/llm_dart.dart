@@ -6,7 +6,7 @@
 library;
 
 // Core exports
-export 'core/chat_provider.dart';
+export 'core/capability.dart';
 export 'core/llm_error.dart';
 export 'core/config.dart';
 export 'core/registry.dart';
@@ -44,7 +44,7 @@ export 'utils/provider_registry.dart';
 
 // Convenience functions for creating providers
 import 'builder/llm_builder.dart';
-import 'core/chat_provider.dart';
+import 'core/capability.dart';
 
 /// Create a new LLM builder instance
 ///

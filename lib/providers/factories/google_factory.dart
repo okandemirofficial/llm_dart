@@ -1,4 +1,4 @@
-import '../../core/chat_provider.dart';
+import '../../core/capability.dart';
 import '../../core/config.dart';
 import '../../core/registry.dart';
 import '../../models/tool_models.dart';
@@ -78,6 +78,7 @@ class GoogleProviderFactory implements LLMProviderFactory<ChatCapability> {
           config.getExtension<int>('maxInlineDataSize') ?? 20 * 1024 * 1024,
       candidateCount: config.getExtension<int>('candidateCount'),
       stopSequences: config.getExtension<List<String>>('stopSequences'),
+      originalConfig: config,
     );
   }
 }

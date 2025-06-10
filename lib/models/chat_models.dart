@@ -465,3 +465,149 @@ enum ReasoningEffort {
     }
   }
 }
+
+/// Service tier levels for API requests
+enum ServiceTier {
+  auto,
+  standard,
+  priority;
+
+  /// Convert to string value for API requests
+  String get value {
+    switch (this) {
+      case ServiceTier.auto:
+        return 'auto';
+      case ServiceTier.standard:
+        return 'standard_only';
+      case ServiceTier.priority:
+        return 'priority';
+    }
+  }
+
+  /// Create from string value
+  static ServiceTier? fromString(String? value) {
+    if (value == null) return null;
+    switch (value.toLowerCase()) {
+      case 'auto':
+        return ServiceTier.auto;
+      case 'standard':
+      case 'standard_only':
+        return ServiceTier.standard;
+      case 'priority':
+        return ServiceTier.priority;
+      default:
+        return null;
+    }
+  }
+}
+
+/// Request metadata for tracking and analytics
+class RequestMetadata {
+  /// External identifier for the user associated with the request
+  final String? userId;
+
+  /// Additional custom metadata
+  final Map<String, dynamic>? customData;
+
+  const RequestMetadata({
+    this.userId,
+    this.customData,
+  });
+
+  Map<String, dynamic> toJson() => {
+        if (userId != null) 'user_id': userId,
+        if (customData != null) ...customData!,
+      };
+
+  factory RequestMetadata.fromJson(Map<String, dynamic> json) =>
+      RequestMetadata(
+        userId: json['user_id'] as String?,
+        customData: Map<String, dynamic>.from(json)
+          ..remove('user_id'), // Remove user_id from custom data
+      );
+
+  @override
+  String toString() =>
+      'RequestMetadata(userId: $userId, customData: $customData)';
+}
+
+/// MCP (Model Context Protocol) server configuration
+class MCPServer {
+  /// Server name/identifier
+  final String name;
+
+  /// Server type (currently only 'url' is supported)
+  final String type;
+
+  /// Server URL
+  final String url;
+
+  /// Optional authorization token
+  final String? authorizationToken;
+
+  /// Tool configuration for this server
+  final MCPToolConfiguration? toolConfiguration;
+
+  const MCPServer({
+    required this.name,
+    required this.type,
+    required this.url,
+    this.authorizationToken,
+    this.toolConfiguration,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'type': type,
+        'url': url,
+        if (authorizationToken != null)
+          'authorization_token': authorizationToken,
+        if (toolConfiguration != null)
+          'tool_configuration': toolConfiguration!.toJson(),
+      };
+
+  factory MCPServer.fromJson(Map<String, dynamic> json) => MCPServer(
+        name: json['name'] as String,
+        type: json['type'] as String,
+        url: json['url'] as String,
+        authorizationToken: json['authorization_token'] as String?,
+        toolConfiguration: json['tool_configuration'] != null
+            ? MCPToolConfiguration.fromJson(
+                json['tool_configuration'] as Map<String, dynamic>)
+            : null,
+      );
+
+  @override
+  String toString() => 'MCPServer(name: $name, type: $type, url: $url)';
+}
+
+/// Tool configuration for MCP servers
+class MCPToolConfiguration {
+  /// List of allowed tools (null means all tools are allowed)
+  final List<String>? allowedTools;
+
+  /// Whether tools are enabled for this server
+  final bool? enabled;
+
+  const MCPToolConfiguration({
+    this.allowedTools,
+    this.enabled,
+  });
+
+  Map<String, dynamic> toJson() => {
+        if (allowedTools != null) 'allowed_tools': allowedTools,
+        if (enabled != null) 'enabled': enabled,
+      };
+
+  factory MCPToolConfiguration.fromJson(Map<String, dynamic> json) =>
+      MCPToolConfiguration(
+        allowedTools: json['allowed_tools'] != null
+            ? List<String>.from(json['allowed_tools'] as List)
+            : null,
+        enabled: json['enabled'] as bool?,
+      );
+
+  @override
+  String toString() =>
+      'MCPToolConfiguration(allowedTools: $allowedTools, enabled: $enabled)';
+}

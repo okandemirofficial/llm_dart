@@ -20,6 +20,9 @@ class DeepSeekConfig {
   final List<Tool>? tools;
   final ToolChoice? toolChoice;
 
+  /// Reference to original LLMConfig for accessing extensions
+  final LLMConfig? _originalConfig;
+
   const DeepSeekConfig({
     required this.apiKey,
     this.baseUrl = ProviderDefaults.deepseekBaseUrl,
@@ -32,7 +35,8 @@ class DeepSeekConfig {
     this.topK,
     this.tools,
     this.toolChoice,
-  });
+    LLMConfig? originalConfig,
+  }) : _originalConfig = originalConfig;
 
   /// Create DeepSeekConfig from unified LLMConfig
   factory DeepSeekConfig.fromLLMConfig(LLMConfig config) {
@@ -48,8 +52,12 @@ class DeepSeekConfig {
       topK: config.topK,
       tools: config.tools,
       toolChoice: config.toolChoice,
+      originalConfig: config,
     );
   }
+
+  /// Get extension value from original config
+  T? getExtension<T>(String key) => _originalConfig?.getExtension<T>(key);
 
   /// Check if this model supports reasoning/thinking
   bool get supportsReasoning {

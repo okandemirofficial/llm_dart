@@ -1,4 +1,4 @@
-import '../core/chat_provider.dart';
+import '../core/capability.dart';
 
 /// Utility class for capability checking and safe execution
 /// Provides multiple approaches for different user levels and use cases

@@ -1,22 +1,25 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-/// File purpose enumeration for OpenAI Files API
+/// Universal file purpose enumeration supporting multiple providers
 enum FilePurpose {
-  /// For fine-tuning jobs
+  /// For fine-tuning jobs (OpenAI)
   fineTune('fine-tune'),
 
-  /// For assistants
+  /// For assistants (OpenAI)
   assistants('assistants'),
 
-  /// For vision tasks
+  /// For vision tasks (OpenAI)
   vision('vision'),
 
-  /// For batch processing
+  /// For batch processing (OpenAI)
   batch('batch'),
 
-  /// For user data
-  userData('user_data');
+  /// For user data (OpenAI)
+  userData('user_data'),
+
+  /// General purpose file (Anthropic and others)
+  general('general');
 
   const FilePurpose(this.value);
   final String value;
@@ -33,17 +36,30 @@ enum FilePurpose {
         return FilePurpose.batch;
       case 'user_data':
         return FilePurpose.userData;
+      case 'general':
+        return FilePurpose.general;
       default:
-        throw ArgumentError('Unknown file purpose: $value');
+        return FilePurpose.general; // Default fallback for unknown purposes
     }
   }
 }
 
-/// File status enumeration
+/// Universal file status enumeration supporting multiple providers
 enum FileStatus {
+  /// File has been uploaded successfully
   uploaded('uploaded'),
+
+  /// File has been processed and is ready for use
   processed('processed'),
-  error('error');
+
+  /// File processing encountered an error
+  error('error'),
+
+  /// File is being processed
+  processing('processing'),
+
+  /// File status is unknown or not applicable
+  unknown('unknown');
 
   const FileStatus(this.value);
   final String value;
@@ -56,74 +72,143 @@ enum FileStatus {
         return FileStatus.processed;
       case 'error':
         return FileStatus.error;
+      case 'processing':
+        return FileStatus.processing;
+      case 'unknown':
+        return FileStatus.unknown;
       default:
-        throw ArgumentError('Unknown file status: $value');
+        return FileStatus.unknown; // Default fallback for unknown statuses
     }
   }
 }
 
-/// Represents a file object from OpenAI Files API
-class OpenAIFile {
+/// File object that works across different providers
+///
+/// This class provides a unified interface for file objects from different
+/// providers (OpenAI, Anthropic, etc.) while maintaining backward compatibility.
+class FileObject {
   /// The file identifier, which can be referenced in the API endpoints.
   final String id;
 
   /// The size of the file, in bytes.
-  final int bytes;
+  final int sizeBytes;
 
-  /// The Unix timestamp (in seconds) for when the file was created.
-  final int createdAt;
+  /// The timestamp when the file was created.
+  final DateTime createdAt;
 
   /// The name of the file.
   final String filename;
 
-  /// The object type, which is always "file".
+  /// The object type, typically "file".
   final String object;
 
-  /// The intended purpose of the file.
-  final FilePurpose purpose;
+  /// The intended purpose of the file (may be null for providers that don't support it).
+  final FilePurpose? purpose;
 
-  /// The current status of the file, which can be either uploaded, processed, or error.
+  /// The current status of the file (may be null for providers that don't support it).
   final FileStatus? status;
 
   /// Additional details about the status of the file.
   final String? statusDetails;
 
-  const OpenAIFile({
+  /// MIME type of the file (may be null if not provided).
+  final String? mimeType;
+
+  /// Whether the file can be downloaded (may be null if not specified).
+  final bool? downloadable;
+
+  /// Provider-specific metadata that doesn't fit into standard fields.
+  final Map<String, dynamic>? metadata;
+
+  const FileObject({
     required this.id,
-    required this.bytes,
+    required this.sizeBytes,
     required this.createdAt,
     required this.filename,
     this.object = 'file',
-    required this.purpose,
+    this.purpose,
     this.status,
     this.statusDetails,
+    this.mimeType,
+    this.downloadable,
+    this.metadata,
   });
 
-  factory OpenAIFile.fromJson(Map<String, dynamic> json) {
-    return OpenAIFile(
+  /// Create from OpenAI file format
+  factory FileObject.fromOpenAI(Map<String, dynamic> json) {
+    return FileObject(
       id: json['id'] as String,
-      bytes: json['bytes'] as int,
-      createdAt: json['created_at'] as int,
+      sizeBytes: json['bytes'] as int,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(
+          (json['created_at'] as int) * 1000),
       filename: json['filename'] as String,
       object: json['object'] as String? ?? 'file',
-      purpose: FilePurpose.fromString(json['purpose'] as String),
+      purpose: json['purpose'] != null
+          ? FilePurpose.fromString(json['purpose'] as String)
+          : null,
       status: json['status'] != null
           ? FileStatus.fromString(json['status'] as String)
           : null,
       statusDetails: json['status_details'] as String?,
+      metadata: {'provider': 'openai'},
     );
   }
 
+  /// Create from Anthropic file format
+  factory FileObject.fromAnthropic(Map<String, dynamic> json) {
+    return FileObject(
+      id: json['id'] as String,
+      sizeBytes: json['size_bytes'] as int,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      filename: json['filename'] as String,
+      object: json['type'] as String? ?? 'file',
+      mimeType: json['mime_type'] as String?,
+      downloadable: json['downloadable'] as bool?,
+      metadata: {'provider': 'anthropic'},
+    );
+  }
+
+  /// Convert to OpenAI format for backward compatibility
+  Map<String, dynamic> toOpenAIJson() {
+    return {
+      'id': id,
+      'bytes': sizeBytes,
+      'created_at': createdAt.millisecondsSinceEpoch ~/ 1000,
+      'filename': filename,
+      'object': object,
+      if (purpose != null) 'purpose': purpose!.value,
+      if (status != null) 'status': status!.value,
+      if (statusDetails != null) 'status_details': statusDetails,
+    };
+  }
+
+  /// Convert to Anthropic format
+  Map<String, dynamic> toAnthropicJson() {
+    return {
+      'id': id,
+      'size_bytes': sizeBytes,
+      'created_at': createdAt.toIso8601String(),
+      'filename': filename,
+      'type': object,
+      if (mimeType != null) 'mime_type': mimeType,
+      if (downloadable != null) 'downloadable': downloadable,
+    };
+  }
+
+  /// Generic JSON representation
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'bytes': bytes,
-      'created_at': createdAt,
+      'size_bytes': sizeBytes,
+      'created_at': createdAt.toIso8601String(),
       'filename': filename,
       'object': object,
-      'purpose': purpose.value,
+      if (purpose != null) 'purpose': purpose!.value,
       if (status != null) 'status': status!.value,
       if (statusDetails != null) 'status_details': statusDetails,
+      if (mimeType != null) 'mime_type': mimeType,
+      if (downloadable != null) 'downloadable': downloadable,
+      if (metadata != null) 'metadata': metadata,
     };
   }
 
@@ -133,93 +218,169 @@ class OpenAIFile {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is OpenAIFile && runtimeType == other.runtimeType && id == other.id;
+      other is FileObject && runtimeType == other.runtimeType && id == other.id;
 
   @override
   int get hashCode => id.hashCode;
 }
 
-/// Request for creating a file
-class CreateFileRequest {
+/// File upload request that works across providers
+class FileUploadRequest {
   /// The file to upload.
   final Uint8List file;
 
   /// The name of the file to upload.
   final String filename;
 
-  /// The intended purpose of the uploaded file.
-  final FilePurpose purpose;
+  /// The intended purpose of the uploaded file (may be null for providers that don't support it).
+  final FilePurpose? purpose;
 
-  const CreateFileRequest({
+  /// Additional metadata for the file upload.
+  final Map<String, dynamic>? metadata;
+
+  const FileUploadRequest({
     required this.file,
     required this.filename,
-    required this.purpose,
+    this.purpose,
+    this.metadata,
   });
 
-  Map<String, dynamic> toJson() {
+  /// Convert to OpenAI format
+  Map<String, dynamic> toOpenAIJson() {
     return {
       'filename': filename,
-      'purpose': purpose.value,
+      if (purpose != null) 'purpose': purpose!.value,
+    };
+  }
+
+  /// Convert to Anthropic format
+  Map<String, dynamic> toAnthropicJson() {
+    return {
+      'filename': filename,
     };
   }
 }
 
-/// Response for listing files
-class ListFilesResponse {
+/// File list response that works across providers
+class FileListResponse {
   /// The list of files.
-  final List<OpenAIFile> data;
+  final List<FileObject> data;
 
-  /// The object type, which is always "list".
+  /// The object type.
   final String object;
 
-  const ListFilesResponse({
+  /// Pagination information for cursor-based pagination (Anthropic style).
+  final String? firstId;
+  final String? lastId;
+  final bool? hasMore;
+
+  /// Pagination information for offset-based pagination (OpenAI style).
+  final int? total;
+  final int? limit;
+  final int? offset;
+
+  const FileListResponse({
     required this.data,
     this.object = 'list',
+    this.firstId,
+    this.lastId,
+    this.hasMore,
+    this.total,
+    this.limit,
+    this.offset,
   });
 
-  factory ListFilesResponse.fromJson(Map<String, dynamic> json) {
-    return ListFilesResponse(
+  /// Create from OpenAI format
+  factory FileListResponse.fromOpenAI(Map<String, dynamic> json) {
+    return FileListResponse(
       data: (json['data'] as List)
-          .map((item) => OpenAIFile.fromJson(item as Map<String, dynamic>))
+          .map((item) => FileObject.fromOpenAI(item as Map<String, dynamic>))
           .toList(),
       object: json['object'] as String? ?? 'list',
+      total: json['total'] as int?,
+      limit: json['limit'] as int?,
+      offset: json['offset'] as int?,
     );
   }
 
-  Map<String, dynamic> toJson() {
+  /// Create from Anthropic format
+  factory FileListResponse.fromAnthropic(Map<String, dynamic> json) {
+    return FileListResponse(
+      data: (json['data'] as List)
+          .map((item) => FileObject.fromAnthropic(item as Map<String, dynamic>))
+          .toList(),
+      object: 'list',
+      firstId: json['first_id'] as String?,
+      lastId: json['last_id'] as String?,
+      hasMore: json['has_more'] as bool?,
+    );
+  }
+
+  /// Convert to OpenAI format
+  Map<String, dynamic> toOpenAIJson() {
     return {
-      'data': data.map((file) => file.toJson()).toList(),
+      'data': data.map((file) => file.toOpenAIJson()).toList(),
       'object': object,
+      if (total != null) 'total': total,
+      if (limit != null) 'limit': limit,
+      if (offset != null) 'offset': offset,
+    };
+  }
+
+  /// Convert to Anthropic format
+  Map<String, dynamic> toAnthropicJson() {
+    return {
+      'data': data.map((file) => file.toAnthropicJson()).toList(),
+      if (firstId != null) 'first_id': firstId,
+      if (lastId != null) 'last_id': lastId,
+      if (hasMore != null) 'has_more': hasMore,
     };
   }
 }
 
-/// Response for deleting a file
-class DeleteFileResponse {
+/// File deletion response that works across providers
+class FileDeleteResponse {
   /// The file identifier.
   final String id;
 
-  /// The object type, which is always "file".
+  /// The object type.
   final String object;
 
   /// Whether the file was successfully deleted.
   final bool deleted;
 
-  const DeleteFileResponse({
+  /// Error message if deletion failed.
+  final String? error;
+
+  const FileDeleteResponse({
     required this.id,
     this.object = 'file',
     required this.deleted,
+    this.error,
   });
 
-  factory DeleteFileResponse.fromJson(Map<String, dynamic> json) {
-    return DeleteFileResponse(
+  /// Create from OpenAI format
+  factory FileDeleteResponse.fromOpenAI(Map<String, dynamic> json) {
+    return FileDeleteResponse(
       id: json['id'] as String,
       object: json['object'] as String? ?? 'file',
       deleted: json['deleted'] as bool,
     );
   }
 
-  Map<String, dynamic> toJson() {
+  /// Create from boolean result (Anthropic style)
+  factory FileDeleteResponse.fromBoolean(String id, bool success,
+      {String? error}) {
+    return FileDeleteResponse(
+      id: id,
+      object: 'file',
+      deleted: success,
+      error: error,
+    );
+  }
+
+  /// Convert to OpenAI format
+  Map<String, dynamic> toOpenAIJson() {
     return {
       'id': id,
       'object': object,
@@ -228,34 +389,52 @@ class DeleteFileResponse {
   }
 }
 
-/// Query parameters for listing files
-class ListFilesQuery {
-  /// Only return files with the given purpose.
+/// File list query parameters that work across providers
+class FileListQuery {
+  /// Only return files with the given purpose (OpenAI).
   final FilePurpose? purpose;
 
   /// A limit on the number of objects to be returned.
   final int? limit;
 
-  /// Sort order by the created_at timestamp of the objects.
+  /// Sort order by the created_at timestamp of the objects (OpenAI).
   final String? order;
 
-  /// A cursor for use in pagination.
+  /// A cursor for use in pagination (OpenAI style).
   final String? after;
 
-  const ListFilesQuery({
+  /// Cursor-based pagination (Anthropic style).
+  final String? beforeId;
+  final String? afterId;
+
+  const FileListQuery({
     this.purpose,
     this.limit,
     this.order,
     this.after,
+    this.beforeId,
+    this.afterId,
   });
 
-  Map<String, dynamic> toQueryParameters() {
+  /// Convert to OpenAI query parameters
+  Map<String, dynamic> toOpenAIQueryParameters() {
     final params = <String, dynamic>{};
 
     if (purpose != null) params['purpose'] = purpose!.value;
     if (limit != null) params['limit'] = limit;
     if (order != null) params['order'] = order;
     if (after != null) params['after'] = after;
+
+    return params;
+  }
+
+  /// Convert to Anthropic query parameters
+  Map<String, String> toAnthropicQueryParameters() {
+    final params = <String, String>{};
+
+    if (beforeId != null) params['before_id'] = beforeId!;
+    if (afterId != null) params['after_id'] = afterId!;
+    if (limit != null) params['limit'] = limit.toString();
 
     return params;
   }

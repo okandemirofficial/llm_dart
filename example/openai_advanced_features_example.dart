@@ -79,7 +79,7 @@ Future<void> demonstrateFilesAPI(dynamic provider) async {
 
     // Upload file
     print('📤 Uploading file...');
-    final uploadRequest = CreateFileRequest(
+    final uploadRequest = FileUploadRequest(
       file: fileData,
       filename: 'sample_conversation.jsonl',
       purpose: FilePurpose.assistants,
@@ -87,14 +87,14 @@ Future<void> demonstrateFilesAPI(dynamic provider) async {
 
     final uploadedFile = await provider.uploadFile(uploadRequest);
     print('✅ File uploaded: ${uploadedFile.id} (${uploadedFile.filename})');
-    print('   Size: ${uploadedFile.bytes} bytes');
-    print('   Purpose: ${uploadedFile.purpose.value}');
+    print('   Size: ${uploadedFile.sizeBytes} bytes');
+    print('   Purpose: ${uploadedFile.purpose?.value ?? 'general'}');
     print('   Status: ${uploadedFile.status?.value ?? 'unknown'}');
 
     // List files
     print('\n📋 Listing files...');
     final filesResponse = await provider.listFiles(
-      ListFilesQuery(purpose: FilePurpose.assistants, limit: 10),
+      FileListQuery(purpose: FilePurpose.assistants, limit: 10),
     );
     print('✅ Found ${filesResponse.data.length} files:');
     for (final file in filesResponse.data.take(3)) {

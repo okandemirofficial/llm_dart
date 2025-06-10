@@ -1,4 +1,4 @@
-import '../../core/chat_provider.dart';
+import '../../core/capability.dart';
 import '../../core/config.dart';
 import '../../core/provider_defaults.dart';
 import '../anthropic/anthropic.dart';

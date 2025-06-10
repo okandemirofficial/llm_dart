@@ -1,4 +1,4 @@
-import '../../core/chat_provider.dart';
+import '../../core/capability.dart';
 import '../../core/llm_error.dart';
 import 'client.dart';
 import 'config.dart';

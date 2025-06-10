@@ -20,6 +20,9 @@ class OllamaConfig {
   final List<Tool>? tools;
   final StructuredOutputFormat? jsonSchema;
 
+  /// Reference to original LLMConfig for accessing extensions
+  final LLMConfig? _originalConfig;
+
   const OllamaConfig({
     this.baseUrl = ProviderDefaults.ollamaBaseUrl,
     this.apiKey,
@@ -32,7 +35,8 @@ class OllamaConfig {
     this.topK,
     this.tools,
     this.jsonSchema,
-  });
+    LLMConfig? originalConfig,
+  }) : _originalConfig = originalConfig;
 
   /// Create OllamaConfig from unified LLMConfig
   factory OllamaConfig.fromLLMConfig(LLMConfig config) {
@@ -50,8 +54,12 @@ class OllamaConfig {
       tools: config.tools,
       // Ollama-specific extensions
       jsonSchema: config.getExtension<StructuredOutputFormat>('jsonSchema'),
+      originalConfig: config,
     );
   }
+
+  /// Get extension value from original config
+  T? getExtension<T>(String key) => _originalConfig?.getExtension<T>(key);
 
   /// Check if this model supports reasoning/thinking
   bool get supportsReasoning {

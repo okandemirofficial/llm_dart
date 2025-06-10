@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../../core/chat_provider.dart';
+import '../../core/capability.dart';
 import '../../core/llm_error.dart';
 import '../../models/chat_models.dart';
 import '../../models/tool_models.dart';
@@ -11,6 +11,13 @@ import 'config.dart';
 ///
 /// This module handles all chat-related functionality for Anthropic providers,
 /// including streaming, tool calling, and reasoning model support.
+///
+/// **API Documentation:**
+/// - Messages API: https://docs.anthropic.com/en/api/messages
+/// - Streaming: https://docs.anthropic.com/en/api/messages-streaming
+/// - Tool Use: https://docs.anthropic.com/en/docs/tool-use
+/// - Extended Thinking: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking
+/// - Token Counting: https://docs.anthropic.com/en/api/messages-count-tokens
 class AnthropicChat implements ChatCapability {
   final AnthropicClient client;
   final AnthropicConfig config;
@@ -19,6 +26,12 @@ class AnthropicChat implements ChatCapability {
 
   String get chatEndpoint => 'messages';
 
+  /// Send a chat request with optional tool support
+  ///
+  /// **API Reference:** https://docs.anthropic.com/en/api/messages
+  ///
+  /// Supports all Anthropic message types including text, images, PDFs,
+  /// tool calls, and extended thinking for supported models.
   @override
   Future<ChatResponse> chatWithTools(
     List<ChatMessage> messages,
@@ -29,6 +42,13 @@ class AnthropicChat implements ChatCapability {
     return _parseResponse(responseData);
   }
 
+  /// Stream chat responses with real-time events
+  ///
+  /// **API Reference:** https://docs.anthropic.com/en/api/messages-streaming
+  ///
+  /// Returns a stream of events including text deltas, thinking deltas,
+  /// tool calls, and completion events. Supports all message types and
+  /// extended thinking for reasoning models.
   @override
   Stream<ChatStreamEvent> chatStream(
     List<ChatMessage> messages, {
@@ -69,6 +89,84 @@ class AnthropicChat implements ChatCapability {
     return text;
   }
 
+  /// Count tokens in messages using Anthropic's token counting API
+  ///
+  /// **API Reference:** https://docs.anthropic.com/en/api/messages-count-tokens
+  ///
+  /// This uses Anthropic's dedicated endpoint to accurately count tokens
+  /// for messages, system prompts, tools, and thinking configurations
+  /// without sending an actual chat request. Useful for:
+  /// - Cost estimation before sending requests
+  /// - Staying within model token limits
+  /// - Optimizing prompt length
+  Future<int> countTokens(List<ChatMessage> messages,
+      {List<Tool>? tools}) async {
+    final requestBody = _buildTokenCountRequestBody(messages, tools);
+
+    try {
+      final responseData =
+          await client.postJson('messages/count_tokens', requestBody);
+      return responseData['input_tokens'] as int? ?? 0;
+    } catch (e) {
+      client.logger.warning('Failed to count tokens: $e');
+      // Fallback to rough estimation (4 chars per token)
+      final totalChars =
+          messages.map((m) => m.content.length).fold(0, (a, b) => a + b);
+      return (totalChars / 4).ceil();
+    }
+  }
+
+  /// Build request body for token counting API
+  Map<String, dynamic> _buildTokenCountRequestBody(
+      List<ChatMessage> messages, List<Tool>? tools) {
+    final anthropicMessages = <Map<String, dynamic>>[];
+    final systemMessages = <String>[];
+
+    // Convert messages to Anthropic format (same as chat)
+    for (final message in messages) {
+      if (message.role == ChatRole.system) {
+        systemMessages.add(message.content);
+      } else {
+        anthropicMessages.add(_convertMessage(message));
+      }
+    }
+
+    final body = <String, dynamic>{
+      'model': config.model,
+      'messages': anthropicMessages,
+    };
+
+    // Add system prompt if present
+    final allSystemPrompts = <String>[];
+    if (config.systemPrompt != null && config.systemPrompt!.isNotEmpty) {
+      allSystemPrompts.add(config.systemPrompt!);
+    }
+    allSystemPrompts.addAll(systemMessages);
+
+    if (allSystemPrompts.isNotEmpty) {
+      body['system'] = allSystemPrompts.join('\n\n');
+    }
+
+    // Add tools if provided
+    final effectiveTools = tools ?? config.tools;
+    if (effectiveTools != null && effectiveTools.isNotEmpty) {
+      body['tools'] = effectiveTools.map((t) => _convertTool(t)).toList();
+    }
+
+    // Add thinking configuration if enabled
+    if (config.reasoning) {
+      final thinkingConfig = <String, dynamic>{
+        'type': 'enabled',
+      };
+      if (config.thinkingBudgetTokens != null) {
+        thinkingConfig['budget_tokens'] = config.thinkingBudgetTokens;
+      }
+      body['thinking'] = thinkingConfig;
+    }
+
+    return body;
+  }
+
   /// Parse response from Anthropic API
   ChatResponse _parseResponse(Map<String, dynamic> responseData) {
     return AnthropicChatResponse(responseData);
@@ -82,9 +180,13 @@ class AnthropicChat implements ChatCapability {
     for (final line in lines) {
       if (line.startsWith('data: ')) {
         final data = line.substring(6).trim();
-        if (data == '[DONE]') {
-          events.add(CompletionEvent(AnthropicChatResponse({})));
-          break;
+
+        // Handle end of stream
+        if (data == '[DONE]' || data.isEmpty) {
+          if (data == '[DONE]') {
+            events.add(CompletionEvent(AnthropicChatResponse({})));
+          }
+          continue;
         }
 
         try {
@@ -94,11 +196,14 @@ class AnthropicChat implements ChatCapability {
             events.add(event);
           }
         } catch (e) {
-          // Skip malformed JSON chunks
-          client.logger
-              .warning('Failed to parse stream JSON: $data, error: $e');
+          // Skip malformed JSON chunks but log for debugging
+          client.logger.fine('Failed to parse stream JSON: $data, error: $e');
           continue;
         }
+      } else if (line.startsWith('event: ')) {
+        // Handle event type lines (though Anthropic typically uses data lines)
+        final eventType = line.substring(7).trim();
+        client.logger.fine('Received event type: $eventType');
       }
     }
 
@@ -204,8 +309,35 @@ class AnthropicChat implements ChatCapability {
         if (error != null) {
           final message = error['message'] as String? ?? 'Unknown error';
           final errorType = error['type'] as String? ?? 'api_error';
-          return ErrorEvent(
-              ProviderError('Anthropic API error ($errorType): $message'));
+
+          // Map Anthropic error types to our error system
+          LLMError llmError;
+          switch (errorType) {
+            case 'authentication_error':
+              llmError = AuthError(message);
+              break;
+            case 'permission_error':
+              llmError = AuthError('Permission denied: $message');
+              break;
+            case 'invalid_request_error':
+              llmError = InvalidRequestError(message);
+              break;
+            case 'not_found_error':
+              llmError = InvalidRequestError('Not found: $message');
+              break;
+            case 'rate_limit_error':
+              llmError = RateLimitError(message);
+              break;
+            case 'api_error':
+            case 'overloaded_error':
+              llmError = ProviderError('Anthropic API error: $message');
+              break;
+            default:
+              llmError =
+                  ProviderError('Anthropic API error ($errorType): $message');
+          }
+
+          return ErrorEvent(llmError);
         }
         break;
 
@@ -325,6 +457,46 @@ class AnthropicChat implements ChatCapability {
       body['thinking'] = thinkingConfig;
     }
 
+    // Add stop sequences if provided
+    if (config.stopSequences != null && config.stopSequences!.isNotEmpty) {
+      body['stop_sequences'] = config.stopSequences;
+    }
+
+    // Add service tier if specified
+    if (config.serviceTier != null) {
+      body['service_tier'] = config.serviceTier!.value;
+    }
+
+    // Add metadata if user is specified or extensions contain metadata
+    final metadata = <String, dynamic>{};
+    if (config.user != null) {
+      metadata['user_id'] = config.user;
+    }
+
+    // Add custom metadata from extensions
+    final customMetadata =
+        config.getExtension<Map<String, dynamic>>('metadata');
+    if (customMetadata != null) {
+      metadata.addAll(customMetadata);
+    }
+
+    if (metadata.isNotEmpty) {
+      body['metadata'] = metadata;
+    }
+
+    // Add container identifier from extensions
+    final container = config.getExtension<String>('container');
+    if (container != null) {
+      body['container'] = container;
+    }
+
+    // Add MCP servers from extensions
+    final mcpServers = config.getExtension<List<MCPServer>>('mcpServers');
+    if (mcpServers != null && mcpServers.isNotEmpty) {
+      body['mcp_servers'] =
+          mcpServers.map((server) => server.toJson()).toList();
+    }
+
     return body;
   }
 
@@ -332,18 +504,30 @@ class AnthropicChat implements ChatCapability {
   void _validateMessageSequence(List<Map<String, dynamic>> messages) {
     if (messages.isEmpty) return;
 
-    // First message should be from user
+    // First message should be from user (Anthropic requirement)
     if (messages.first['role'] != 'user') {
-      client.logger
-          .warning('First message should be from user for optimal results');
+      client.logger.warning(
+          'First message should be from user for optimal results with Anthropic API');
     }
 
     // Check for consecutive messages from the same role
+    // Anthropic allows consecutive messages but they will be combined
     for (int i = 1; i < messages.length; i++) {
       if (messages[i]['role'] == messages[i - 1]['role']) {
         client.logger.info(
-            'Found consecutive messages from ${messages[i]['role']}, this is allowed but may affect conversation flow');
+            'Found consecutive ${messages[i]['role']} messages - Anthropic will combine them into a single turn');
         break; // Only warn once
+      }
+    }
+
+    // Validate message content is not empty
+    for (int i = 0; i < messages.length; i++) {
+      final content = messages[i]['content'];
+      if (content is List && content.isEmpty) {
+        throw const InvalidRequestError('Message content cannot be empty');
+      }
+      if (content is String && content.trim().isEmpty) {
+        throw const InvalidRequestError('Message content cannot be empty');
       }
     }
   }
@@ -460,10 +644,37 @@ class AnthropicChat implements ChatCapability {
     try {
       final schema = tool.function.parameters.toJson();
 
-      // Validate that the schema is valid for Anthropic
+      // Validate that the schema is valid for Anthropic (must be object type)
       if (schema['type'] != 'object') {
         client.logger.warning(
-            'Tool ${tool.function.name} has invalid schema type: ${schema['type']}. Anthropic requires object type.');
+            'Tool ${tool.function.name} has invalid schema type: ${schema['type']}. Anthropic requires object type. Converting to object.');
+
+        // Convert to valid object schema
+        return {
+          'name': tool.function.name,
+          'description': tool.function.description.isNotEmpty
+              ? tool.function.description
+              : 'No description provided',
+          'input_schema': {
+            'type': 'object',
+            'properties': {
+              'input': {
+                'type': 'string',
+                'description': 'Input for ${tool.function.name}',
+              }
+            },
+            'required': ['input'],
+          },
+        };
+      }
+
+      // Ensure required fields are present
+      final inputSchema = Map<String, dynamic>.from(schema);
+      inputSchema['type'] = 'object'; // Ensure type is object
+
+      // Add properties if missing
+      if (!inputSchema.containsKey('properties')) {
+        inputSchema['properties'] = <String, dynamic>{};
       }
 
       return {
@@ -471,7 +682,7 @@ class AnthropicChat implements ChatCapability {
         'description': tool.function.description.isNotEmpty
             ? tool.function.description
             : 'No description provided',
-        'input_schema': schema,
+        'input_schema': inputSchema,
       };
     } catch (e) {
       client.logger.warning('Failed to convert tool ${tool.function.name}: $e');
@@ -580,12 +791,17 @@ class AnthropicChatResponse implements ChatResponse {
     final usageData = _rawResponse['usage'] as Map<String, dynamic>?;
     if (usageData == null) return null;
 
+    final inputTokens = usageData['input_tokens'] as int? ?? 0;
+    final outputTokens = usageData['output_tokens'] as int? ?? 0;
+
+    // Note: Anthropic also provides cache_creation_input_tokens and cache_read_input_tokens
+    // These could be exposed in a future version of UsageInfo
+
     return UsageInfo(
-      promptTokens: usageData['input_tokens'] as int?,
-      completionTokens: usageData['output_tokens'] as int?,
-      totalTokens: (usageData['input_tokens'] as int? ?? 0) +
-          (usageData['output_tokens'] as int? ?? 0),
-      // Note: Anthropic doesn't provide separate thinking_tokens in usage
+      promptTokens: inputTokens,
+      completionTokens: outputTokens,
+      totalTokens: inputTokens + outputTokens,
+      // Anthropic doesn't provide separate thinking_tokens in usage
       // Thinking content is handled separately through content blocks
       reasoningTokens: null,
     );

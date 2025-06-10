@@ -1,4 +1,4 @@
-import '../../core/chat_provider.dart';
+import '../../core/capability.dart';
 import '../../models/chat_models.dart';
 import '../../models/audio_models.dart';
 import '../../models/tool_models.dart';
@@ -226,22 +226,22 @@ class OpenAIProvider
   // ========== FileManagementCapability (delegated to files module) ==========
 
   @override
-  Future<OpenAIFile> uploadFile(CreateFileRequest request) async {
+  Future<FileObject> uploadFile(FileUploadRequest request) async {
     return _files.uploadFile(request);
   }
 
   @override
-  Future<ListFilesResponse> listFiles([ListFilesQuery? query]) async {
+  Future<FileListResponse> listFiles([FileListQuery? query]) async {
     return _files.listFiles(query);
   }
 
   @override
-  Future<OpenAIFile> retrieveFile(String fileId) async {
+  Future<FileObject> retrieveFile(String fileId) async {
     return _files.retrieveFile(fileId);
   }
 
   @override
-  Future<DeleteFileResponse> deleteFile(String fileId) async {
+  Future<FileDeleteResponse> deleteFile(String fileId) async {
     return _files.deleteFile(fileId);
   }
 

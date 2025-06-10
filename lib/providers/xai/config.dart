@@ -74,6 +74,9 @@ class XAIConfig {
   final int? embeddingDimensions;
   final SearchParameters? searchParameters;
 
+  /// Reference to original LLMConfig for accessing extensions
+  final LLMConfig? _originalConfig;
+
   const XAIConfig({
     required this.apiKey,
     this.baseUrl = 'https://api.x.ai/v1/',
@@ -90,7 +93,8 @@ class XAIConfig {
     this.embeddingEncodingFormat,
     this.embeddingDimensions,
     this.searchParameters,
-  });
+    LLMConfig? originalConfig,
+  }) : _originalConfig = originalConfig;
 
   /// Create XAIConfig from unified LLMConfig
   factory XAIConfig.fromLLMConfig(LLMConfig config) {
@@ -114,8 +118,12 @@ class XAIConfig {
       embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
       searchParameters:
           config.getExtension<SearchParameters>('searchParameters'),
+      originalConfig: config,
     );
   }
+
+  /// Get extension value from original config
+  T? getExtension<T>(String key) => _originalConfig?.getExtension<T>(key);
 
   /// Check if this model supports reasoning/thinking
   bool get supportsReasoning {

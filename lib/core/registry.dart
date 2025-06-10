@@ -1,6 +1,6 @@
 import 'package:logging/logging.dart';
 
-import 'chat_provider.dart';
+import 'capability.dart';
 import 'config.dart';
 import 'llm_error.dart';
 import '../providers/factories/openai_factory.dart';

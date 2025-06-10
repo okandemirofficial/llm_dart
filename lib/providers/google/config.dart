@@ -76,6 +76,9 @@ class GoogleConfig {
   final int? candidateCount;
   final List<String>? stopSequences;
 
+  /// Reference to original LLMConfig for accessing extensions
+  final LLMConfig? _originalConfig;
+
   const GoogleConfig({
     required this.apiKey,
     this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/',
@@ -98,7 +101,8 @@ class GoogleConfig {
     this.maxInlineDataSize = 20 * 1024 * 1024, // 20MB default
     this.candidateCount,
     this.stopSequences,
-  });
+    LLMConfig? originalConfig,
+  }) : _originalConfig = originalConfig;
 
   /// Create GoogleConfig from unified LLMConfig
   factory GoogleConfig.fromLLMConfig(LLMConfig config) {
@@ -127,8 +131,12 @@ class GoogleConfig {
           config.getExtension<int>('maxInlineDataSize') ?? 20 * 1024 * 1024,
       candidateCount: config.getExtension<int>('candidateCount'),
       stopSequences: config.getExtension<List<String>>('stopSequences'),
+      originalConfig: config,
     );
   }
+
+  /// Get extension value from original config
+  T? getExtension<T>(String key) => _originalConfig?.getExtension<T>(key);
 
   /// Check if this model supports reasoning/thinking
   bool get supportsReasoning {

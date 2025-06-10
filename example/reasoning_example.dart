@@ -34,7 +34,6 @@ Future<void> streamingExample() async {
       .model('deepseek-r1') // Use reasoning model
       .reasoningEffort(ReasoningEffort.high) // Set reasoning effort level
       .maxTokens(2000) // Limit response length
-      // Streaming is controlled by using chatStream() to see thinking process
       .build();
 
   // Create a simple reasoning task that demonstrates thinking without being too long
@@ -115,7 +114,6 @@ Future<void> nonStreamingExample() async {
       .model('deepseek-r1') // Use reasoning model
       .reasoningEffort(ReasoningEffort.high) // Set reasoning effort level
       .maxTokens(2000) // Limit response length
-      // Using chat() method for complete response (non-streaming)
       .build();
 
   // Create a simple reasoning task that demonstrates thinking

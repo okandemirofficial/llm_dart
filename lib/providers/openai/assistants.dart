@@ -1,4 +1,4 @@
-import '../../core/chat_provider.dart';
+import '../../core/capability.dart';
 import '../../models/assistant_models.dart';
 import '../../models/tool_models.dart';
 import 'client.dart';

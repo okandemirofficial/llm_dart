@@ -1,4 +1,4 @@
-import '../../core/chat_provider.dart';
+import '../../core/capability.dart';
 import '../../core/config.dart';
 import '../../core/provider_defaults.dart';
 import '../../core/registry.dart';
@@ -59,6 +59,7 @@ class DeepSeekProviderFactory implements LLMProviderFactory<ChatCapability> {
       topK: config.topK,
       tools: config.tools,
       toolChoice: config.toolChoice,
+      originalConfig: config,
     );
   }
 }

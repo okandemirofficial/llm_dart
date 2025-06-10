@@ -1,4 +1,4 @@
-import '../core/chat_provider.dart';
+import '../core/capability.dart';
 import '../core/config.dart';
 import '../core/registry.dart';
 import '../core/llm_error.dart';
@@ -124,6 +124,24 @@ class LLMBuilder {
     return this;
   }
 
+  /// Sets stop sequences for generation
+  LLMBuilder stopSequences(List<String> sequences) {
+    _config = _config.copyWith(stopSequences: sequences);
+    return this;
+  }
+
+  /// Sets user identifier for tracking and analytics
+  LLMBuilder user(String userId) {
+    _config = _config.copyWith(user: userId);
+    return this;
+  }
+
+  /// Sets service tier for API requests
+  LLMBuilder serviceTier(ServiceTier tier) {
+    _config = _config.copyWith(serviceTier: tier);
+    return this;
+  }
+
   /// Sets the reasoning effort for models that support it (e.g., OpenAI o1, Gemini)
   /// Valid values: ReasoningEffort.low, ReasoningEffort.medium, ReasoningEffort.high, or null to disable
   LLMBuilder reasoningEffort(ReasoningEffort? effort) {
@@ -202,6 +220,26 @@ class LLMBuilder {
       extension('embeddingEncodingFormat', format);
   LLMBuilder embeddingDimensions(int dimensions) =>
       extension('embeddingDimensions', dimensions);
+
+  /// OpenAI-specific parameter convenience methods
+  LLMBuilder frequencyPenalty(double penalty) =>
+      extension('frequencyPenalty', penalty);
+  LLMBuilder presencePenalty(double penalty) =>
+      extension('presencePenalty', penalty);
+  LLMBuilder logitBias(Map<String, double> bias) =>
+      extension('logitBias', bias);
+  LLMBuilder seed(int seedValue) => extension('seed', seedValue);
+  LLMBuilder parallelToolCalls(bool enabled) =>
+      extension('parallelToolCalls', enabled);
+  LLMBuilder logprobs(bool enabled) => extension('logprobs', enabled);
+  LLMBuilder topLogprobs(int count) => extension('topLogprobs', count);
+
+  /// Anthropic-specific parameter convenience methods
+  LLMBuilder metadata(Map<String, dynamic> data) => extension('metadata', data);
+  LLMBuilder container(String containerId) =>
+      extension('container', containerId);
+  LLMBuilder mcpServers(List<MCPServer> servers) =>
+      extension('mcpServers', servers);
 
   /// Image generation configuration methods
   LLMBuilder imageSize(String size) => extension('imageSize', size);

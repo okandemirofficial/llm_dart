@@ -1,4 +1,4 @@
-import '../../core/chat_provider.dart';
+import '../../core/capability.dart';
 import '../../core/config.dart';
 import '../../core/registry.dart';
 import '../groq/groq.dart';
@@ -41,6 +41,7 @@ class GroqProviderFactory implements LLMProviderFactory<ChatCapability> {
       topK: config.topK,
       tools: config.tools,
       toolChoice: config.toolChoice,
+      originalConfig: config,
     );
   }
 

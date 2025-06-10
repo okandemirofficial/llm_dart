@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 
-import '../../core/chat_provider.dart';
+import '../../core/capability.dart';
 import '../../core/llm_error.dart';
 import '../../models/file_models.dart';
 import 'client.dart';
@@ -20,7 +20,7 @@ class OpenAIFiles implements FileManagementCapability {
   OpenAIFiles(this.client, this.config);
 
   @override
-  Future<OpenAIFile> uploadFile(CreateFileRequest request) async {
+  Future<FileObject> uploadFile(FileUploadRequest request) async {
     final formData = FormData();
 
     formData.files.add(
@@ -33,45 +33,42 @@ class OpenAIFiles implements FileManagementCapability {
       ),
     );
 
-    formData.fields.add(MapEntry('purpose', request.purpose.value));
+    if (request.purpose != null) {
+      formData.fields.add(MapEntry('purpose', request.purpose!.value));
+    }
 
     final responseData = await client.postForm('files', formData);
-    return OpenAIFile.fromJson(responseData);
+    return FileObject.fromOpenAI(responseData);
   }
 
   @override
-  Future<ListFilesResponse> listFiles([ListFilesQuery? query]) async {
+  Future<FileListResponse> listFiles([FileListQuery? query]) async {
     String endpoint = 'files';
 
     if (query != null) {
-      final queryParams = <String, String>{};
-      if (query.purpose != null) queryParams['purpose'] = query.purpose!.value;
-      if (query.limit != null) queryParams['limit'] = query.limit.toString();
-      if (query.order != null) queryParams['order'] = query.order!;
-      if (query.after != null) queryParams['after'] = query.after!;
-
+      final queryParams = query.toOpenAIQueryParameters();
       if (queryParams.isNotEmpty) {
         final queryString = queryParams.entries
-            .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+            .map((e) => '${e.key}=${Uri.encodeComponent(e.value.toString())}')
             .join('&');
         endpoint = '$endpoint?$queryString';
       }
     }
 
     final responseData = await client.get(endpoint);
-    return ListFilesResponse.fromJson(responseData);
+    return FileListResponse.fromOpenAI(responseData);
   }
 
   @override
-  Future<OpenAIFile> retrieveFile(String fileId) async {
+  Future<FileObject> retrieveFile(String fileId) async {
     final responseData = await client.get('files/$fileId');
-    return OpenAIFile.fromJson(responseData);
+    return FileObject.fromOpenAI(responseData);
   }
 
   @override
-  Future<DeleteFileResponse> deleteFile(String fileId) async {
+  Future<FileDeleteResponse> deleteFile(String fileId) async {
     final responseData = await client.delete('files/$fileId');
-    return DeleteFileResponse.fromJson(responseData);
+    return FileDeleteResponse.fromOpenAI(responseData);
   }
 
   @override
@@ -102,25 +99,25 @@ class OpenAIFiles implements FileManagementCapability {
   Future<int?> getFileSize(String fileId) async {
     try {
       final file = await retrieveFile(fileId);
-      return file.bytes;
+      return file.sizeBytes;
     } catch (e) {
       return null;
     }
   }
 
   /// List files by purpose
-  Future<List<OpenAIFile>> listFilesByPurpose(FilePurpose purpose) async {
-    final response = await listFiles(ListFilesQuery(purpose: purpose));
+  Future<List<FileObject>> listFilesByPurpose(FilePurpose purpose) async {
+    final response = await listFiles(FileListQuery(purpose: purpose));
     return response.data;
   }
 
   /// Upload file from bytes with automatic filename
-  Future<OpenAIFile> uploadFileFromBytes(
+  Future<FileObject> uploadFileFromBytes(
     List<int> bytes,
     FilePurpose purpose, {
     String? filename,
   }) async {
-    return uploadFile(CreateFileRequest(
+    return uploadFile(FileUploadRequest(
       file: Uint8List.fromList(bytes),
       purpose: purpose,
       filename: filename ?? 'file_${DateTime.now().millisecondsSinceEpoch}',
@@ -128,13 +125,13 @@ class OpenAIFiles implements FileManagementCapability {
   }
 
   /// Upload file from path
-  Future<OpenAIFile> uploadFileFromPath(
+  Future<FileObject> uploadFileFromPath(
     String filePath,
     FilePurpose purpose, {
     String? filename,
   }) async {
     final fileBytes = await File(filePath).readAsBytes();
-    return uploadFile(CreateFileRequest(
+    return uploadFile(FileUploadRequest(
       file: fileBytes,
       purpose: purpose,
       filename: filename ?? filePath.split('/').last,
@@ -142,8 +139,8 @@ class OpenAIFiles implements FileManagementCapability {
   }
 
   /// Batch delete files
-  Future<List<DeleteFileResponse>> deleteFiles(List<String> fileIds) async {
-    final results = <DeleteFileResponse>[];
+  Future<List<FileDeleteResponse>> deleteFiles(List<String> fileIds) async {
+    final results = <FileDeleteResponse>[];
 
     for (final fileId in fileIds) {
       try {
@@ -151,10 +148,11 @@ class OpenAIFiles implements FileManagementCapability {
         results.add(result);
       } catch (e) {
         // Continue with other files even if one fails
-        results.add(DeleteFileResponse(
+        results.add(FileDeleteResponse(
           id: fileId,
           object: 'file',
           deleted: false,
+          error: e.toString(),
         ));
       }
     }
@@ -166,19 +164,17 @@ class OpenAIFiles implements FileManagementCapability {
   Future<int> getTotalStorageUsed() async {
     final response = await listFiles();
     return response.data
-        .map((file) => file.bytes)
+        .map((file) => file.sizeBytes)
         .fold<int>(0, (sum, bytes) => sum + bytes);
   }
 
   /// Clean up old files (older than specified days)
-  Future<List<DeleteFileResponse>> cleanupOldFiles(int olderThanDays) async {
+  Future<List<FileDeleteResponse>> cleanupOldFiles(int olderThanDays) async {
     final cutoffDate = DateTime.now().subtract(Duration(days: olderThanDays));
     final response = await listFiles();
 
     final oldFiles = response.data.where((file) {
-      final fileDate =
-          DateTime.fromMillisecondsSinceEpoch(file.createdAt * 1000);
-      return fileDate.isBefore(cutoffDate);
+      return file.createdAt.isBefore(cutoffDate);
     }).toList();
 
     if (oldFiles.isEmpty) {

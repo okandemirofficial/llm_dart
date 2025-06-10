@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:logging/logging.dart';
 
-import 'chat_provider.dart';
+import 'capability.dart';
 import 'llm_error.dart';
 import '../models/chat_models.dart';
 import '../models/tool_models.dart';

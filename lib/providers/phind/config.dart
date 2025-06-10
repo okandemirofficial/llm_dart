@@ -19,6 +19,9 @@ class PhindConfig {
   final List<Tool>? tools;
   final ToolChoice? toolChoice;
 
+  /// Reference to original LLMConfig for accessing extensions
+  final LLMConfig? _originalConfig;
+
   const PhindConfig({
     required this.apiKey,
     this.baseUrl = 'https://https.extension.phind.com/agent/',
@@ -31,7 +34,8 @@ class PhindConfig {
     this.topK,
     this.tools,
     this.toolChoice,
-  });
+    LLMConfig? originalConfig,
+  }) : _originalConfig = originalConfig;
 
   /// Create PhindConfig from unified LLMConfig
   factory PhindConfig.fromLLMConfig(LLMConfig config) {
@@ -47,8 +51,12 @@ class PhindConfig {
       topK: config.topK,
       tools: config.tools,
       toolChoice: config.toolChoice,
+      originalConfig: config,
     );
   }
+
+  /// Get extension value from original config
+  T? getExtension<T>(String key) => _originalConfig?.getExtension<T>(key);
 
   /// Check if this model supports tool calling
   bool get supportsToolCalling {

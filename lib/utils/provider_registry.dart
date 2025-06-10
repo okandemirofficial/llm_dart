@@ -1,4 +1,4 @@
-import '../core/chat_provider.dart';
+import '../core/capability.dart';
 import 'capability_utils.dart';
 
 /// Enterprise-grade provider registry for managing multiple providers

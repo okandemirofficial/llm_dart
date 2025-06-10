@@ -20,6 +20,9 @@ class GroqConfig {
   final List<Tool>? tools;
   final ToolChoice? toolChoice;
 
+  /// Reference to original LLMConfig for accessing extensions
+  final LLMConfig? _originalConfig;
+
   const GroqConfig({
     required this.apiKey,
     this.baseUrl = ProviderDefaults.groqBaseUrl,
@@ -32,7 +35,8 @@ class GroqConfig {
     this.topK,
     this.tools,
     this.toolChoice,
-  });
+    LLMConfig? originalConfig,
+  }) : _originalConfig = originalConfig;
 
   /// Create GroqConfig from unified LLMConfig
   factory GroqConfig.fromLLMConfig(LLMConfig config) {
@@ -48,8 +52,12 @@ class GroqConfig {
       topK: config.topK,
       tools: config.tools,
       toolChoice: config.toolChoice,
+      originalConfig: config,
     );
   }
+
+  /// Get extension value from original config
+  T? getExtension<T>(String key) => _originalConfig?.getExtension<T>(key);
 
   /// Check if this model supports reasoning/thinking
   bool get supportsReasoning {

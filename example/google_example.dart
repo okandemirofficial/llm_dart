@@ -110,7 +110,6 @@ Future<void> enhancedStreamingExample(String apiKey) async {
         .reasoning(true)
         .extension('thinkingBudgetTokens', 1000)
         .extension('includeThoughts', true)
-        // Streaming is controlled by using chatStream() method
         .build();
 
     print('🧠 Starting Google reasoning model chat with thinking support...\n');
@@ -218,7 +217,6 @@ Future<void> googleOpenAIExample(String apiKey) async {
         .reasoningEffort(ReasoningEffort.high)
         .extension('includeThoughts', true) // Include thinking summaries
         .extension('thinkingBudgetTokens', 1000) // Set thinking budget
-        // Streaming is controlled by using chatStream() method
         .build();
 
     var thinkingContent = StringBuffer();

@@ -7,14 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.0] - Not yet released (WIP)
 
+### Added
+
+- **Anthropic Files API**: Complete file management support
+  - Upload, list, retrieve, and delete files
+  - Support for MIME types and downloadable flags
+  - Cursor-based pagination with `beforeId`, `afterId`, and `limit`
+  - Convenience methods: `uploadFileFromBytes()`, `fileExists()`, `getFileContentAsString()`
+  - Batch operations: `deleteFiles()`, `getTotalStorageUsed()`
+  - Beta API header support (`anthropic-beta: files-api-2025-04-14`)
+
+- **Unified File Management API**: Cross-provider file operations
+  - `FileManagementCapability` interface for consistent file operations
+  - Universal `FileObject`, `FileUploadRequest`, `FileListResponse` models
+  - Support for both OpenAI and Anthropic file formats with automatic conversion
+  - Unified `FilePurpose` and `FileStatus` enums
+  - Provider-agnostic file operations with format adaptation
+
+- **Provider Configuration Centralization**: Extracted default configurations
+  - New `ProviderDefaults` class with all provider endpoints and models
+  - `OpenAICompatibleDefaults` for OpenAI-compatible provider configurations
+  - Centralized capability definitions for all providers
+  - Eliminated configuration duplication across factory classes
+
 ### Changed
 
-- **OpenAI Provider**: Replaced with new modular implementation
-  - Replaced old monolithic `OpenAIProvider` with modular architecture
-  - Better maintainability and testing capabilities
-  - Improved error handling and type safety
-  - Full backward compatibility maintained
-  - All existing APIs continue to work unchanged
+- **All Providers**: Refactored to modular architecture
+  - OpenAI, Anthropic, DeepSeek, Groq, xAI, Phind, ElevenLabs providers now use modular design
+  - Consistent file structure across all providers
+  - Improved separation of concerns (config, client, capabilities)
+  - Better error handling and logging
+
+- **Streaming Configuration**: Removed stream parameters from configs
+  - Stream behavior now controlled at method call time (`chat()` vs `chatStream()`)
+  - Simplified configuration classes by removing redundant stream parameters
+  - More intuitive API design for streaming operations
+
+- **Factory Classes**: Enhanced with full configuration support
+  - All factory methods now support complete provider configurations
+  - Removed redundant helper methods in favor of base factory functionality
+  - Better parameter validation and error handling
 
 ### Removed
 
@@ -23,12 +55,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `createDeepSeekProvider()`, `createGroqProvider()`, etc. provide same functionality
   - Simplified architecture with better performance
 
+- **Legacy Provider Files**: Cleaned up deprecated implementations
+  - Removed old provider files after modular refactoring
+  - Eliminated duplicate code and inconsistent implementations
+  - Streamlined provider architecture
+
+- **Stream Configuration Parameters**: Removed from all provider configs
+  - `stream` parameter removed from configuration classes
+  - Streaming behavior now determined by method choice
+  - Cleaner separation between configuration and runtime behavior
+
 ### Migration Guide
 
 - **OpenAI Provider**: No code changes required for basic usage
   - All existing `OpenAIProvider` usage continues to work
   - Configuration classes renamed: `ModularOpenAIConfig` → `OpenAIConfig`
   - Factory classes updated to use full configuration support
+
+- **Streaming**: Update streaming usage pattern
+  - Replace `config.stream = true` with direct method calls
+  - Use `provider.chatStream()` instead of `provider.chat()` with stream config
+  - More explicit and intuitive streaming control
+
+- **File Management**: Use unified file API for cross-provider compatibility
+  - OpenAI file operations remain unchanged
+  - Anthropic now supports file operations through `FileManagementCapability`
+  - Use universal file models for provider-agnostic code
 
 ## [0.1.2] - 2025-6-8
 

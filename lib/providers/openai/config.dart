@@ -1,5 +1,6 @@
 import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
+import '../../core/config.dart';
 import '../../core/provider_defaults.dart';
 
 /// OpenAI provider configuration
@@ -24,6 +25,12 @@ class OpenAIConfig {
   final String? voice;
   final String? embeddingEncodingFormat;
   final int? embeddingDimensions;
+  final List<String>? stopSequences;
+  final String? user;
+  final ServiceTier? serviceTier;
+
+  /// Reference to original LLMConfig for accessing extensions
+  final LLMConfig? _originalConfig;
 
   const OpenAIConfig({
     required this.apiKey,
@@ -42,7 +49,14 @@ class OpenAIConfig {
     this.voice,
     this.embeddingEncodingFormat,
     this.embeddingDimensions,
-  });
+    this.stopSequences,
+    this.user,
+    this.serviceTier,
+    LLMConfig? originalConfig,
+  }) : _originalConfig = originalConfig;
+
+  /// Get extension value from original config
+  T? getExtension<T>(String key) => _originalConfig?.getExtension<T>(key);
 
   OpenAIConfig copyWith({
     String? apiKey,
@@ -61,6 +75,9 @@ class OpenAIConfig {
     String? voice,
     String? embeddingEncodingFormat,
     int? embeddingDimensions,
+    List<String>? stopSequences,
+    String? user,
+    ServiceTier? serviceTier,
   }) =>
       OpenAIConfig(
         apiKey: apiKey ?? this.apiKey,
@@ -80,6 +97,9 @@ class OpenAIConfig {
         embeddingEncodingFormat:
             embeddingEncodingFormat ?? this.embeddingEncodingFormat,
         embeddingDimensions: embeddingDimensions ?? this.embeddingDimensions,
+        stopSequences: stopSequences ?? this.stopSequences,
+        user: user ?? this.user,
+        serviceTier: serviceTier ?? this.serviceTier,
       );
 
   @override
@@ -111,7 +131,10 @@ class OpenAIConfig {
         other.jsonSchema == jsonSchema &&
         other.voice == voice &&
         other.embeddingEncodingFormat == embeddingEncodingFormat &&
-        other.embeddingDimensions == embeddingDimensions;
+        other.embeddingDimensions == embeddingDimensions &&
+        other.stopSequences == stopSequences &&
+        other.user == user &&
+        other.serviceTier == serviceTier;
   }
 
   @override
@@ -133,6 +156,9 @@ class OpenAIConfig {
       voice,
       embeddingEncodingFormat,
       embeddingDimensions,
+      stopSequences,
+      user,
+      serviceTier,
     );
   }
 }

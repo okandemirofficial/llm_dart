@@ -1,4 +1,4 @@
-import 'chat_provider.dart';
+import 'capability.dart';
 import 'config.dart';
 import 'google_openai_transformers.dart';
 import 'provider_defaults.dart';

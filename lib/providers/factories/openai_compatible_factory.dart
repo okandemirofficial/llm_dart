@@ -1,4 +1,4 @@
-import '../../core/chat_provider.dart';
+import '../../core/capability.dart';
 import '../../core/config.dart';
 import '../../core/registry.dart';
 import '../../core/openai_compatible_configs.dart';
@@ -49,6 +49,10 @@ class OpenAICompatibleProviderFactory
       topK: config.topK,
       tools: config.tools,
       toolChoice: config.toolChoice,
+      // Common parameters
+      stopSequences: config.stopSequences,
+      user: config.user,
+      serviceTier: config.serviceTier,
       // OpenAI-compatible extensions
       reasoningEffort: ReasoningEffort.fromString(
           config.getExtension<String>('reasoningEffort')),
@@ -57,6 +61,7 @@ class OpenAICompatibleProviderFactory
       embeddingEncodingFormat:
           config.getExtension<String>('embeddingEncodingFormat'),
       embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
+      originalConfig: config,
     );
   }
 

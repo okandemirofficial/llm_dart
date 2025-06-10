@@ -39,39 +39,39 @@ void main() {
             FileStatus.fromString('processed'), equals(FileStatus.processed));
       });
 
-      test('OpenAIFile should serialize/deserialize correctly', () {
-        final file = OpenAIFile(
+      test('FileObject should serialize/deserialize correctly', () {
+        final file = FileObject(
           id: 'file-123',
-          bytes: 1024,
-          createdAt: 1234567890,
+          sizeBytes: 1024,
+          createdAt: DateTime.fromMillisecondsSinceEpoch(1234567890 * 1000),
           filename: 'test.txt',
           purpose: FilePurpose.assistants,
           status: FileStatus.uploaded,
           statusDetails: 'File uploaded successfully',
         );
 
-        final json = file.toJson();
+        final json = file.toOpenAIJson();
         expect(json['id'], equals('file-123'));
         expect(json['bytes'], equals(1024));
         expect(json['purpose'], equals('assistants'));
         expect(json['status'], equals('uploaded'));
 
-        final fromJson = OpenAIFile.fromJson(json);
+        final fromJson = FileObject.fromOpenAI(json);
         expect(fromJson.id, equals(file.id));
-        expect(fromJson.bytes, equals(file.bytes));
+        expect(fromJson.sizeBytes, equals(file.sizeBytes));
         expect(fromJson.purpose, equals(file.purpose));
         expect(fromJson.status, equals(file.status));
       });
 
-      test('CreateFileRequest should work correctly', () {
+      test('FileUploadRequest should work correctly', () {
         final fileData = Uint8List.fromList([1, 2, 3, 4, 5]);
-        final request = CreateFileRequest(
+        final request = FileUploadRequest(
           file: fileData,
           filename: 'test.txt',
           purpose: FilePurpose.assistants,
         );
 
-        final json = request.toJson();
+        final json = request.toOpenAIJson();
         expect(json['filename'], equals('test.txt'));
         expect(json['purpose'], equals('assistants'));
       });

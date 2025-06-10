@@ -1,4 +1,4 @@
-import 'chat_provider.dart';
+import 'capability.dart';
 
 /// Centralized provider default configurations
 ///

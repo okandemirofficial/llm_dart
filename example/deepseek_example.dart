@@ -231,7 +231,6 @@ Future<void> openaiCompatibleExample() async {
         .model('deepseek-reasoner') // Use DeepSeek-R1 reasoning model
         .maxTokens(1500) // Limit response length
         .timeout(const Duration(seconds: 300)) // Set timeout
-        // Using chat() method for non-streaming response
         .build();
 
     // Create a simple reasoning task

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../../core/chat_provider.dart';
+import '../../core/capability.dart';
 import '../../core/llm_error.dart';
 import '../../models/image_models.dart';
 import 'client.dart';

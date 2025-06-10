@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '../../core/chat_provider.dart';
+import '../../core/capability.dart';
 import '../../core/llm_error.dart';
 import '../../models/chat_models.dart';
 import '../../models/tool_models.dart';
@@ -189,6 +189,55 @@ class OpenAIChat implements ChatCapability {
       }
 
       body['response_format'] = responseFormat;
+    }
+
+    // Add common parameters
+    if (config.stopSequences != null && config.stopSequences!.isNotEmpty) {
+      body['stop'] = config.stopSequences;
+    }
+
+    if (config.user != null) {
+      body['user'] = config.user;
+    }
+
+    if (config.serviceTier != null) {
+      body['service_tier'] = config.serviceTier!.value;
+    }
+
+    // Add OpenAI-specific extension parameters
+    final frequencyPenalty = config.getExtension<double>('frequencyPenalty');
+    if (frequencyPenalty != null) {
+      body['frequency_penalty'] = frequencyPenalty;
+    }
+
+    final presencePenalty = config.getExtension<double>('presencePenalty');
+    if (presencePenalty != null) {
+      body['presence_penalty'] = presencePenalty;
+    }
+
+    final logitBias = config.getExtension<Map<String, double>>('logitBias');
+    if (logitBias != null && logitBias.isNotEmpty) {
+      body['logit_bias'] = logitBias;
+    }
+
+    final seed = config.getExtension<int>('seed');
+    if (seed != null) {
+      body['seed'] = seed;
+    }
+
+    final parallelToolCalls = config.getExtension<bool>('parallelToolCalls');
+    if (parallelToolCalls != null) {
+      body['parallel_tool_calls'] = parallelToolCalls;
+    }
+
+    final logprobs = config.getExtension<bool>('logprobs');
+    if (logprobs != null) {
+      body['logprobs'] = logprobs;
+    }
+
+    final topLogprobs = config.getExtension<int>('topLogprobs');
+    if (topLogprobs != null) {
+      body['top_logprobs'] = topLogprobs;
     }
 
     // Handle extra_body parameters (for OpenAI-compatible interfaces)

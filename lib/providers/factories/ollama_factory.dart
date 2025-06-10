@@ -1,4 +1,4 @@
-import '../../core/chat_provider.dart';
+import '../../core/capability.dart';
 import '../../core/config.dart';
 import '../../core/provider_defaults.dart';
 import '../ollama/ollama.dart';
@@ -53,6 +53,7 @@ class OllamaProviderFactory extends LocalProviderFactory<ChatCapability> {
       tools: config.tools,
       // Ollama-specific extensions using safe access
       jsonSchema: getExtension(config, 'jsonSchema'),
+      originalConfig: config,
     );
   }
 }

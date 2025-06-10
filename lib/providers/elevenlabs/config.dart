@@ -15,6 +15,9 @@ class ElevenLabsConfig {
   final double? style;
   final bool? useSpeakerBoost;
 
+  /// Reference to original LLMConfig for accessing extensions
+  final LLMConfig? _originalConfig;
+
   const ElevenLabsConfig({
     required this.apiKey,
     this.baseUrl = 'https://api.elevenlabs.io/v1/',
@@ -25,7 +28,8 @@ class ElevenLabsConfig {
     this.similarityBoost,
     this.style,
     this.useSpeakerBoost,
-  });
+    LLMConfig? originalConfig,
+  }) : _originalConfig = originalConfig;
 
   /// Create ElevenLabsConfig from unified LLMConfig
   factory ElevenLabsConfig.fromLLMConfig(LLMConfig config) {
@@ -40,8 +44,12 @@ class ElevenLabsConfig {
       similarityBoost: config.getExtension<double>('similarityBoost'),
       style: config.getExtension<double>('style'),
       useSpeakerBoost: config.getExtension<bool>('useSpeakerBoost'),
+      originalConfig: config,
     );
   }
+
+  /// Get extension value from original config
+  T? getExtension<T>(String key) => _originalConfig?.getExtension<T>(key);
 
   /// Check if this configuration supports text-to-speech
   bool get supportsTextToSpeech => true;

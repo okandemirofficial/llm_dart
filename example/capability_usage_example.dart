@@ -113,7 +113,7 @@ Future<void> demonstrateSafeExecution(dynamic provider) async {
       try {
         // Example: Upload a file
         final sampleData = Uint8List.fromList('Hello, World!'.codeUnits);
-        final request = CreateFileRequest(
+        final request = FileUploadRequest(
           file: sampleData,
           filename: 'sample.txt',
           purpose: FilePurpose.assistants,
