@@ -1,0 +1,99 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on tags starting with 'v' (e.g., v1.0.0)
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'tag' && github.ref_name != ''
+
+    permissions:
+      contents: write  # Required to create releases
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch complete history
+
+      - name: Verify tag is on main branch
+        run: |
+          # Check if the current tag is on the main branch
+          if ! git branch --contains ${{ github.ref_name }} | grep -q "main\|origin/main"; then
+            echo "Error: Tag ${{ github.ref_name }} is not on main branch"
+            exit 1
+          fi
+          echo "Tag ${{ github.ref_name }} is on main branch"
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          # Extract version number from tag (remove 'v' prefix)
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Extract changelog for version
+        id: changelog
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          echo "Extracting changelog for version $VERSION"
+
+          # Create temporary file to store changelog content
+          CHANGELOG_FILE=$(mktemp)
+
+          # Use awk to extract changelog for the specified version
+          awk -v version="$VERSION" '
+          BEGIN { found=0; content="" }
+          /^## \[/ {
+            if (found) exit
+            if ($0 ~ "\\[" version "\\]") {
+              found=1
+              next
+            }
+          }
+          found && /^## \[/ { exit }
+          found && !/^## \[/ {
+            if (content != "") content = content "\n"
+            content = content $0
+          }
+          END {
+            if (content != "") print content
+            else print "No changelog found for version " version
+          }
+          ' CHANGELOG.md > "$CHANGELOG_FILE"
+
+          # Check if changelog content was found
+          if [ ! -s "$CHANGELOG_FILE" ]; then
+            echo "Warning: No changelog found for version $VERSION"
+            echo "## Release $VERSION" > "$CHANGELOG_FILE"
+            echo "" >> "$CHANGELOG_FILE"
+            echo "Please check CHANGELOG.md for details." >> "$CHANGELOG_FILE"
+          fi
+
+          # Output changelog content for debugging
+          echo "Changelog content:"
+          cat "$CHANGELOG_FILE"
+
+          # Set changelog content as output variable
+          {
+            echo 'changelog<<EOF'
+            cat "$CHANGELOG_FILE"
+            echo EOF
+          } >> $GITHUB_OUTPUT
+
+          rm "$CHANGELOG_FILE"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Release ${{ steps.version.outputs.version }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
