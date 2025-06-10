@@ -67,11 +67,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Migration Guide
 
-- **OpenAI Provider**: No code changes required for basic usage
-  - All existing `OpenAIProvider` usage continues to work
-  - Configuration classes renamed: `ModularOpenAIConfig` → `OpenAIConfig`
-  - Factory classes updated to use full configuration support
-
 - **Streaming**: Update streaming usage pattern
   - Replace `config.stream = true` with direct method calls
   - Use `provider.chatStream()` instead of `provider.chat()` with stream config
