@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -121,20 +120,6 @@ class OpenAIFiles implements FileManagementCapability {
       file: Uint8List.fromList(bytes),
       purpose: purpose,
       filename: filename ?? 'file_${DateTime.now().millisecondsSinceEpoch}',
-    ));
-  }
-
-  /// Upload file from path
-  Future<FileObject> uploadFileFromPath(
-    String filePath,
-    FilePurpose purpose, {
-    String? filename,
-  }) async {
-    final fileBytes = await File(filePath).readAsBytes();
-    return uploadFile(FileUploadRequest(
-      file: fileBytes,
-      purpose: purpose,
-      filename: filename ?? filePath.split('/').last,
     ));
   }
 

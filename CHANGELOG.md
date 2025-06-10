@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **Web Platform Support**: Removed `dart:io` dependency to enable Web and WASM compatibility
+  - Removed `uploadFileFromPath()` method from OpenAI Files API
+  - Enables WASM compatibility for future Dart Web applications
+  - Use `uploadFile()` or `uploadFileFromBytes()` methods instead for cross-platform file uploads
+
 ## [0.2.0] - 2025-6-10
 
 ### Added
