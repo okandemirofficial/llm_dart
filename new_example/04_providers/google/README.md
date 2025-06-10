@@ -6,31 +6,11 @@ Google's Gemini models offer powerful multi-modal capabilities, large context wi
 
 ### 🚀 [basic_usage.dart](basic_usage.dart)
 **Getting Started with Google Gemini**
-- Model selection (Gemini Pro, Flash, Ultra)
+- Model selection (Flash, Pro, Ultra)
 - Basic configuration and chat
+- Reasoning capabilities
 - Performance comparison
 - Best practices for Gemini
-
-### 🎨 [multi_modal.dart](multi_modal.dart)
-**Multi-Modal Processing**
-- Text and image analysis
-- Video processing capabilities
-- Audio input handling
-- Combined modality tasks
-
-### 🧠 [reasoning_features.dart](reasoning_features.dart)
-**Advanced Reasoning**
-- Thinking process access
-- Step-by-step problem solving
-- Mathematical reasoning
-- Code analysis and generation
-
-### 🔍 [search_integration.dart](search_integration.dart)
-**Search-Enhanced Responses**
-- Real-time information access
-- Fact verification
-- Current events integration
-- Research assistance
 
 ## 🎯 Key Features
 

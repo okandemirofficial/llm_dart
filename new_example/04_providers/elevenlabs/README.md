@@ -11,26 +11,13 @@ ElevenLabs specializes in high-quality voice synthesis, voice cloning, and speec
 - Voice selection and settings
 - Best practices for voice synthesis
 
-### 🎭 [voice_cloning.dart](voice_cloning.dart)
-**Custom Voice Creation**
-- Voice cloning from samples
-- Custom voice training
-- Voice similarity optimization
-- Professional voice creation
-
-### 🌍 [multi_language.dart](multi_language.dart)
-**International Voice Synthesis**
-- Multi-language support
-- Accent and pronunciation control
-- Regional voice variants
-- Language-specific optimization
-
-### 🎤 [speech_to_text.dart](speech_to_text.dart)
-**Audio Transcription**
-- High-quality transcription
-- Multiple audio formats
-- Real-time processing
-- Accuracy optimization
+### 🎵 [audio_capabilities.dart](audio_capabilities.dart)
+**Advanced Audio Features**
+- High-quality text-to-speech
+- Speech-to-text transcription
+- Voice customization
+- Audio format optimization
+- Performance optimization
 
 ## 🎯 Key Features
 

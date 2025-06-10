@@ -4,19 +4,13 @@ Groq specializes in ultra-fast AI inference with their custom hardware. These ex
 
 ## 📚 Available Examples
 
-### 🚀 Basic Usage
-**[basic_usage.dart](basic_usage.dart)** - Getting started with Groq
+### 🚀 [basic_usage.dart](basic_usage.dart)
+**Getting Started with Groq**
 - Model selection and configuration
 - Speed optimization techniques
-- Cost-effective usage patterns
 - Performance benchmarking
-
-### ⚡ Speed Optimization
-**[speed_optimization.dart](speed_optimization.dart)** - Maximizing Groq's speed
-- Real-time applications
-- Streaming optimization
-- Latency minimization
-- Throughput maximization
+- Streaming capabilities
+- Best practices for ultra-fast inference
 
 ## 🎯 Groq Model Guide
 
@@ -37,9 +31,6 @@ export GROQ_API_KEY="your-groq-api-key"
 
 # Run basic example
 dart run basic_usage.dart
-
-# Test speed optimization
-dart run speed_optimization.dart
 ```
 
 ## 💡 Best Practices

@@ -4,26 +4,21 @@ Ollama enables running large language models locally on your machine. These exam
 
 ## 📚 Available Examples
 
-### 🚀 Basic Usage
-**[basic_usage.dart](basic_usage.dart)** - Getting started with Ollama
+### 🚀 [basic_usage.dart](basic_usage.dart)
+**Getting Started with Ollama**
 - Local model setup and configuration
 - Basic chat functionality
 - Model management
 - Performance considerations
+- Best practices for local AI
 
-### 🏠 Local Deployment
-**[local_deployment.dart](local_deployment.dart)** - Complete local setup
-- Installation and configuration
-- Model downloading and management
+### 🔧 [advanced_features.dart](advanced_features.dart)
+**Advanced Ollama Features**
 - Performance optimization
-- Production deployment
-
-### 🔒 Privacy Setup
-**[privacy_setup.dart](privacy_setup.dart)** - Privacy-focused configuration
-- Offline operation
-- Data privacy considerations
-- Secure local deployment
-- Compliance features
+- Custom parameters
+- Model comparison
+- Resource management
+- Advanced configuration
 
 ## 🎯 Ollama Model Guide
 
@@ -64,7 +59,7 @@ export OLLAMA_BASE_URL="http://localhost:11434"
 
 # Run examples
 dart run basic_usage.dart
-dart run local_deployment.dart
+dart run advanced_features.dart
 ```
 
 ## 💡 Best Practices

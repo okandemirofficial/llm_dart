@@ -6,31 +6,11 @@ DeepSeek offers high-performance reasoning models with excellent cost-effectiven
 
 ### 🚀 [basic_usage.dart](basic_usage.dart)
 **Getting Started with DeepSeek**
-- Model selection (Chat, Reasoner)
+- Model selection (Chat, Reasoner, Coder)
 - Basic configuration and chat
+- Cost-effective usage patterns
 - Performance comparison
 - Best practices for DeepSeek
-
-### 🧠 [reasoning_models.dart](reasoning_models.dart)
-**Advanced Reasoning with DeepSeek-R1**
-- Thinking process access
-- Step-by-step problem solving
-- Mathematical reasoning
-- Streaming vs non-streaming
-
-### 💻 [coding_assistant.dart](coding_assistant.dart)
-**Code Generation and Analysis**
-- Code completion and generation
-- Bug detection and fixing
-- Code explanation and optimization
-- Multi-language support
-
-### 💰 [cost_optimization.dart](cost_optimization.dart)
-**Efficient Usage Patterns**
-- Token usage optimization
-- Batch processing strategies
-- Cost-effective configurations
-- Performance monitoring
 
 ## 🎯 Key Features
 

@@ -9,55 +9,39 @@ Deep dive into specific AI provider capabilities and features. Each provider has
 - **basic_usage.dart** - Model selection, configuration, best practices
 - **advanced_features.dart** - Reasoning models (o1), function calling, assistants
 - **image_generation.dart** - DALL-E image creation and editing
-- **audio_processing.dart** - Whisper STT and TTS capabilities
+- **audio_capabilities.dart** - Whisper STT and TTS capabilities
 
 ### 🟣 Anthropic
 **[anthropic/](anthropic/)** - Advanced reasoning and safety
 - **basic_usage.dart** - Claude models, safety features, reasoning
 - **extended_thinking.dart** - Access to Claude's thinking process
 - **file_handling.dart** - Document processing and analysis
-- **vision_capabilities.dart** - Image analysis with Claude
 
 ### 🔴 Google
 **[google/](google/)** - Multi-modal and search integration
-- **basic_usage.dart** - Gemini models and configuration
-- **multi_modal.dart** - Text, image, and video processing
-- **reasoning_features.dart** - Gemini thinking and analysis
-- **search_integration.dart** - Search-enhanced responses
+- **basic_usage.dart** - Gemini models, reasoning, and configuration
 
 ### 🟠 DeepSeek
 **[deepseek/](deepseek/)** - High-performance reasoning
-- **basic_usage.dart** - DeepSeek models and configuration
-- **reasoning_models.dart** - DeepSeek-R1 thinking capabilities
-- **coding_assistant.dart** - Code generation and analysis
-- **cost_optimization.dart** - Efficient usage patterns
+- **basic_usage.dart** - DeepSeek models, reasoning, and cost-effective usage
 
 ### 🟡 Ollama
 **[ollama/](ollama/)** - Local and open-source models
 - **basic_usage.dart** - Local model setup and usage
-- **model_management.dart** - Installing and managing models
-- **privacy_setup.dart** - Secure local deployment
-- **performance_tuning.dart** - Optimization for local hardware
+- **advanced_features.dart** - Performance optimization and advanced configuration
 
 ### 🟢 Groq
 **[groq/](groq/)** - Ultra-fast inference
-- **basic_usage.dart** - High-speed model configuration
-- **real_time_chat.dart** - Ultra-fast streaming responses
-- **batch_processing.dart** - High-throughput applications
-- **performance_comparison.dart** - Speed benchmarking
+- **basic_usage.dart** - High-speed model configuration and streaming
 
 ### 🎵 ElevenLabs
 **[elevenlabs/](elevenlabs/)** - Advanced voice synthesis
 - **basic_usage.dart** - Voice generation and configuration
-- **voice_cloning.dart** - Custom voice creation
-- **multi_language.dart** - International voice synthesis
-- **speech_to_text.dart** - Audio transcription capabilities
+- **audio_capabilities.dart** - Advanced audio features and optimization
 
 ### 🔧 Others
 **[others/](others/)** - Additional providers and integrations
-- **xai_grok.dart** - X.AI Grok integration
-- **openrouter.dart** - OpenRouter multi-provider access
-- **custom_providers.dart** - Building custom provider integrations
+- **xai_grok.dart** - X.AI Grok integration with personality features
 
 ## 🎯 Provider Comparison
 
@@ -100,11 +84,8 @@ dart run deepseek/basic_usage.dart
 
 ### 🖼️ Multi-modal Applications
 ```bash
-# Image analysis: OpenAI GPT-4o
-dart run openai/vision_example.dart
-
-# Multi-modal: Google Gemini
-dart run google/multi_modal.dart
+# Image generation: OpenAI DALL-E
+dart run openai/image_generation.dart
 
 # Document processing: Anthropic Claude
 dart run anthropic/file_handling.dart
@@ -113,19 +94,22 @@ dart run anthropic/file_handling.dart
 ### 🏠 Local/Private Deployment
 ```bash
 # Local models: Ollama
-dart run ollama/local_deployment.dart
+dart run ollama/basic_usage.dart
 
-# Privacy-focused setup
-dart run ollama/privacy_setup.dart
+# Advanced local features
+dart run ollama/advanced_features.dart
 ```
 
 ### 🎵 Voice Applications
 ```bash
 # Voice synthesis: ElevenLabs
-dart run elevenlabs/voice_generation.dart
+dart run elevenlabs/basic_usage.dart
+
+# Advanced audio: ElevenLabs
+dart run elevenlabs/audio_capabilities.dart
 
 # Speech-to-text: OpenAI Whisper
-dart run openai/audio_processing.dart
+dart run openai/audio_capabilities.dart
 ```
 
 ## 💡 Selection Guide
