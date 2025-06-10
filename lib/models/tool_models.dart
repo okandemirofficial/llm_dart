@@ -237,13 +237,24 @@ sealed class ToolChoice {
 ///
 /// Maps to:
 /// - OpenAI: `{"type": "required"}`
-/// - Anthropic: `"any"`
+/// - Anthropic: `"any"` or `{"type": "any", "disable_parallel_tool_use": true}`
 /// - xAI: `{"type": "required"}`
 class AnyToolChoice extends ToolChoice {
-  const AnyToolChoice();
+  /// Whether to disable parallel tool use (Anthropic only)
+  final bool? disableParallelToolUse;
+
+  const AnyToolChoice({this.disableParallelToolUse});
 
   @override
   Map<String, dynamic> toJson() => {'type': 'required'};
+
+  @override
+  String toAnthropicJson() {
+    if (disableParallelToolUse == true) {
+      return '{"type": "any", "disable_parallel_tool_use": true}';
+    }
+    return 'any';
+  }
 }
 
 /// Model can use any tool, and may elect to use none.
@@ -251,13 +262,24 @@ class AnyToolChoice extends ToolChoice {
 ///
 /// Maps to:
 /// - OpenAI: `{"type": "auto"}`
-/// - Anthropic: `"auto"`
+/// - Anthropic: `"auto"` or `{"type": "auto", "disable_parallel_tool_use": true}`
 /// - xAI: `{"type": "auto"}`
 class AutoToolChoice extends ToolChoice {
-  const AutoToolChoice();
+  /// Whether to disable parallel tool use (Anthropic only)
+  final bool? disableParallelToolUse;
+
+  const AutoToolChoice({this.disableParallelToolUse});
 
   @override
   Map<String, dynamic> toJson() => {'type': 'auto'};
+
+  @override
+  String toAnthropicJson() {
+    if (disableParallelToolUse == true) {
+      return '{"type": "auto", "disable_parallel_tool_use": true}';
+    }
+    return 'auto';
+  }
 }
 
 /// Model must use the specified tool and only the specified tool.
@@ -266,12 +288,15 @@ class AutoToolChoice extends ToolChoice {
 ///
 /// Maps to:
 /// - OpenAI: `{"type": "function", "function": {"name": "tool_name"}}`
-/// - Anthropic: `{"type": "tool", "name": "tool_name"}`
+/// - Anthropic: `{"type": "tool", "name": "tool_name"}` or with disable_parallel_tool_use
 /// - xAI: `{"type": "function", "function": {"name": "tool_name"}}`
 class SpecificToolChoice extends ToolChoice {
   final String toolName;
 
-  const SpecificToolChoice(this.toolName);
+  /// Whether to disable parallel tool use (Anthropic only)
+  final bool? disableParallelToolUse;
+
+  const SpecificToolChoice(this.toolName, {this.disableParallelToolUse});
 
   @override
   Map<String, dynamic> toJson() => {
@@ -280,7 +305,12 @@ class SpecificToolChoice extends ToolChoice {
       };
 
   @override
-  String toAnthropicJson() => '{"type": "tool", "name": "$toolName"}';
+  String toAnthropicJson() {
+    if (disableParallelToolUse == true) {
+      return '{"type": "tool", "name": "$toolName", "disable_parallel_tool_use": true}';
+    }
+    return '{"type": "tool", "name": "$toolName"}';
+  }
 }
 
 /// Explicitly disables the use of tools.

@@ -47,6 +47,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Improved separation of concerns (config, client, capabilities)
   - Better error handling and logging
 
+- **Ollama Provider**: Enhanced implementation with full API compliance
+  - Fixed temperature parameter handling (was incorrectly excluded)
+  - Added complete Ollama-specific parameter support (`numCtx`, `numGpu`, `numThread`, `numa`, `numBatch`, `keepAlive`, `raw`)
+  - Enhanced multimodal support with automatic base64 image conversion
+  - Improved message type handling and tool calling support
+  - Added LLMBuilder convenience methods for Ollama-specific parameters
+  - Full compatibility with official Ollama API specification
+
 - **Streaming Configuration**: Removed stream parameters from configs
   - Stream behavior now controlled at method call time (`chat()` vs `chatStream()`)
   - Simplified configuration classes by removing redundant stream parameters

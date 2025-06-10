@@ -164,18 +164,33 @@ class OllamaChat implements ChatCapability {
       'stream': stream,
     };
 
-    // Add options if needed (excluding temperature as Ollama handles it differently)
+    // Add options - Ollama supports temperature and other parameters
     final options = <String, dynamic>{};
+    if (config.temperature != null) options['temperature'] = config.temperature;
     if (config.topP != null) options['top_p'] = config.topP;
     if (config.topK != null) options['top_k'] = config.topK;
     if (config.maxTokens != null) options['num_predict'] = config.maxTokens;
+
+    // Ollama-specific options
+    if (config.numCtx != null) options['num_ctx'] = config.numCtx;
+    if (config.numGpu != null) options['num_gpu'] = config.numGpu;
+    if (config.numThread != null) options['num_thread'] = config.numThread;
+    if (config.numa != null) options['numa'] = config.numa;
+    if (config.numBatch != null) options['num_batch'] = config.numBatch;
 
     if (options.isNotEmpty) {
       body['options'] = options;
     }
 
+    // Add keep_alive parameter for model memory management
+    body['keep_alive'] = config.keepAlive ?? '5m'; // Default 5 minutes
+
+    // Add raw mode if configured
+    if (config.raw == true) {
+      body['raw'] = true;
+    }
+
     // Add structured output format if configured
-    // Ollama doesn't require the "name" field in the schema, so we just use the schema itself
     if (config.jsonSchema?.schema != null) {
       body['format'] = config.jsonSchema!.schema;
     }
@@ -193,8 +208,48 @@ class OllamaChat implements ChatCapability {
   Map<String, dynamic> _convertMessage(ChatMessage message) {
     final result = <String, dynamic>{
       'role': message.role.name,
-      'content': message.content,
     };
+
+    // Add name field if present
+    if (message.name != null) {
+      result['name'] = message.name;
+    }
+
+    // Handle different message types
+    switch (message.messageType) {
+      case TextMessage():
+        result['content'] = message.content;
+        break;
+      case ImageMessage(mime: final _, data: final data):
+        // Convert image data to base64 for Ollama
+        final base64Image = base64Encode(data);
+        result['content'] = message.content;
+        result['images'] = [base64Image];
+        break;
+      case ImageUrlMessage(url: final url):
+        // Ollama doesn't support image URLs directly, would need to download
+        result['content'] = message.content;
+        client.logger
+            .warning('Image URLs not directly supported by Ollama: $url');
+        break;
+      case ToolUseMessage(toolCalls: final toolCalls):
+        result['content'] = message.content;
+        result['tool_calls'] = toolCalls
+            .map((tc) => {
+                  'function': {
+                    'name': tc.function.name,
+                    'arguments': jsonDecode(tc.function.arguments),
+                  }
+                })
+            .toList();
+        break;
+      case ToolResultMessage():
+        // Tool results are handled as separate messages in Ollama
+        result['content'] = message.content;
+        break;
+      default:
+        result['content'] = message.content;
+    }
 
     return result;
   }

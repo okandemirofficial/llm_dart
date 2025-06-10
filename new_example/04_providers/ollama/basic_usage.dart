@@ -211,8 +211,7 @@ Future<void> demonstratePerformanceOptimization(String baseUrl) async {
         // Apply additional parameters if specified
         final params = config['params'] as Map<String, dynamic>;
         if (params.containsKey('num_ctx')) {
-          // Note: This would require the builder to support numCtx
-          // For now, we'll just use the basic configuration
+          builder.numCtx(params['num_ctx'] as int);
         }
 
         final provider = await builder.build();

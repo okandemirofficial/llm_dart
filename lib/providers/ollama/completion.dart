@@ -44,15 +44,26 @@ class OllamaCompletion implements CompletionCapability {
       'stream': false,
     };
 
-    // Add options if configured (excluding temperature as Ollama handles it differently)
+    // Add options - Ollama supports temperature and other parameters
     final options = <String, dynamic>{};
+    if (config.temperature != null) options['temperature'] = config.temperature;
     if (config.topP != null) options['top_p'] = config.topP;
     if (config.topK != null) options['top_k'] = config.topK;
     if (config.maxTokens != null) options['num_predict'] = config.maxTokens;
 
+    // Ollama-specific options
+    if (config.numCtx != null) options['num_ctx'] = config.numCtx;
+    if (config.numGpu != null) options['num_gpu'] = config.numGpu;
+    if (config.numThread != null) options['num_thread'] = config.numThread;
+    if (config.numa != null) options['numa'] = config.numa;
+    if (config.numBatch != null) options['num_batch'] = config.numBatch;
+
     if (options.isNotEmpty) {
       body['options'] = options;
     }
+
+    // Add keep_alive parameter for model memory management
+    body['keep_alive'] = config.keepAlive ?? '5m'; // Default 5 minutes
 
     return body;
   }

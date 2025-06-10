@@ -281,6 +281,35 @@ class AnthropicChat implements ChatCapability {
         }
         break;
 
+      case 'content_block_stop':
+        final contentBlock = json['content_block'] as Map<String, dynamic>?;
+        if (contentBlock != null) {
+          final blockType = contentBlock['type'] as String?;
+          if (blockType == 'tool_use') {
+            // Tool use completed - emit a tool call delta event
+            final toolName = contentBlock['name'] as String?;
+            final toolId = contentBlock['id'] as String?;
+            final input = contentBlock['input'];
+            client.logger.info('Tool use completed: $toolName (ID: $toolId)');
+
+            // Create a tool call delta event for completed tool use
+            if (toolName != null && toolId != null && input != null) {
+              final toolCall = ToolCall(
+                id: toolId,
+                callType: 'function',
+                function: FunctionCall(
+                  name: toolName,
+                  arguments: jsonEncode(input),
+                ),
+              );
+              return ToolCallDeltaEvent(toolCall);
+            }
+          } else if (blockType == 'thinking') {
+            client.logger.info('Thinking block completed');
+          }
+        }
+        break;
+
       case 'message_delta':
         final delta = json['delta'] as Map<String, dynamic>?;
         if (delta != null) {
@@ -292,6 +321,15 @@ class AnthropicChat implements ChatCapability {
               'usage': usage,
               'stop_reason': stopReason,
             });
+
+            // Log special stop reasons
+            if (stopReason == 'pause_turn') {
+              client.logger
+                  .info('Turn paused - long-running operation in progress');
+            } else if (stopReason == 'tool_use') {
+              client.logger.info('Stopped for tool use');
+            }
+
             return CompletionEvent(response);
           }
         }
@@ -427,9 +465,9 @@ class AnthropicChat implements ChatCapability {
 
       body['tools'] = effectiveTools.map((t) => _convertTool(t)).toList();
 
+      // Add tool_choice if specified
       final effectiveToolChoice = config.toolChoice;
-      if (effectiveToolChoice != null &&
-          effectiveToolChoice is! NoneToolChoice) {
+      if (effectiveToolChoice != null) {
         body['tool_choice'] = _convertToolChoice(effectiveToolChoice);
       }
     }
@@ -626,11 +664,31 @@ class AnthropicChat implements ChatCapability {
         break;
       case ToolResultMessage(results: final results):
         for (final result in results) {
+          // Parse the result content to determine if it's an error
+          bool isError = false;
+          String resultContent = result.function.arguments;
+
+          // Try to parse as JSON to check for error indicators
+          try {
+            final parsed = jsonDecode(resultContent);
+            if (parsed is Map<String, dynamic>) {
+              isError = parsed['error'] != null ||
+                  parsed['is_error'] == true ||
+                  parsed['success'] == false;
+            }
+          } catch (e) {
+            // If not valid JSON, check for common error patterns
+            final lowerContent = resultContent.toLowerCase();
+            isError = lowerContent.contains('error') ||
+                lowerContent.contains('failed') ||
+                lowerContent.contains('exception');
+          }
+
           content.add({
             'type': 'tool_result',
             'tool_use_id': result.id,
-            'content': result.function.arguments,
-            'is_error': false, // Could be enhanced to detect errors
+            'content': resultContent,
+            'is_error': isError,
           });
         }
         break;
@@ -701,18 +759,30 @@ class AnthropicChat implements ChatCapability {
   }
 
   /// Convert ToolChoice to Anthropic format
-  Map<String, dynamic> _convertToolChoice(ToolChoice toolChoice) {
+  dynamic _convertToolChoice(ToolChoice toolChoice) {
     switch (toolChoice) {
-      case AutoToolChoice():
+      case AutoToolChoice(disableParallelToolUse: final disableParallel):
+        if (disableParallel == true) {
+          return {'type': 'auto', 'disable_parallel_tool_use': true};
+        }
         return {'type': 'auto'};
-      case AnyToolChoice():
+      case AnyToolChoice(disableParallelToolUse: final disableParallel):
+        if (disableParallel == true) {
+          return {'type': 'any', 'disable_parallel_tool_use': true};
+        }
         return {'type': 'any'};
-      case SpecificToolChoice(toolName: final toolName):
-        return {'type': 'tool', 'name': toolName};
+      case SpecificToolChoice(
+          toolName: final toolName,
+          disableParallelToolUse: final disableParallel
+        ):
+        final result = <String, dynamic>{'type': 'tool', 'name': toolName};
+        if (disableParallel == true) {
+          result['disable_parallel_tool_use'] = true;
+        }
+        return result;
       case NoneToolChoice():
-        // Anthropic doesn't have explicit 'none' type, so we omit tool_choice
-        // This should be handled at the request level
-        return {'type': 'auto'};
+        // For Anthropic, 'none' is a string, not an object
+        return 'none';
     }
   }
 }

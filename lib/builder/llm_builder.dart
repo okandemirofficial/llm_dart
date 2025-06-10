@@ -234,6 +234,15 @@ class LLMBuilder {
   LLMBuilder logprobs(bool enabled) => extension('logprobs', enabled);
   LLMBuilder topLogprobs(int count) => extension('topLogprobs', count);
 
+  /// Ollama-specific parameter convenience methods
+  LLMBuilder numCtx(int contextLength) => extension('numCtx', contextLength);
+  LLMBuilder numGpu(int gpuLayers) => extension('numGpu', gpuLayers);
+  LLMBuilder numThread(int threads) => extension('numThread', threads);
+  LLMBuilder numa(bool enabled) => extension('numa', enabled);
+  LLMBuilder numBatch(int batchSize) => extension('numBatch', batchSize);
+  LLMBuilder keepAlive(String duration) => extension('keepAlive', duration);
+  LLMBuilder raw(bool enabled) => extension('raw', enabled);
+
   /// Anthropic-specific parameter convenience methods
   LLMBuilder metadata(Map<String, dynamic> data) => extension('metadata', data);
   LLMBuilder container(String containerId) =>

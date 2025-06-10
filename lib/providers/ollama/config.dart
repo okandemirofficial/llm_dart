@@ -20,6 +20,15 @@ class OllamaConfig {
   final List<Tool>? tools;
   final StructuredOutputFormat? jsonSchema;
 
+  // Ollama-specific parameters
+  final int? numCtx; // Context length
+  final int? numGpu; // Number of GPU layers
+  final int? numThread; // Number of CPU threads
+  final bool? numa; // NUMA support
+  final int? numBatch; // Batch size
+  final String? keepAlive; // How long to keep model in memory
+  final bool? raw; // Raw mode (no templating)
+
   /// Reference to original LLMConfig for accessing extensions
   final LLMConfig? _originalConfig;
 
@@ -35,6 +44,14 @@ class OllamaConfig {
     this.topK,
     this.tools,
     this.jsonSchema,
+    // Ollama-specific parameters
+    this.numCtx,
+    this.numGpu,
+    this.numThread,
+    this.numa,
+    this.numBatch,
+    this.keepAlive,
+    this.raw,
     LLMConfig? originalConfig,
   }) : _originalConfig = originalConfig;
 
@@ -54,6 +71,13 @@ class OllamaConfig {
       tools: config.tools,
       // Ollama-specific extensions
       jsonSchema: config.getExtension<StructuredOutputFormat>('jsonSchema'),
+      numCtx: config.getExtension<int>('numCtx'),
+      numGpu: config.getExtension<int>('numGpu'),
+      numThread: config.getExtension<int>('numThread'),
+      numa: config.getExtension<bool>('numa'),
+      numBatch: config.getExtension<int>('numBatch'),
+      keepAlive: config.getExtension<String>('keepAlive'),
+      raw: config.getExtension<bool>('raw'),
       originalConfig: config,
     );
   }
@@ -136,6 +160,14 @@ class OllamaConfig {
     int? topK,
     List<Tool>? tools,
     StructuredOutputFormat? jsonSchema,
+    // Ollama-specific parameters
+    int? numCtx,
+    int? numGpu,
+    int? numThread,
+    bool? numa,
+    int? numBatch,
+    String? keepAlive,
+    bool? raw,
   }) =>
       OllamaConfig(
         baseUrl: baseUrl ?? this.baseUrl,
@@ -149,5 +181,12 @@ class OllamaConfig {
         topK: topK ?? this.topK,
         tools: tools ?? this.tools,
         jsonSchema: jsonSchema ?? this.jsonSchema,
+        numCtx: numCtx ?? this.numCtx,
+        numGpu: numGpu ?? this.numGpu,
+        numThread: numThread ?? this.numThread,
+        numa: numa ?? this.numa,
+        numBatch: numBatch ?? this.numBatch,
+        keepAlive: keepAlive ?? this.keepAlive,
+        raw: raw ?? this.raw,
       );
 }

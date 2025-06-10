@@ -56,11 +56,18 @@ OllamaProvider createOllamaProvider({
   double? temperature,
   String? systemPrompt,
   Duration? timeout,
-  bool? stream,
   double? topP,
   int? topK,
   List<Tool>? tools,
   StructuredOutputFormat? jsonSchema,
+  // Ollama-specific parameters
+  int? numCtx,
+  int? numGpu,
+  int? numThread,
+  bool? numa,
+  int? numBatch,
+  String? keepAlive,
+  bool? raw,
 }) {
   final config = OllamaConfig(
     baseUrl: baseUrl ?? 'http://localhost:11434',
@@ -74,6 +81,13 @@ OllamaProvider createOllamaProvider({
     topK: topK,
     tools: tools,
     jsonSchema: jsonSchema,
+    numCtx: numCtx,
+    numGpu: numGpu,
+    numThread: numThread,
+    numa: numa,
+    numBatch: numBatch,
+    keepAlive: keepAlive,
+    raw: raw,
   );
 
   return OllamaProvider(config);
