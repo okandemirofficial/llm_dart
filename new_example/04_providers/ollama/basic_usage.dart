@@ -12,7 +12,7 @@ import 'package:llm_dart/llm_dart.dart';
 ///
 /// Prerequisites:
 /// 1. Install Ollama: curl -fsSL https://ollama.ai/install.sh | sh
-/// 2. Download a model: ollama pull llama3.1
+/// 2. Download a model: ollama pull llama3.2
 /// 3. Start Ollama server: ollama serve
 ///
 /// Optional environment variable:
@@ -46,7 +46,7 @@ Future<void> demonstrateServerConnection(String baseUrl) async {
     final provider = await ai()
         .ollama()
         .baseUrl(baseUrl)
-        .model('llama3.1') // Default model
+        .model('llama3.2') // Default model
         .build();
 
     // Simple test to verify connection
@@ -74,7 +74,7 @@ Future<void> demonstrateServerConnection(String baseUrl) async {
     print(
         '      1. Install Ollama: curl -fsSL https://ollama.ai/install.sh | sh');
     print('      2. Start server: ollama serve');
-    print('      3. Download model: ollama pull llama3.1');
+    print('      3. Download model: ollama pull llama3.2');
     print('      4. Check server status: curl $baseUrl/api/tags');
     print('   ❌ Server connection failed\n');
   }
@@ -85,7 +85,7 @@ Future<void> demonstrateModelSelection(String baseUrl) async {
   print('🎯 Model Selection:\n');
 
   final models = [
-    {'name': 'llama3.1', 'description': 'General purpose, good balance'},
+    {'name': 'llama3.2', 'description': 'General purpose, good balance'},
     {'name': 'phi3', 'description': 'Lightweight, fast'},
     {'name': 'mistral', 'description': 'Fast inference, good quality'},
     {'name': 'codellama', 'description': 'Specialized for code'},
@@ -118,7 +118,7 @@ Future<void> demonstrateModelSelection(String baseUrl) async {
   }
 
   print('   💡 Model Selection Guide:');
-  print('      • llama3.1: Best overall choice for most tasks');
+  print('      • llama3.2: Best overall choice for most tasks');
   print('      • phi3: Use when resources are limited');
   print('      • mistral: Good for fast, quality responses');
   print('      • codellama: Specialized for programming tasks');
@@ -134,7 +134,7 @@ Future<void> demonstrateBasicChat(String baseUrl) async {
     final provider = await ai()
         .ollama()
         .baseUrl(baseUrl)
-        .model('llama3.1')
+        .model('llama3.2')
         .temperature(0.7)
         .build();
 
@@ -181,12 +181,12 @@ Future<void> demonstratePerformanceOptimization(String baseUrl) async {
     final configs = [
       {
         'name': 'Default',
-        'model': 'llama3.1',
+        'model': 'llama3.2',
         'params': {},
       },
       {
         'name': 'Fast (smaller context)',
-        'model': 'llama3.1',
+        'model': 'llama3.2',
         'params': {'num_ctx': 2048},
       },
       {
@@ -261,7 +261,7 @@ Future<void> demonstrateBestPractices(String baseUrl) async {
     final provider = await ai()
         .ollama()
         .baseUrl('http://localhost:99999') // Invalid port
-        .model('llama3.1')
+        .model('llama3.2')
         .build();
 
     await provider.chat([ChatMessage.user('Test')]);
@@ -275,7 +275,7 @@ Future<void> demonstrateBestPractices(String baseUrl) async {
     final provider = await ai()
         .ollama()
         .baseUrl(baseUrl)
-        .model('llama3.1')
+        .model('llama3.2')
         .temperature(0.7)
         .build();
 
@@ -292,7 +292,7 @@ Future<void> demonstrateBestPractices(String baseUrl) async {
 
   // Model availability check
   print('\n   Model Availability:');
-  final commonModels = ['llama3.1', 'phi3', 'mistral'];
+  final commonModels = ['llama3.2', 'phi3', 'mistral'];
 
   for (final model in commonModels) {
     try {
@@ -345,7 +345,7 @@ Future<void> demonstrateBestPractices(String baseUrl) async {
 /// - Custom model requirements
 ///
 /// Configuration Tips:
-/// - Start with llama3.1 for best balance
+/// - Start with llama3.2 for best balance
 /// - Use phi3 for resource-constrained environments
 /// - Enable GPU acceleration when available
 /// - Monitor system resources during usage

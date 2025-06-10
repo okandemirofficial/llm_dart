@@ -115,7 +115,7 @@ Future<Map<String, ChatCapability?>> createProviders() async {
     providers['Ollama'] = await ai()
         .ollama()
         .baseUrl('http://localhost:11434')
-        .model('llama3.1')
+        .model('llama3.2')
         .temperature(0.7)
         .build();
   } catch (e) {

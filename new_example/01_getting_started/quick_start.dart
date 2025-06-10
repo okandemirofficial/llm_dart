@@ -101,7 +101,7 @@ Future<void> quickStartWithOllama() async {
     final provider = await ai()
         .ollama() // Choose Ollama
         .baseUrl('http://localhost:11434') // Local address
-        .model('llama3.1') // Local model
+        .model('llama3.2') // Local model
         .temperature(0.7)
         .build();
 
@@ -117,7 +117,7 @@ Future<void> quickStartWithOllama() async {
   } catch (e) {
     print('   ❌ Ollama call failed: $e');
     print('   💡 Please ensure Ollama is running: ollama serve');
-    print('   💡 And install model: ollama pull llama3.1\n');
+    print('   💡 And install model: ollama pull llama3.2\n');
   }
 }
 

@@ -24,7 +24,7 @@ void main() async {
   final provider = await ai()
       .openai()
       .apiKey(apiKey)
-      .model('gpt-4o-mini')
+      .model('gpt-4.1-mini')
       .temperature(0.3) // Lower temperature for more consistent structure
       .maxTokens(1000)
       .build();
@@ -45,33 +45,22 @@ Future<void> demonstrateBasicStructuredOutput(ChatCapability provider) async {
   print('📋 Basic Structured Output:\n');
 
   try {
-    // Define a simple person schema
-    final personSchema = {
-      "type": "object",
-      "properties": {
-        "name": {"type": "string", "description": "Full name"},
-        "age": {"type": "integer", "description": "Age in years"},
-        "email": {"type": "string", "description": "Email address"},
-        "occupation": {"type": "string", "description": "Job title"},
-        "skills": {
-          "type": "array",
-          "items": {"type": "string"},
-          "description": "List of skills"
-        }
-      },
-      "required": ["name", "age", "occupation"]
-    };
-
     final messages = [
       ChatMessage.system('''
-You are a data extraction assistant. Extract information about a person and return it as JSON.
-Follow this exact schema: ${jsonEncode(personSchema)}
-Only return valid JSON, no additional text.
+Extract person information and return as JSON. Use this exact format:
+{
+  "name": "full name",
+  "age": number,
+  "email": "email address",
+  "occupation": "job title",
+  "skills": ["skill1", "skill2"]
+}
+Return only the JSON data, no other text.
 '''),
       ChatMessage.user('''
 Extract information about this person:
-"John Smith is a 32-year-old software engineer at TechCorp. 
-He has experience in Python, JavaScript, and cloud computing. 
+"John Smith is a 32-year-old software engineer at TechCorp.
+He has experience in Python, JavaScript, and cloud computing.
 You can reach him at john.smith@email.com"
 '''),
     ];
@@ -85,7 +74,8 @@ You can reach him at john.smith@email.com"
 
     // Parse and validate JSON
     try {
-      final personData = jsonDecode(jsonText) as Map<String, dynamic>;
+      final cleanedJson = attemptJsonFix(jsonText);
+      final personData = jsonDecode(cleanedJson) as Map<String, dynamic>;
       final person = Person.fromJson(personData);
 
       print('   ✅ Parsed successfully:');
@@ -338,6 +328,7 @@ String attemptJsonFix(String jsonText) {
   // Remove markdown code blocks
   fixed = fixed.replaceAll(RegExp(r'```json\s*'), '');
   fixed = fixed.replaceAll(RegExp(r'```\s*$'), '');
+  fixed = fixed.replaceAll(RegExp(r'```'), '');
 
   // Remove extra text before/after JSON
   final jsonStart = fixed.indexOf('{');
@@ -399,10 +390,10 @@ class Person {
 
   factory Person.fromJson(Map<String, dynamic> json) {
     return Person(
-      name: json['name'] as String,
-      age: json['age'] as int,
+      name: json['name'] as String? ?? '',
+      age: json['age'] as int? ?? 0,
       email: json['email'] as String? ?? '',
-      occupation: json['occupation'] as String,
+      occupation: json['occupation'] as String? ?? '',
       skills: (json['skills'] as List<dynamic>?)?.cast<String>() ?? [],
     );
   }
@@ -445,11 +436,12 @@ class CompanyInfo {
 
   factory CompanyInfo.fromJson(Map<String, dynamic> json) {
     return CompanyInfo(
-      name: json['name'] as String,
-      founded: json['founded'] as int,
-      industry: json['industry'] as String,
-      headquarters:
-          Headquarters.fromJson(json['headquarters'] as Map<String, dynamic>),
+      name: json['name'] as String? ?? '',
+      founded: json['founded'] as int? ?? 0,
+      industry: json['industry'] as String? ?? '',
+      headquarters: json['headquarters'] != null
+          ? Headquarters.fromJson(json['headquarters'] as Map<String, dynamic>)
+          : Headquarters(city: '', country: ''),
     );
   }
 }
@@ -462,8 +454,8 @@ class Headquarters {
 
   factory Headquarters.fromJson(Map<String, dynamic> json) {
     return Headquarters(
-      city: json['city'] as String,
-      country: json['country'] as String,
+      city: json['city'] as String? ?? '',
+      country: json['country'] as String? ?? '',
     );
   }
 }
@@ -483,10 +475,10 @@ class Employee {
 
   factory Employee.fromJson(Map<String, dynamic> json) {
     return Employee(
-      name: json['name'] as String,
-      position: json['position'] as String,
+      name: json['name'] as String? ?? '',
+      position: json['position'] as String? ?? '',
       department: json['department'] as String? ?? '',
-      salary: (json['salary'] as num).toDouble(),
+      salary: (json['salary'] as num?)?.toDouble() ?? 0.0,
     );
   }
 }
@@ -504,9 +496,9 @@ class Financial {
 
   factory Financial.fromJson(Map<String, dynamic> json) {
     return Financial(
-      revenue: (json['revenue'] as num).toDouble(),
-      profit: (json['profit'] as num).toDouble(),
-      currency: json['currency'] as String,
+      revenue: (json['revenue'] as num?)?.toDouble() ?? 0.0,
+      profit: (json['profit'] as num?)?.toDouble() ?? 0.0,
+      currency: json['currency'] as String? ?? 'USD',
     );
   }
 }
@@ -530,10 +522,10 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      name: json['name'] as String,
-      price: (json['price'] as num).toDouble(),
-      category: json['category'] as String,
-      inStock: json['inStock'] as bool,
+      name: json['name'] as String? ?? '',
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      category: json['category'] as String? ?? '',
+      inStock: json['inStock'] as bool? ?? false,
       rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
       tags: (json['tags'] as List<dynamic>?)?.cast<String>() ?? [],
     );

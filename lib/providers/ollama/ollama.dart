@@ -16,7 +16,7 @@
 ///
 /// final provider = OllamaProvider(OllamaConfig(
 ///   baseUrl: 'http://localhost:11434',
-///   model: 'llama3.1',
+///   model: 'llama3.2',
 /// ));
 ///
 /// // Use chat capability
@@ -65,7 +65,7 @@ OllamaProvider createOllamaProvider({
   final config = OllamaConfig(
     baseUrl: baseUrl ?? 'http://localhost:11434',
     apiKey: apiKey,
-    model: model ?? 'llama3.1',
+    model: model ?? 'llama3.2',
     maxTokens: maxTokens,
     temperature: temperature,
     systemPrompt: systemPrompt,
@@ -82,7 +82,7 @@ OllamaProvider createOllamaProvider({
 /// Create an Ollama provider for chat
 OllamaProvider createOllamaChatProvider({
   String baseUrl = 'http://localhost:11434',
-  String model = 'llama3.1',
+  String model = 'llama3.2',
   String? systemPrompt,
   double? temperature,
   int? maxTokens,
@@ -144,7 +144,7 @@ OllamaProvider createOllamaEmbeddingProvider({
 /// Create an Ollama provider for completion tasks
 OllamaProvider createOllamaCompletionProvider({
   String baseUrl = 'http://localhost:11434',
-  String model = 'llama3.1',
+  String model = 'llama3.2',
   double? temperature,
   int? maxTokens,
 }) {

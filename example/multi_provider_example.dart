@@ -49,7 +49,7 @@ void main() async {
     'Ollama': await ai()
         .provider('ollama')
         .baseUrl(Platform.environment['OLLAMA_URL'] ?? 'http://localhost:11434')
-        .model('llama3.1')
+        .model('llama3.2')
         .temperature(0.7)
         .build(),
   };

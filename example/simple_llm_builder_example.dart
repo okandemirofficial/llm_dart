@@ -38,7 +38,7 @@ void main() async {
     final ollamaProvider = await ai()
         .provider('ollama')
         .baseUrl('http://localhost:11434')
-        .model('llama3.1')
+        .model('llama3.2')
         .temperature(0.7)
         .maxTokens(100)
         .build();

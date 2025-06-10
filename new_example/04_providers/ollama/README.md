@@ -31,8 +31,8 @@ Ollama enables running large language models locally on your machine. These exam
 
 | Model | Size | RAM Required | Use Case |
 |-------|------|--------------|----------|
-| **llama3.1** | 4.7GB | 8GB | General purpose |
-| **llama3.1:70b** | 40GB | 64GB | High quality |
+| **llama3.2** | 4.7GB | 8GB | General purpose |
+| **llama3.2:70b** | 40GB | 64GB | High quality |
 | **codellama** | 3.8GB | 8GB | Code generation |
 | **mistral** | 4.1GB | 8GB | Fast inference |
 | **phi3** | 2.3GB | 4GB | Lightweight |
@@ -42,7 +42,7 @@ Ollama enables running large language models locally on your machine. These exam
 
 | Category | Models | Best For |
 |----------|--------|----------|
-| **General** | llama3.1, mistral | Chat, Q&A, general tasks |
+| **General** | llama3.2, mistral | Chat, Q&A, general tasks |
 | **Code** | codellama, deepseek-coder | Programming, code review |
 | **Lightweight** | phi3, tinyllama | Resource-constrained environments |
 | **Specialized** | medllama, mathstral | Domain-specific tasks |
@@ -54,7 +54,7 @@ Ollama enables running large language models locally on your machine. These exam
 curl -fsSL https://ollama.ai/install.sh | sh
 
 # Download a model
-ollama pull llama3.1
+ollama pull llama3.2
 
 # Start Ollama server
 ollama serve
@@ -70,7 +70,7 @@ dart run local_deployment.dart
 ## 💡 Best Practices
 
 ### Model Selection
-- **llama3.1**: Best overall choice for most tasks
+- **llama3.2**: Best overall choice for most tasks
 - **phi3**: Use when RAM/storage is limited
 - **codellama**: Specialized for programming tasks
 - **mistral**: Good balance of speed and quality
@@ -94,7 +94,7 @@ dart run local_deployment.dart
 final provider = await ai()
     .ollama()
     .baseUrl('http://localhost:11434')
-    .model('llama3.1')
+    .model('llama3.2')
     .temperature(0.7)
     .build();
 ```
@@ -104,7 +104,7 @@ final provider = await ai()
 final provider = await ai()
     .ollama()
     .baseUrl('http://localhost:11434')
-    .model('llama3.1')
+    .model('llama3.2')
     .temperature(0.7)
     .numCtx(4096)        // Context length
     .numGpu(1)           // GPU layers
@@ -180,4 +180,4 @@ final provider = await ai()
 
 ---
 
-**💡 Tip**: Ollama is perfect when you need complete privacy, want to avoid API costs, or need to work offline. Start with llama3.1 for the best balance of quality and performance!
+**💡 Tip**: Ollama is perfect when you need complete privacy, want to avoid API costs, or need to work offline. Start with llama3.2 for the best balance of quality and performance!

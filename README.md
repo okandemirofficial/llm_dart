@@ -247,7 +247,7 @@ if (response.thinking != null) {
 ```dart
 final provider = ollama(
   baseUrl: 'http://localhost:11434',
-  model: 'llama3.1',
+  model: 'llama3.2',
   // No API key needed for local Ollama
 );
 ```
