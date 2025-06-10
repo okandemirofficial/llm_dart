@@ -5,37 +5,58 @@
 [![Dart](https://img.shields.io/badge/Dart-3.5.0+-blue.svg)](https://dart.dev)
 [![Flutter](https://img.shields.io/badge/Flutter-3.8.0+-blue.svg)](https://flutter.dev)
 
-A modular Dart library for AI provider interactions, inspired by the Rust [graniet/llm](https://github.com/graniet/llm) library. This library provides a unified interface for interacting with different AI providers using Dio for HTTP requests.
+A modular Dart library for AI provider interactions. This library provides a unified interface for interacting with different AI providers using Dio for HTTP requests.
 
 **🧠 Full access to model thinking processes** - llm_dart provides direct access to the internal reasoning and thought processes of supported AI models (Claude, OpenAI o1, DeepSeek, Gemini), giving you unprecedented insight into how AI models arrive at their conclusions.
 
+## 🚀 Quick Navigation
+
+| I want to... | Go to |
+|--------------|-------|
+| **Get started in 5 minutes** | [Quick Start](#quick-start) → [5-minute example](example/01_getting_started/quick_start.dart) |
+| **Build a chatbot** | [Chatbot example](example/05_use_cases/chatbot.dart) |
+| **Add voice capabilities** | [ElevenLabs examples](example/04_providers/elevenlabs/) |
+| **Access AI thinking processes** | [Reasoning examples](example/03_advanced_features/reasoning_models.dart) |
+| **Create a web API** | [Web service example](example/05_use_cases/web_service.dart) |
+| **Use local AI models** | [Ollama examples](example/04_providers/ollama/) |
+| **Connect external tools** | [MCP integration](example/06_mcp_integration/) |
+| **See a real app** | [Yumcha](https://github.com/Latias94/yumcha) - Actively developed Flutter app |
+| **Compare providers** | [Provider comparison](example/01_getting_started/provider_comparison.dart) |
+| **Learn advanced features** | [Advanced examples](example/03_advanced_features/) |
+
 ## Features
 
-- **Multi-provider support**: OpenAI, Anthropic (Claude), Google (Gemini), DeepSeek, Ollama, xAI (Grok), Phind, Groq, ElevenLabs
-- **🧠 Thinking process support**: Access to model reasoning and thought processes (Claude, OpenAI o1, DeepSeek)
-- **Unified API**: Consistent interface across all providers
-- **Builder pattern**: Fluent API for easy configuration
-- **Streaming support**: Real-time response streaming with thinking
-- **Tool calling**: Function calling capabilities
-- **Structured output**: JSON schema support
-- **Error handling**: Comprehensive error types
-- **Type safety**: Full Dart type safety
+- **Multi-provider support**: OpenAI, Anthropic (Claude), Google (Gemini), DeepSeek, Groq, Ollama, xAI (Grok), ElevenLabs
+- **🧠 Thinking process support**: Access to model reasoning and thought processes (Claude, DeepSeek, Gemini)
+- **🎵 Unified audio capabilities**: Text-to-speech, speech-to-text, and audio processing with feature discovery
+- **🖼️ Image generation & processing**: DALL-E integration, image editing, variations, and multi-modal support
+- **📁 File management**: Unified file operations across providers (OpenAI, Anthropic)
+- **Unified API**: Consistent interface across all providers with capability-based design
+- **Builder pattern**: Fluent API for easy configuration and provider setup
+- **Streaming support**: Real-time response streaming with thinking process access
+- **Tool calling**: Advanced function calling with enhanced patterns
+- **Structured output**: JSON schema support with validation
+- **Error handling**: Comprehensive error types with graceful degradation
+- **Type safety**: Full Dart type safety with modular architecture
+- **MCP Integration**: Model Context Protocol support for external tool connections
 
 ## Supported Providers
 
-| Provider | Chat | Streaming | Tools | Thinking | TTS/STT | Notes |
-|----------|------|-----------|-------|----------|---------|-------|
-| OpenAI | ✅ | ✅ | ✅ | 🧠 | ❌ | GPT models, o1 reasoning |
-| Anthropic | ✅ | ✅ | ✅ | 🧠 | ❌ | Claude models with thinking |
-| Google | ✅ | ✅ | ✅ | 🧠 | ❌ | Gemini models with reasoning |
-| DeepSeek | ✅ | ✅ | ✅ | 🧠 | ❌ | DeepSeek reasoning models |
-| Ollama | ✅ | ✅ | ✅ | ❌ | ❌ | Local models |
-| xAI | ✅ | ✅ | ✅ | ❌ | ❌ | Grok models |
-| Phind | ✅ | ✅ | ✅ | ❌ | ❌ | Phind models |
-| Groq | ✅ | ✅ | ✅ | ❌ | ❌ | Fast inference |
-| ElevenLabs | ❌ | ❌ | ❌ | ❌ | ✅ | Voice synthesis |
+| Provider | Chat | Streaming | Tools | Thinking | Audio | Image | Files | Notes |
+|----------|------|-----------|-------|----------|-------|-------|-------|-------|
+| OpenAI | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | GPT models, DALL-E, o1 reasoning |
+| Anthropic | ✅ | ✅ | ✅ | 🧠 | ❌ | ✅ | ✅ | Claude models with thinking |
+| Google | ✅ | ✅ | ✅ | 🧠 | ❌ | ❌ | ❌ | Gemini models with reasoning |
+| DeepSeek | ✅ | ✅ | ✅ | 🧠 | ❌ | ❌ | ❌ | DeepSeek reasoning models |
+| Groq | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | Ultra-fast inference |
+| Ollama | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | Local models, privacy-focused |
+| xAI | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | Grok models with personality |
+| ElevenLabs | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | Advanced voice synthesis |
 
 **🧠 Thinking Process Support**: Access to model's internal reasoning and thought processes
+**🎵 Audio Support**: Text-to-speech, speech-to-text, and audio processing
+**🖼️ Image Support**: Image generation, editing, and multi-modal processing
+**📁 File Support**: File upload, management, and processing capabilities
 
 ## Installation
 
@@ -102,16 +123,38 @@ void main() async {
 }
 ```
 
-### Streaming
+### Streaming with DeepSeek Reasoning
 
 ```dart
+import 'dart:io';
+import 'package:llm_dart/llm_dart.dart';
+
+// Create DeepSeek provider for streaming with thinking
+final provider = await ai()
+    .deepseek()
+    .apiKey('your-deepseek-key')
+    .model('deepseek-reasoner')
+    .temperature(0.7)
+    .build();
+
+final messages = [ChatMessage.user('What is 15 + 27? Show your work.')];
+
+// Stream with real-time thinking process
 await for (final event in provider.chatStream(messages)) {
   switch (event) {
-    case TextDeltaEvent(delta: final delta):
-      print(delta);
+    case ThinkingDeltaEvent(delta: final delta):
+      // Show AI's thinking process in gray
+      stdout.write('\x1B[90m$delta\x1B[0m');
       break;
-    case CompletionEvent():
-      print('\n[Completed]');
+    case TextDeltaEvent(delta: final delta):
+      // Show final answer
+      stdout.write(delta);
+      break;
+    case CompletionEvent(response: final response):
+      print('\n✅ Completed');
+      if (response.usage != null) {
+        print('Tokens: ${response.usage!.totalTokens}');
+      }
       break;
     case ErrorEvent(error: final error):
       print('Error: $error');
@@ -147,16 +190,16 @@ if (response.thinking != null) {
   print(response.thinking);
 }
 
-// OpenAI o1 reasoning
-final openaiProvider = await ai()
-    .openai()
-    .apiKey('your-openai-key')
-    .model('o1-preview')
-    .reasoningEffort(ReasoningEffort.high)
+// DeepSeek with reasoning
+final deepseekProvider = await ai()
+    .deepseek()
+    .apiKey('your-deepseek-key')
+    .model('deepseek-reasoner')
+    .temperature(0.7)
     .build();
 
-final reasoningResponse = await openaiProvider.chat(messages);
-print('O1 reasoning: ${reasoningResponse.thinking}');
+final reasoningResponse = await deepseekProvider.chat(messages);
+print('DeepSeek reasoning: ${reasoningResponse.thinking}');
 ```
 
 ### Tool Calling
@@ -198,7 +241,7 @@ final provider = await createProvider(
   apiKey: 'sk-...',
   model: 'gpt-4',
   temperature: 0.7,
-  extensions: {'reasoningEffort': 'medium'}, // For o1 models
+  extensions: {'reasoningEffort': 'medium'}, // For reasoning models
 );
 ```
 
@@ -252,22 +295,45 @@ final provider = ollama(
 );
 ```
 
-### ElevenLabs
+### ElevenLabs (Audio Processing)
 
 ```dart
-final provider = elevenlabs(
-  apiKey: 'your-elevenlabs-key',
-  voiceId: 'pNInz6obpgDQGcFmaJgB',
-);
+final provider = await ai()
+    .elevenlabs()
+    .apiKey('your-elevenlabs-key')
+    .voiceId('JBFqnCBsd6RMkjVDRZzb') // George voice
+    .stability(0.7)
+    .similarityBoost(0.9)
+    .style(0.1)
+    .build();
 
-// Text to speech
-final ttsResponse = await provider.textToSpeech('Hello world!');
+// Check supported audio features
+final audioCapability = provider as AudioCapability;
+final features = audioCapability.supportedFeatures;
+print('Supports TTS: ${features.contains(AudioFeature.textToSpeech)}');
+
+// Text to speech with advanced options
+final ttsResponse = await audioCapability.textToSpeech(TTSRequest(
+  text: 'Hello world! This is ElevenLabs speaking.',
+  voice: 'JBFqnCBsd6RMkjVDRZzb',
+  model: 'eleven_multilingual_v2',
+  format: 'mp3_44100_128',
+  includeTimestamps: true,
+));
 await File('output.mp3').writeAsBytes(ttsResponse.audioData);
 
-// Speech to text
-final audioData = await File('input.mp3').readAsBytes();
-final sttResponse = await provider.speechToText(audioData);
-print(sttResponse.text);
+// Speech to text (if supported)
+if (features.contains(AudioFeature.speechToText)) {
+  final audioData = await File('input.mp3').readAsBytes();
+  final sttResponse = await audioCapability.speechToText(
+    STTRequest.fromAudio(audioData, model: 'scribe_v1')
+  );
+  print(sttResponse.text);
+}
+
+// Convenience methods
+final quickSpeech = await audioCapability.speech('Quick TTS');
+final quickTranscription = await audioCapability.transcribeFile('audio.mp3');
 ```
 
 ## Error Handling
@@ -364,7 +430,6 @@ All providers support common configuration options:
 - `maxTokens`: Maximum tokens to generate
 - `systemPrompt`: System message
 - `timeout`: Request timeout
-- `stream`: Enable streaming
 - `topP`, `topK`: Sampling parameters
 
 ### Provider-Specific Extensions
@@ -383,34 +448,66 @@ final provider = await ai()
 
 ## Examples
 
-See the **[examples directory](example)** for comprehensive usage examples and detailed documentation:
+See the **[example directory](example)** for comprehensive usage examples organized by learning path:
 
-### 🟢 Beginner Examples
+### 🟢 Getting Started (5-30 minutes)
+**Perfect for first-time users**
 
-- **[simple_llm_builder_example.dart](example/simple_llm_builder_example.dart)** - Basic usage with multiple providers
-- **[openai_example.dart](example/openai_example.dart)** - OpenAI provider with all creation methods
-- **[anthropic_example.dart](example/anthropic_example.dart)** - Basic Anthropic Claude usage
-- **[anthropic_extended_thinking_example.dart](example/anthropic_extended_thinking_example.dart)** - Advanced extended thinking features
+- **[quick_start.dart](example/01_getting_started/quick_start.dart)** - 5-minute quick experience with multiple providers
+- **[provider_comparison.dart](example/01_getting_started/provider_comparison.dart)** - Compare providers and choose the right one
+- **[basic_configuration.dart](example/01_getting_started/basic_configuration.dart)** - Essential configuration patterns
 
-### 🟡 Intermediate Examples
+### 🟡 Core Features (30-60 minutes)
+**Master the essential functionality**
 
-- **[streaming_example.dart](example/streaming_example.dart)** - Real-time streaming responses
-- **[reasoning_example.dart](example/reasoning_example.dart)** - Reasoning models with thinking
-- **[multi_provider_example.dart](example/multi_provider_example.dart)** - Using multiple providers together
+- **[chat_basics.dart](example/02_core_features/chat_basics.dart)** - Foundation of all AI interactions
+- **[streaming_chat.dart](example/02_core_features/streaming_chat.dart)** - Real-time streaming responses
+- **[tool_calling.dart](example/02_core_features/tool_calling.dart)** - Function calling capabilities
+- **[enhanced_tool_calling.dart](example/02_core_features/enhanced_tool_calling.dart)** - Advanced tool calling patterns
+- **[structured_output.dart](example/02_core_features/structured_output.dart)** - JSON schema and validation
+- **[error_handling.dart](example/02_core_features/error_handling.dart)** - Production-ready error handling
 
-### 🎯 Specialized Provider Examples
+### 🔴 Advanced Features (1-2 hours)
+**Cutting-edge AI capabilities**
 
-- **[elevenlabs_example.dart](example/elevenlabs_example.dart)** - ElevenLabs TTS/STT (Text-to-Speech & Speech-to-Text)
-- **[groq_example.dart](example/groq_example.dart)** - Groq fast inference
-- **[ollama_example.dart](example/ollama_example.dart)** - Local Ollama models
-- **[deepseek_example.dart](example/deepseek_example.dart)** - DeepSeek reasoning models
+- **[reasoning_models.dart](example/03_advanced_features/reasoning_models.dart)** - 🧠 AI thinking processes and reasoning
+- **[multi_modal.dart](example/03_advanced_features/multi_modal.dart)** - Images, audio, and file processing
+- **[custom_providers.dart](example/03_advanced_features/custom_providers.dart)** - Build your own AI provider
+- **[performance_optimization.dart](example/03_advanced_features/performance_optimization.dart)** - Production optimization techniques
 
-### 🔴 Advanced Examples
+### 🎯 Provider-Specific Examples
+**Deep dive into specific providers**
 
-- **[custom_provider_example.dart](example/custom_provider_example.dart)** - Full custom provider implementation
-- **[api_features_example.dart](example/api_features_example.dart)** - API features and usage patterns showcase
+- **[OpenAI](example/04_providers/openai/)** - GPT models, DALL-E, reasoning, assistants
+- **[Anthropic](example/04_providers/anthropic/)** - Claude models, extended thinking, file handling
+- **[Google](example/04_providers/google/)** - Gemini models and multi-modal capabilities
+- **[DeepSeek](example/04_providers/deepseek/)** - Cost-effective reasoning models
+- **[Groq](example/04_providers/groq/)** - Ultra-fast inference
+- **[Ollama](example/04_providers/ollama/)** - Local models and privacy-focused AI
+- **[ElevenLabs](example/04_providers/elevenlabs/)** - Advanced voice synthesis and recognition
+- **[Others](example/04_providers/others/)** - XAI Grok and emerging providers
 
-📖 **[Complete Examples Guide](example)** - Detailed documentation, setup instructions, and best practices.
+### 🎪 Real-World Use Cases
+**Complete application examples**
+
+- **[chatbot.dart](example/05_use_cases/chatbot.dart)** - Complete chatbot with personality and context management
+- **[cli_tool.dart](example/05_use_cases/cli_tool.dart)** - Command-line AI assistant with multiple providers
+- **[web_service.dart](example/05_use_cases/web_service.dart)** - HTTP API with AI capabilities, authentication, and rate limiting
+
+### 🌟 Real-World Application
+**Actively developed application built with LLM Dart**
+
+- **[Yumcha](https://github.com/Latias94/yumcha)** - Cross-platform AI chat application actively developed by the creator of LLM Dart, showcasing real-world integration with multiple providers, real-time streaming, and advanced features
+
+### 🔗 MCP Integration
+**Connect LLMs with external tools**
+
+- **[mcp_concept_demo.dart](example/06_mcp_integration/mcp_concept_demo.dart)** - 🎯 **START HERE** - Core MCP concepts
+- **[simple_mcp_demo.dart](example/06_mcp_integration/simple_mcp_demo.dart)** - Working MCP + LLM integration
+- **[test_all_examples.dart](example/06_mcp_integration/test_all_examples.dart)** - 🧪 **ONE-CLICK TEST** - Test all examples
+- **[Advanced MCP examples](example/06_mcp_integration/)** - Custom servers, tool bridges, and more
+
+📖 **[Complete Examples Guide](example)** - Organized learning paths, detailed documentation, and best practices.
 
 ## Contributing
 

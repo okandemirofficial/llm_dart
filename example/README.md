@@ -1,399 +1,168 @@
-# LLM Dart Examples
+# LLM Dart Examples - Redesigned
 
-This directory contains comprehensive examples demonstrating how to use the LLM Dart library with its new refactored API.
+A comprehensive collection of examples for the LLM Dart library, reorganized by user needs and learning paths to help you find the functionality and information you need more easily.
 
-## 📚 Examples by Difficulty Level
+## 🚀 Quick Navigation
 
-### 🟢 Beginner Examples (Start Here)
+### Choose by Skill Level
 
-- **[simple_llm_builder_example.dart](simple_llm_builder_example.dart)** - Basic usage with multiple providers
-- **[openai_example.dart](openai_example.dart)** - OpenAI provider with all creation methods
-- **[anthropic_example.dart](anthropic_example.dart)** - Basic Anthropic Claude usage (simple conversations)
-- **[anthropic_extended_thinking_example.dart](anthropic_extended_thinking_example.dart)** - Advanced extended thinking and reasoning features
-- **[google_example.dart](google_example.dart)** - Google Gemini models
+| Skill Level | Recommended Path | Estimated Time |
+|-------------|------------------|----------------|
+| **🟢 Beginner** | [Getting Started](#-getting-started) → [Core Features](#-core-features) | 30 minutes |
+| **🟡 Intermediate** | [Core Features](#-core-features) → [Advanced Features](#-advanced-features) | 1 hour |
+| **🔴 Advanced** | [Advanced Features](#-advanced-features) → [Provider Specific](#-provider-specific) | 2+ hours |
 
-### 🟡 Intermediate Examples
+### Choose by Use Case
 
-- **[streaming_example.dart](streaming_example.dart)** - Real-time streaming responses
-- **[reasoning_example.dart](reasoning_example.dart)** - Reasoning models with thinking process access
-- **[deepseek_example.dart](deepseek_example.dart)** - DeepSeek reasoning models with step-by-step thinking
-- **[multi_provider_example.dart](multi_provider_example.dart)** - Using multiple providers together
-- **[list_models_example.dart](list_models_example.dart)** - Listing available models
+| Use Case | Direct Link |
+|----------|-------------|
+| **Chatbot** | [05_use_cases/chatbot.dart](05_use_cases/chatbot.dart) |
+| **CLI Tool** | [05_use_cases/cli_tool.dart](05_use_cases/cli_tool.dart) |
+| **Web Service** | [05_use_cases/web_service.dart](05_use_cases/web_service.dart) |
+| **MCP Integration** | [06_mcp_integration/mcp_concept_demo.dart](06_mcp_integration/mcp_concept_demo.dart) |
+| **Real-World App** | [Yumcha](https://github.com/Latias94/yumcha) - Production Flutter app |
 
-### 🔴 Advanced Examples
+## 📁 Directory Structure
 
-- **[custom_provider_example.dart](custom_provider_example.dart)** - Full custom provider implementation
-- **[capability_query_example.dart](capability_query_example.dart)** - Provider capability discovery
-- **[api_features_example.dart](api_features_example.dart)** - API features and usage patterns showcase
+### 🟢 Getting Started
+**For: First-time users of LLM Dart**
 
-### 🎯 Specialized Provider Examples
+- **[quick_start.dart](01_getting_started/quick_start.dart)** - 5-minute quick start
+- **[provider_comparison.dart](01_getting_started/provider_comparison.dart)** - Provider comparison and selection
+- **[basic_configuration.dart](01_getting_started/basic_configuration.dart)** - Basic configuration guide
 
-- **[groq_example.dart](groq_example.dart)** - Groq fast inference
-- **[ollama_example.dart](ollama_example.dart)** - Local Ollama models
-- **[xai_example.dart](xai_example.dart)** - xAI Grok models
-- **[elevenlabs_example.dart](elevenlabs_example.dart)** - ElevenLabs TTS/STT (Text-to-Speech & Speech-to-Text)
-- **[openai_compatible_example.dart](openai_compatible_example.dart)** - OpenAI-compatible providers
+### 🟡 Core Features
+**For: Users who need to understand main functionality**
 
-## 🔧 Custom Provider Development
+- **[chat_basics.dart](02_core_features/chat_basics.dart)** - Basic chat functionality
+- **[streaming_chat.dart](02_core_features/streaming_chat.dart)** - Real-time streaming chat
+- **[tool_calling.dart](02_core_features/tool_calling.dart)** - Tool calling and function execution
+- **[enhanced_tool_calling.dart](02_core_features/enhanced_tool_calling.dart)** - Advanced tool calling patterns
+- **[structured_output.dart](02_core_features/structured_output.dart)** - Structured data output
+- **[error_handling.dart](02_core_features/error_handling.dart)** - Error handling best practices
 
-### Creating Custom Providers
+### 🔴 Advanced Features
+**For: Users who need deep customization**
 
-The new architecture makes it easy to create custom providers:
+- **[reasoning_models.dart](03_advanced_features/reasoning_models.dart)** - 🧠 Reasoning models and thinking processes
+- **[multi_modal.dart](03_advanced_features/multi_modal.dart)** - Multi-modal processing (images/audio)
+- **[custom_providers.dart](03_advanced_features/custom_providers.dart)** - Custom provider development
+- **[performance_optimization.dart](03_advanced_features/performance_optimization.dart)** - Performance optimization techniques
 
-```dart
-// 1. Implement the ChatCapability interface
-class MyCustomProvider implements ChatCapability {
-  @override
-  Future<ChatResponse> chat(List<ChatMessage> messages) async {
-    // Your implementation
-  }
-  
-  @override
-  Stream<ChatStreamEvent> chatStream(List<ChatMessage> messages) async* {
-    // Your streaming implementation
-  }
-  
-  // ... other required methods
-}
+### 🎯 Provider Specific
+**For: Users who need specific provider functionality**
 
-// 2. Create a provider factory
-class MyCustomProviderFactory implements LLMProviderFactory<MyCustomProvider> {
-  @override
-  String get providerId => 'my_custom';
-  
-  @override
-  MyCustomProvider create(LLMConfig config) => MyCustomProvider(config);
-  
-  // ... other required methods
-}
+| Provider | Key Features | Example Files |
+|----------|--------------|---------------|
+| **OpenAI** | GPT models, image generation, assistants | [openai/](04_providers/openai/) |
+| **Anthropic** | Claude, extended thinking | [anthropic/](04_providers/anthropic/) |
+| **Google** | Gemini, multi-modal | [google/](04_providers/google/) |
+| **DeepSeek** | Reasoning models, cost-effective | [deepseek/](04_providers/deepseek/) |
+| **Groq** | Ultra-fast inference | [groq/](04_providers/groq/) |
+| **Ollama** | Local models, privacy-focused | [ollama/](04_providers/ollama/) |
+| **ElevenLabs** | Voice synthesis/recognition | [elevenlabs/](04_providers/elevenlabs/) |
+| **Others** | XAI Grok and more | [others/](04_providers/others/) |
 
-// 3. Register and use
-LLMProviderRegistry.register(MyCustomProviderFactory());
-final provider = await ai().provider('my_custom').build();
-```
+### 🎪 Real-world Use Cases
+**For: Users looking for specific application solutions**
 
-## 📚 API Usage Guide
+- **[chatbot.dart](05_use_cases/chatbot.dart)** - Complete chatbot implementation
+- **[cli_tool.dart](05_use_cases/cli_tool.dart)** - Command-line AI assistant
+- **[web_service.dart](05_use_cases/web_service.dart)** - HTTP API with AI capabilities
 
-### Multiple Ways to Create Providers
+### 🌟 Production Application
+**Real-world example built with LLM Dart**
 
-```dart
-// ✅ Method 1: Provider-specific methods (Type-safe)
-final provider = await ai()
-    .openai()
-    .apiKey('your-key')
-    .model('gpt-4')
-    .build();
+- **[Yumcha](https://github.com/Latias94/yumcha)** - Cross-platform AI chat application actively developed by the creator of LLM Dart, showcasing real-world integration with multiple providers, real-time streaming, and advanced features
 
-// ✅ Method 2: Generic provider method (Extensible)
-final provider = await ai()
-    .provider('openai')
-    .apiKey('your-key')
-    .model('gpt-4')
-    .build();
+### 🔗 MCP Integration ✅ **FULLY TESTED**
+**For: Users who want to connect LLMs with external tools via Model Context Protocol**
 
-// ✅ Method 3: Convenience functions (Concise)
-final provider = await createProvider(
-  providerId: 'openai',
-  apiKey: 'your-key',
-  model: 'gpt-4',
-  temperature: 0.7,
-);
-```
+- **[mcp_concept_demo.dart](06_mcp_integration/mcp_concept_demo.dart)** - 🎯 **START HERE** - Core MCP concepts
+- **[simple_mcp_demo.dart](06_mcp_integration/simple_mcp_demo.dart)** - Working MCP + LLM integration example
+- **[test_all_examples.dart](06_mcp_integration/test_all_examples.dart)** - 🧪 **ONE-CLICK TEST** - Test all examples
+- **[basic_mcp_client.dart](06_mcp_integration/basic_mcp_client.dart)** - Basic MCP client connection
+- **[custom_mcp_server.dart](06_mcp_integration/custom_mcp_server.dart)** - Custom MCP server implementation
+- **[mcp_tool_bridge.dart](06_mcp_integration/mcp_tool_bridge.dart)** - Bridge between MCP and llm_dart tools
+- **[mcp_with_llm.dart](06_mcp_integration/mcp_with_llm.dart)** - Advanced MCP + LLM integration
 
-## 🎯 Key Features Demonstrated
+## 🎯 Feature Support Matrix
 
-### 1. Capability-Based Design
-- Providers implement only the capabilities they support
-- Type-safe capability checking at compile time
-- No more "god interfaces" forcing unnecessary implementations
+| Feature | OpenAI | Anthropic | Google | DeepSeek | Ollama | Groq | ElevenLabs |
+|---------|--------|-----------|--------|----------|--------|------|------------|
+| 💬 Basic Chat | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| 🌊 Streaming | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| 🔧 Tool Calling | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| 🧠 Thinking Process | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| 🖼️ Image Processing | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ |
+| 🎵 Audio Processing | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| 📊 Structured Output | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 
-### 2. Provider Registry System
-- Dynamic provider registration
-- Extensible architecture for third-party providers
-- Runtime capability discovery
+## 🚀 Quick Start
 
-### 3. Unified Configuration
-- Single `LLMConfig` class for all providers
-- Provider-specific extensions through the extension system
-- Reduced code duplication
-
-### 4. Enhanced Error Handling
-- Specific error types for different scenarios
-- HTTP status code mapping
-- Detailed error information
-
-### 5. Multiple API Styles
-- Builder pattern for complex configurations
-- Convenience functions for quick setup
-- Generic provider method for extensibility
-
-## 🚀 Running Examples
-
-To run any example:
+### 1. Choose Your First Example
 
 ```bash
-cd packages/llm_dart
-dart run examples/example_name.dart
+# Complete beginner - 5-minute quick experience
+dart run 01_getting_started/quick_start.dart
+
+# Experienced - jump to core features
+dart run 02_core_features/chat_basics.dart
+
+# Specific needs - jump to corresponding scenario
+dart run 05_use_cases/chatbot.dart
+
+# MCP integration - connect LLMs with external tools
+dart run 06_mcp_integration/mcp_concept_demo.dart
 ```
 
-For examples requiring API keys, set environment variables:
+### 2. Set Environment Variables
 
 ```bash
+# Set API keys for the providers you want to use
 export OPENAI_API_KEY="your-openai-key"
 export ANTHROPIC_API_KEY="your-anthropic-key"
+export GOOGLE_API_KEY="your-google-key"
 export DEEPSEEK_API_KEY="your-deepseek-key"
-# ... etc
-
-dart run examples/openai_example.dart
+export GROQ_API_KEY="your-groq-key"
+export ELEVENLABS_API_KEY="your-elevenlabs-key"
 ```
 
-## 🎙️ ElevenLabs TTS/STT Guide
-
-The **[elevenlabs_example.dart](elevenlabs_example.dart)** demonstrates comprehensive Text-to-Speech and Speech-to-Text functionality.
-
-### Prerequisites
-
-1. **ElevenLabs API Key**: Get your API key from [ElevenLabs](https://elevenlabs.io/)
-2. **Environment Setup**:
-   ```bash
-   export ELEVENLABS_API_KEY=your_api_key_here
-   ```
-
-### Features Demonstrated
-
-#### Text-to-Speech (TTS)
-- High-quality speech synthesis
-- Configurable voice settings (stability, similarity boost, style)
-- Multiple voice options and models
-- Audio file output (MP3 format)
-
-#### Speech-to-Text (STT)
-- Audio transcription with multiple models (`scribe_v1`, `scribe_v1_experimental`)
-- Language detection with confidence scores
-- Word-level timing information
-- Support for file-based and byte-based transcription
-
-#### Advanced Features
-- List available models and voices
-- Test different voice configurations
-- Comprehensive error handling
-
-### Configuration Example
-
-```dart
-final provider = await ai()
-    .elevenlabs()                    // Use ElevenLabs provider
-    .apiKey(apiKey)                  // Set API key
-    .model('eleven_multilingual_v2') // TTS model
-    .voiceId('JBFqnCBsd6RMkjVDRZzb') // Voice ID (George)
-    .stability(0.5)                  // Voice stability (0.0-1.0)
-    .similarityBoost(0.8)            // Similarity boost (0.0-1.0)
-    .style(0.0)                      // Style exaggeration (0.0-1.0)
-    .useSpeakerBoost(true)           // Enable speaker boost
-    .build();
-
-// Cast to access TTS/STT methods
-final elevenLabsProvider = provider as ElevenLabsProvider;
-
-// Text-to-Speech
-final ttsResponse = await elevenLabsProvider.textToSpeech('Hello world!');
-await File('output.mp3').writeAsBytes(ttsResponse.audioData);
-
-// Speech-to-Text
-final sttResponse = await elevenLabsProvider.speechToTextFromFile(
-  'audio.mp3',
-  model: 'scribe_v1',
-);
-print('Transcribed: ${sttResponse.text}');
-```
-
-### Voice Settings Guide
-
-- **Stability** (0.0-1.0): Controls voice consistency
-  - Higher = more stable, consistent voice
-  - Lower = more expressive, variable voice
-
-- **Similarity Boost** (0.0-1.0): Enhances voice similarity to original
-  - Higher = closer to original voice
-  - Lower = more creative interpretation
-
-- **Style** (0.0-1.0): Controls style exaggeration
-  - Higher = more exaggerated style
-  - Lower = more natural style
-
-- **Speaker Boost**: Enhances speaker characteristics
-
-### Available Models
-
-**TTS Models:**
-- `eleven_monolingual_v1` - English only, fast
-- `eleven_multilingual_v2` - Multiple languages, high quality
-- `eleven_turbo_v2` - Fast generation
-
-**STT Models:**
-- `scribe_v1` - Standard transcription model
-- `scribe_v1_experimental` - Experimental features
-
-### Running the Example
+### 3. Run Examples
 
 ```bash
-cd packages/llm_dart/examples
-export ELEVENLABS_API_KEY=your_api_key_here
-dart run elevenlabs_example.dart
+cd new_example
+dart run 01_getting_started/quick_start.dart
 ```
 
-The example will generate several audio files demonstrating different voice settings and transcribe them back to text.
+## 💡 Learning Recommendations
 
-## 📖 Quick Start Guide
+### 🟢 Beginner Users
+1. Start with `quick_start.dart`
+2. Read `provider_comparison.dart` to choose the right provider
+3. Learn `chat_basics.dart` to master basic conversations
+4. Try `streaming_chat.dart` to experience real-time responses
 
-### 🟢 New to LLM Dart? Start Here:
+### 🟡 Intermediate Users
+1. Master `tool_calling.dart` for tool calling
+2. Learn `structured_output.dart` for structured output
+3. Explore `reasoning_models.dart` for reasoning functionality
+4. Choose specific use case examples based on your needs
 
-1. **[simple_llm_builder_example.dart](simple_llm_builder_example.dart)** - Basic usage patterns
-2. **[openai_example.dart](openai_example.dart)** - Learn different ways to create providers
-3. **[streaming_example.dart](streaming_example.dart)** - See real-time responses
+### 🔴 Advanced Users
+1. Study `custom_providers.dart` for custom development
+2. Optimize performance with `performance_optimization.dart`
+3. Deep dive into specific provider advanced features
+4. Explore [Yumcha](https://github.com/Latias94/yumcha) for real-world architecture patterns and active development practices
+5. Integrate into production environments with MCP protocol support
 
-### 🟡 Ready for More? Try These:
+## 🔗 Related Links
 
-4. **[reasoning_example.dart](reasoning_example.dart)** - Explore thinking processes and reasoning
-5. **[multi_provider_example.dart](multi_provider_example.dart)** - Use multiple providers together
-6. **[deepseek_example.dart](deepseek_example.dart)** - Advanced reasoning with step-by-step thinking
-
-### 🔴 Advanced Usage:
-
-7. **[custom_provider_example.dart](custom_provider_example.dart)** - Build your own provider
-8. **[api_features_example.dart](api_features_example.dart)** - Complete API features showcase
-
-
-## 💡 Best Practices
-
-1. **Use provider-specific methods** - Prefer `ai().openai()` for better IDE support and type safety
-2. **Check capabilities** - Use `provider is ChatCapability` for type safety
-3. **Handle errors properly** - Catch specific error types like `AuthError`, `RateLimitError`
-4. **Use extensions** - Leverage the extension system for provider-specific features
-5. **Register custom providers** - Use the registry system for extensibility
-6. **Choose appropriate questions** - For reasoning models, use moderately complex questions that demonstrate thinking
-
-## 🧠 Thinking Process & Reasoning Features
-
-The LLM Dart library provides access to AI model thinking processes and reasoning capabilities, giving you unprecedented insight into how models arrive at their conclusions.
-
-### What is Thinking Process?
-
-The thinking process feature allows you to access the internal reasoning and thought processes of AI models. This is valuable for:
-
-- **Debugging AI responses**: Understanding why a model gave a specific answer
-- **Educational purposes**: Learning how AI models approach problems
-- **Quality assurance**: Verifying the reasoning behind AI decisions
-- **Research**: Analyzing AI reasoning patterns
-
-### Supported Models
-
-| Provider | Models | Thinking Support |
-|----------|--------|------------------|
-| **Anthropic** | Claude 3.7+, Claude 4 | ✅ Extended thinking with budget control |
-| **OpenAI** | o1-preview, o1-mini | ✅ Reasoning traces |
-| **DeepSeek** | deepseek-reasoner | ✅ Step-by-step reasoning |
-| **Google** | Gemini models | ✅ Reasoning steps |
-
-### Extended Thinking (Anthropic)
-
-Anthropic's extended thinking provides enhanced reasoning capabilities:
-
-- **Claude 3.7**: Full thinking output
-- **Claude 4**: Summarized thinking (full intelligence, condensed output)
-- **Interleaved thinking**: Think between tool calls (Claude 4 only)
-- **Budget control**: Set thinking token limits (1,024 - 32,000+ tokens)
-- **Token constraints**: `max_tokens` must be greater than `thinking_budget_tokens`
-- **Redacted thinking**: Automatic encryption of sensitive reasoning
-
-### Basic Usage
-
-```dart
-// Basic extended thinking
-final provider = await ai()
-    .anthropic()
-    .apiKey('your-api-key')
-    .model('claude-3-7-sonnet-20250219') // Claude 3.7+ for extended thinking
-    .maxTokens(12000) // Must be > thinkingBudgetTokens
-    .reasoning(true) // Enable extended thinking
-    .thinkingBudgetTokens(8000) // Set thinking budget (< maxTokens)
-    .build();
-
-final response = await provider.chat([
-  ChatMessage.user('Explain how to make a budget for college students')
-]);
-
-// Access the final answer
-print('Answer: ${response.text}');
-
-// Access the thinking process
-if (response.thinking != null) {
-  print('Thinking process: ${response.thinking}');
-}
-```
-
-### Streaming with Thinking
-
-You can access thinking processes in real-time during streaming:
-
-```dart
-await for (final event in provider.chatStream(messages)) {
-  if (event is ThinkingDeltaEvent) {
-    print('Thinking: ${event.delta}');
-  } else if (event is TextDeltaEvent) {
-    print('Response: ${event.delta}');
-  }
-}
-```
-
-### Important Constraints
-
-**Critical**: `max_tokens` must always be greater than `thinking_budget_tokens`
-
-```dart
-// ❌ Wrong - will cause 400 error
-.maxTokens(4000)
-.thinkingBudgetTokens(8000)  // Error: 8000 > 4000
-
-// ✅ Correct
-.maxTokens(12000)
-.thinkingBudgetTokens(8000)  // OK: 8000 < 12000
-```
-
-**Recommended Ratios:**
-- **Conservative**: `maxTokens = thinkingBudgetTokens + 4000`
-- **Balanced**: `maxTokens = thinkingBudgetTokens * 1.5`
-- **Generous**: `maxTokens = thinkingBudgetTokens * 2`
-
-### Best Practices for Thinking
-
-1. **Always check for null**: Not all responses include thinking processes
-2. **Handle long content**: Thinking processes can be very long, consider truncation
-3. **Use appropriate models**: Only certain models support thinking processes
-4. **Respect rate limits**: Thinking processes may use more tokens
-5. **Privacy considerations**: Thinking processes may contain sensitive reasoning
-6. **Token planning**: Always ensure `maxTokens > thinkingBudgetTokens`
-
-### Troubleshooting
-
-**No Thinking Process Available:**
-- The model doesn't support thinking processes
-- The query was too simple to trigger detailed reasoning
-- The API response didn't include thinking data
-
-**Empty Thinking Process:**
-```dart
-if (response.thinking != null && response.thinking!.isNotEmpty) {
-  // Process thinking
-} else {
-  print('No detailed thinking process for this response');
-}
-```
-
-## 🔗 Related Documentation
-
-- [Main README](../README.md) - Library overview and installation
+- [Main Project README](../README.md) - Complete library documentation
+- [API Documentation](https://pub.dev/documentation/llm_dart/) - Detailed API reference
+- [GitHub Issues](https://github.com/your-repo/llm_dart/issues) - Bug reports and feature requests
+- [Discussions](https://github.com/your-repo/llm_dart/discussions) - Community discussions
 
 ---
 
-**Note**: All examples use the modern LLM Dart API with provider registry system and capability-based design.
+**💡 Tip**: If you can't find the example you need, check [GitHub Issues](https://github.com/your-repo/llm_dart/issues) or create a new issue to tell us your requirements!

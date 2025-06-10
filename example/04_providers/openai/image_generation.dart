@@ -31,11 +31,8 @@ Future<void> testDALLE3Generation(String apiKey) async {
 
   try {
     // Create OpenAI provider for DALL-E 3
-    final provider = await ai()
-        .openai()
-        .apiKey(apiKey)
-        .model('dall-e-3')
-        .build();
+    final provider =
+        await ai().openai().apiKey(apiKey).model('dall-e-3').build();
 
     // Check if provider supports image generation
     if (provider is! ImageGenerationCapability) {
@@ -49,11 +46,13 @@ Future<void> testDALLE3Generation(String apiKey) async {
     print('   🔍 Supported sizes: ${imageProvider.getSupportedSizes()}');
     print('   📋 Supported formats: ${imageProvider.getSupportedFormats()}');
     print('   ✂️  Supports editing: ${imageProvider.supportsImageEditing}');
-    print('   🔄 Supports variations: ${imageProvider.supportsImageVariations}');
+    print(
+        '   🔄 Supports variations: ${imageProvider.supportsImageVariations}');
 
     // Example 1: Basic generation
     print('\n   🖼️  Basic Generation:');
-    final basicPrompt = 'A serene mountain landscape with a crystal clear lake reflection, photorealistic';
+    final basicPrompt =
+        'A serene mountain landscape with a crystal clear lake reflection, photorealistic';
     print('      Prompt: "$basicPrompt"');
 
     final basicImages = await imageProvider.generateImage(
@@ -70,7 +69,8 @@ Future<void> testDALLE3Generation(String apiKey) async {
     // Example 2: Advanced generation with full configuration
     print('\n   ⚙️  Advanced Generation:');
     final advancedRequest = ImageGenerationRequest(
-      prompt: 'A futuristic cyberpunk cityscape at night with neon lights and flying cars',
+      prompt:
+          'A futuristic cyberpunk cityscape at night with neon lights and flying cars',
       model: 'dall-e-3',
       size: '1792x1024', // Landscape format
       quality: 'hd',
@@ -78,7 +78,8 @@ Future<void> testDALLE3Generation(String apiKey) async {
       responseFormat: 'url',
     );
 
-    final advancedResponse = await imageProvider.generateImages(advancedRequest);
+    final advancedResponse =
+        await imageProvider.generateImages(advancedRequest);
     print('      Model used: ${advancedResponse.model}');
     if (advancedResponse.revisedPrompt != null) {
       print('      Revised prompt: ${advancedResponse.revisedPrompt}');
@@ -105,17 +106,15 @@ Future<void> testDALLE2Generation(String apiKey) async {
 
   try {
     // Create OpenAI provider for DALL-E 2
-    final provider = await ai()
-        .openai()
-        .apiKey(apiKey)
-        .model('dall-e-2')
-        .build();
+    final provider =
+        await ai().openai().apiKey(apiKey).model('dall-e-2').build();
 
     final imageProvider = provider as ImageGenerationCapability;
 
     // Example: Multiple images with DALL-E 2
     print('   🔢 Multiple Images Generation:');
-    final multiPrompt = 'A cute robot assistant helping with daily tasks, cartoon style';
+    final multiPrompt =
+        'A cute robot assistant helping with daily tasks, cartoon style';
     print('      Prompt: "$multiPrompt"');
 
     final multiImages = await imageProvider.generateImage(
@@ -157,7 +156,8 @@ Future<void> testImageEditing(String apiKey) async {
     print('   💡 Image editing requires DALL-E 2 and image files');
     print('   📝 To test editing:');
     print('      1. Prepare a PNG image (1024x1024 or smaller)');
-    print('      2. Optionally create a mask image (transparent areas will be edited)');
+    print(
+        '      2. Optionally create a mask image (transparent areas will be edited)');
     print('      3. Use ImageEditRequest with image and mask data');
     print('   ✅ Image editing capability confirmed\n');
   } catch (e) {
