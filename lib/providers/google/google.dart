@@ -21,6 +21,7 @@
 /// // Use chat capability
 /// final response = await provider.chat(messages);
 /// ```
+library;
 
 import '../../models/chat_models.dart';
 import 'config.dart';

@@ -26,7 +26,8 @@ class AnthropicProvider
     implements
         ChatCapability,
         ModelListingCapability,
-        FileManagementCapability {
+        FileManagementCapability,
+        ProviderCapabilities {
   final AnthropicClient _client;
   final AnthropicConfig config;
 
@@ -81,8 +82,26 @@ class AnthropicProvider
   /// Get provider name
   String get providerName => 'Anthropic';
 
-  /// Get supported capabilities
-  List<String> get supportedCapabilities => [
+  // ========== ProviderCapabilities ==========
+
+  @override
+  Set<LLMCapability> get supportedCapabilities => {
+        LLMCapability.chat,
+        LLMCapability.streaming,
+        LLMCapability.toolCalling,
+        LLMCapability.modelListing,
+        LLMCapability.fileManagement,
+        if (config.supportsVision) LLMCapability.vision,
+        if (config.supportsReasoning) LLMCapability.reasoning,
+      };
+
+  @override
+  bool supports(LLMCapability capability) {
+    return supportedCapabilities.contains(capability);
+  }
+
+  /// Get supported capabilities as string list (legacy method)
+  List<String> get supportedCapabilitiesLegacy => [
         'chat',
         'streaming',
         'tools',
@@ -91,7 +110,7 @@ class AnthropicProvider
         if (config.supportsPDF) 'pdf',
       ];
 
-  /// Check if model supports a specific capability
+  /// Check if model supports a specific capability (legacy method)
   bool supportsCapability(String capability) {
     switch (capability.toLowerCase()) {
       case 'chat':

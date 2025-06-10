@@ -336,15 +336,18 @@ class DeepSeekChat implements ChatCapability {
       // For non-reasoner models, add all supported parameters
       if (config.logprobs != null) body['logprobs'] = config.logprobs;
       if (config.topLogprobs != null) body['top_logprobs'] = config.topLogprobs;
-      if (config.frequencyPenalty != null)
+      if (config.frequencyPenalty != null) {
         body['frequency_penalty'] = config.frequencyPenalty;
-      if (config.presencePenalty != null)
+      }
+      if (config.presencePenalty != null) {
         body['presence_penalty'] = config.presencePenalty;
+      }
     }
 
     // response_format is supported by both models
-    if (config.responseFormat != null)
+    if (config.responseFormat != null) {
       body['response_format'] = config.responseFormat;
+    }
 
     // Add tools if provided
     final effectiveTools = tools ?? config.tools;

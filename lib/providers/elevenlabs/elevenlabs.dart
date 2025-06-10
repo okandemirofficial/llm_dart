@@ -37,6 +37,7 @@
 ///   print('${voice.name}: ${voice.id}');
 /// }
 /// ```
+library;
 
 import '../../core/provider_defaults.dart';
 import 'config.dart';

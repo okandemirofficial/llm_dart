@@ -4,19 +4,19 @@ Welcome to the LLM Dart getting started guide! This contains the most basic and 
 
 ## 📚 Learning Path
 
-### Step 1: Quick Experience (5 minutes)
+### Step 1: Quick Experience
 **[quick_start.dart](quick_start.dart)** - Simplest usage example
 - Create your first AI conversation
 - Understand basic API calling methods
 - Experience responses from different providers
 
-### Step 2: Choose Provider (10 minutes)
+### Step 2: Choose Provider
 **[provider_comparison.dart](provider_comparison.dart)** - Provider comparison
 - Learn about each provider's characteristics
 - Compare response quality and speed
 - Choose the provider that best fits your needs
 
-### Step 3: Configuration Optimization (15 minutes)
+### Step 3: Configuration Optimization
 **[basic_configuration.dart](basic_configuration.dart)** - Basic configuration
 - Learn important configuration parameters
 - Understand how to tune model behavior

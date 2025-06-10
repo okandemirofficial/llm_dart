@@ -67,7 +67,7 @@ Show your reasoning step by step.
           '\n   🧠 Thinking Process Available: ${response.thinking!.length} characters');
       print('   First 200 chars of thinking:');
       final thinkingPreview = response.thinking!.length > 200
-          ? response.thinking!.substring(0, 200) + '...'
+          ? '${response.thinking!.substring(0, 200)}...'
           : response.thinking!;
       print('   \x1B[90m$thinkingPreview\x1B[0m'); // Gray color for thinking
     } else {
@@ -152,7 +152,7 @@ Include estimated costs and explain your reasoning.
       // Show a sample of the thinking process
       print('\n      • Sample thinking process:');
       final thinkingSample =
-          thinking.length > 300 ? thinking.substring(0, 300) + '...' : thinking;
+          thinking.length > 300 ? '${thinking.substring(0, 300)}...' : thinking;
       print('        \x1B[90m$thinkingSample\x1B[0m'); // Gray color
     }
 

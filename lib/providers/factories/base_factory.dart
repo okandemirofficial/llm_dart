@@ -29,6 +29,7 @@ abstract class BaseProviderFactory<T extends ChatCapability>
 
   /// Default validation that checks for API key presence
   /// Override this method for providers with different requirements
+  @override
   bool validateConfig(LLMConfig config) {
     return validateApiKey(config);
   }
@@ -50,7 +51,7 @@ abstract class BaseProviderFactory<T extends ChatCapability>
       final errors = <String>[];
 
       if (requiresApiKey && (config.apiKey == null || config.apiKey!.isEmpty)) {
-        errors.add('API key is required for ${displayName}');
+        errors.add('API key is required for $displayName');
       }
 
       if (config.model.isEmpty) {
@@ -63,7 +64,7 @@ abstract class BaseProviderFactory<T extends ChatCapability>
 
       if (errors.isNotEmpty) {
         throw InvalidRequestError(
-            'Invalid configuration for ${displayName}: ${errors.join(', ')}');
+            'Invalid configuration for $displayName: ${errors.join(', ')}');
       }
     }
   }
@@ -91,9 +92,9 @@ abstract class BaseProviderFactory<T extends ChatCapability>
   }
 
   /// Helper method to safely get extensions with type checking
-  T? getExtension<T>(LLMConfig config, String key, [T? defaultValue]) {
+  E? getExtension<E>(LLMConfig config, String key, [E? defaultValue]) {
     try {
-      return config.getExtension<T>(key) ?? defaultValue;
+      return config.getExtension<E>(key) ?? defaultValue;
     } catch (e) {
       // Log warning but don't fail
       return defaultValue;
@@ -102,6 +103,7 @@ abstract class BaseProviderFactory<T extends ChatCapability>
 
   /// Create default config with provider-specific defaults
   /// Subclasses should override getProviderDefaults() to customize
+  @override
   LLMConfig getDefaultConfig() {
     final defaults = getProviderDefaults();
     return LLMConfig(
@@ -129,7 +131,7 @@ abstract class BaseProviderFactory<T extends ChatCapability>
         rethrow;
       }
       throw GenericError(
-          'Failed to create ${displayName} provider: ${e.toString()}');
+          'Failed to create $displayName provider: ${e.toString()}');
     }
   }
 }

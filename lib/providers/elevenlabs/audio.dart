@@ -338,12 +338,15 @@ class ElevenLabsAudio extends BaseAudioCapability {
 
       // Add optional parameters based on ElevenLabs API documentation
       if (languageCode != null) formDataMap['language_code'] = languageCode;
-      if (tagAudioEvents != null)
+      if (tagAudioEvents != null) {
         formDataMap['tag_audio_events'] = tagAudioEvents.toString();
-      if (numSpeakers != null)
+      }
+      if (numSpeakers != null) {
         formDataMap['num_speakers'] = numSpeakers.toString();
-      if (timestampsGranularity != null)
+      }
+      if (timestampsGranularity != null) {
         formDataMap['timestamps_granularity'] = timestampsGranularity;
+      }
       if (diarize != null) formDataMap['diarize'] = diarize.toString();
       if (fileFormat != null) formDataMap['file_format'] = fileFormat;
 
@@ -420,12 +423,15 @@ class ElevenLabsAudio extends BaseAudioCapability {
 
       // Add optional parameters based on ElevenLabs API documentation
       if (languageCode != null) formDataMap['language_code'] = languageCode;
-      if (tagAudioEvents != null)
+      if (tagAudioEvents != null) {
         formDataMap['tag_audio_events'] = tagAudioEvents.toString();
-      if (numSpeakers != null)
+      }
+      if (numSpeakers != null) {
         formDataMap['num_speakers'] = numSpeakers.toString();
-      if (timestampsGranularity != null)
+      }
+      if (timestampsGranularity != null) {
         formDataMap['timestamps_granularity'] = timestampsGranularity;
+      }
       if (diarize != null) formDataMap['diarize'] = diarize.toString();
       if (fileFormat != null) formDataMap['file_format'] = fileFormat;
 

@@ -23,6 +23,7 @@
 /// final embeddings = await provider.embed(['text']);
 /// final audio = await provider.speech('Hello world');
 /// ```
+library;
 
 import '../../core/provider_defaults.dart';
 import 'config.dart';

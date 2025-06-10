@@ -36,6 +36,7 @@
 ///   ChatMessage.user('What are the latest developments in AI?')
 /// ]);
 /// ```
+library;
 
 import 'config.dart';
 import 'provider.dart';

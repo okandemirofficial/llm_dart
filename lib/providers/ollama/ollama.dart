@@ -31,6 +31,7 @@
 /// // List available models
 /// final models = await provider.models();
 /// ```
+library;
 
 import '../../models/tool_models.dart';
 import 'config.dart';

@@ -214,7 +214,7 @@ class OpenAIModeration implements ModerationCapability {
     return recommendations;
   }
 
-  /// Convert ModerationCategories to Map<String, bool>
+  /// Convert ModerationCategories to Map\<String, bool\>
   Map<String, bool> _categoriesToMap(ModerationCategories categories) {
     return {
       'hate': categories.hate,
@@ -231,7 +231,7 @@ class OpenAIModeration implements ModerationCapability {
     };
   }
 
-  /// Convert ModerationCategoryScores to Map<String, double>
+  /// Convert ModerationCategoryScores to Map\<String, double\>
   Map<String, double> _categoryScoresToMap(ModerationCategoryScores scores) {
     return {
       'hate': scores.hate,

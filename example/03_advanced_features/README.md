@@ -4,28 +4,28 @@ Explore the cutting-edge capabilities of LLM Dart. These examples demonstrate ad
 
 ## 📚 Learning Path
 
-### Step 1: Reasoning Models (20 minutes)
+### Step 1: Reasoning Models
 **[reasoning_models.dart](reasoning_models.dart)** - AI thinking processes
 - Understanding reasoning models
 - Accessing thinking processes
 - Optimizing for complex problems
 - Comparing reasoning vs standard models
 
-### Step 2: Multi-modal Processing (25 minutes)
+### Step 2: Multi-modal Processing
 **[multi_modal.dart](multi_modal.dart)** - Images, audio, and files
 - Image processing and analysis
 - Audio transcription and generation
 - File handling and document processing
 - Multi-modal conversations
 
-### Step 3: Custom Providers (30 minutes)
+### Step 3: Custom Providers
 **[custom_providers.dart](custom_providers.dart)** - Build your own providers
 - Creating custom AI providers
 - Implementing required interfaces
 - Adding custom functionality
 - Integration patterns
 
-### Step 4: Performance Optimization (15 minutes)
+### Step 4: Performance Optimization
 **[performance_optimization.dart](performance_optimization.dart)** - Speed and efficiency
 - Caching strategies
 - Request optimization

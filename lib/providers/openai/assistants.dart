@@ -161,7 +161,7 @@ class OpenAIAssistants implements AssistantCapability {
     final current = await retrieveAssistant(assistantId);
     final updatedTools = current.tools
         .where(
-          (tool) => !toolTypes.contains(tool.type),
+          (tool) => !toolTypes.contains(tool.type.value),
         )
         .toList();
 
@@ -238,7 +238,7 @@ class OpenAIAssistants implements AssistantCapability {
     // Filter by required tools
     if (requiredTools != null && requiredTools.isNotEmpty) {
       assistants = assistants.where((a) {
-        final assistantTools = a.tools.map((t) => t.type).toSet();
+        final assistantTools = a.tools.map((t) => t.type.value).toSet();
         return requiredTools.every((tool) => assistantTools.contains(tool));
       }).toList();
     }

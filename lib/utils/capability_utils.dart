@@ -207,15 +207,21 @@ class CapabilityUtils {
   static Set<LLMCapability> _detectCapabilities(dynamic provider) {
     final capabilities = <LLMCapability>{};
 
-    if (provider is ChatCapability) capabilities.add(LLMCapability.chat);
-    if (provider is EmbeddingCapability)
+    if (provider is ChatCapability) {
+      capabilities.add(LLMCapability.chat);
+    }
+    if (provider is EmbeddingCapability) {
       capabilities.add(LLMCapability.embedding);
-    if (provider is FileManagementCapability)
+    }
+    if (provider is FileManagementCapability) {
       capabilities.add(LLMCapability.fileManagement);
-    if (provider is ModerationCapability)
+    }
+    if (provider is ModerationCapability) {
       capabilities.add(LLMCapability.moderation);
-    if (provider is AssistantCapability)
+    }
+    if (provider is AssistantCapability) {
       capabilities.add(LLMCapability.assistants);
+    }
     if (provider is AudioCapability) {
       if (provider.supportedFeatures.contains(AudioFeature.textToSpeech)) {
         capabilities.add(LLMCapability.textToSpeech);
@@ -224,10 +230,12 @@ class CapabilityUtils {
         capabilities.add(LLMCapability.speechToText);
       }
     }
-    if (provider is ModelListingCapability)
+    if (provider is ModelListingCapability) {
       capabilities.add(LLMCapability.modelListing);
-    if (provider is ImageGenerationCapability)
+    }
+    if (provider is ImageGenerationCapability) {
       capabilities.add(LLMCapability.imageGeneration);
+    }
 
     return capabilities;
   }

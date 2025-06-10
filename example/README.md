@@ -6,11 +6,11 @@ A comprehensive collection of examples for the LLM Dart library, reorganized by 
 
 ### Choose by Skill Level
 
-| Skill Level | Recommended Path | Estimated Time |
-|-------------|------------------|----------------|
-| **🟢 Beginner** | [Getting Started](#-getting-started) → [Core Features](#-core-features) | 30 minutes |
-| **🟡 Intermediate** | [Core Features](#-core-features) → [Advanced Features](#-advanced-features) | 1 hour |
-| **🔴 Advanced** | [Advanced Features](#-advanced-features) → [Provider Specific](#-provider-specific) | 2+ hours |
+| Skill Level | Recommended Path |
+|-------------|------------------|
+| **🟢 Beginner** | [Getting Started](#-getting-started) → [Core Features](#-core-features) |
+| **🟡 Intermediate** | [Core Features](#-core-features) → [Advanced Features](#-advanced-features) |
+| **🔴 Advanced** | [Advanced Features](#-advanced-features) → [Provider Specific](#-provider-specific) |
 
 ### Choose by Use Case
 
@@ -27,7 +27,7 @@ A comprehensive collection of examples for the LLM Dart library, reorganized by 
 ### 🟢 Getting Started
 **For: First-time users of LLM Dart**
 
-- **[quick_start.dart](01_getting_started/quick_start.dart)** - 5-minute quick start
+- **[quick_start.dart](01_getting_started/quick_start.dart)** - Quick start guide
 - **[provider_comparison.dart](01_getting_started/provider_comparison.dart)** - Provider comparison and selection
 - **[basic_configuration.dart](01_getting_started/basic_configuration.dart)** - Basic configuration guide
 
@@ -103,7 +103,7 @@ A comprehensive collection of examples for the LLM Dart library, reorganized by 
 ### 1. Choose Your First Example
 
 ```bash
-# Complete beginner - 5-minute quick experience
+# Complete beginner - quick experience
 dart run 01_getting_started/quick_start.dart
 
 # Experienced - jump to core features

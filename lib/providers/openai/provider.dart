@@ -88,6 +88,7 @@ class OpenAIProvider
         LLMCapability.moderation,
         LLMCapability.assistants,
         LLMCapability.completion,
+        LLMCapability.modelListing,
       };
 
   @override

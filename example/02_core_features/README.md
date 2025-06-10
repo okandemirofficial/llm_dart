@@ -4,35 +4,49 @@ Master the essential functionality of LLM Dart. These examples cover the most im
 
 ## 📚 Learning Path
 
-### Step 1: Master Basic Chat (10 minutes)
+### Step 1: Master Basic Chat
 **[chat_basics.dart](chat_basics.dart)** - Foundation of all AI interactions
 - Simple conversations
 - Message history management
 - Response handling
 - Usage statistics
 
-### Step 2: Real-time Streaming (15 minutes)
+### Step 2: Real-time Streaming
 **[streaming_chat.dart](streaming_chat.dart)** - Live response streaming
 - Stream events handling
 - Real-time UI updates
 - Performance optimization
 - Error recovery
 
-### Step 3: Tool Integration (20 minutes)
+### Step 3: Tool Integration
 **[tool_calling.dart](tool_calling.dart)** - Function calling and execution
 - Define custom functions
 - Handle tool calls
 - Multi-step workflows
 - Error handling in tools
 
-### Step 4: Structured Data (15 minutes)
+### Step 4: Structured Data
 **[structured_output.dart](structured_output.dart)** - JSON and schema output
 - JSON schema definition
 - Data validation
 - Type-safe responses
 - Complex data structures
 
-### Step 5: Production Ready (10 minutes)
+### Step 5: Provider Capabilities
+**[capability_detection.dart](capability_detection.dart)** - Discover provider features
+- Check supported capabilities
+- Compare provider features
+- Capability-based provider selection
+- Feature availability validation
+
+### Step 6: Model Discovery
+**[model_listing.dart](model_listing.dart)** - Explore available models
+- List available models
+- Filter models by type
+- Model metadata inspection
+- Provider-specific model features
+
+### Step 7: Production Ready
 **[error_handling.dart](error_handling.dart)** - Robust error management
 - Error types and handling
 - Retry strategies
@@ -47,6 +61,8 @@ After completing these examples, you'll be able to:
 - ✅ Create real-time streaming interfaces
 - ✅ Integrate AI with external tools and APIs
 - ✅ Handle structured data and validation
+- ✅ Discover and compare provider capabilities
+- ✅ Explore and select appropriate models
 - ✅ Build production-ready error handling
 
 ## 🚀 Running Examples
@@ -62,6 +78,8 @@ dart run chat_basics.dart
 dart run streaming_chat.dart
 dart run tool_calling.dart
 dart run structured_output.dart
+dart run capability_detection.dart
+dart run model_listing.dart
 dart run error_handling.dart
 ```
 
@@ -88,6 +106,18 @@ dart run error_handling.dart
 - **Validation**: Automatic data validation
 - **Types**: Type-safe data handling
 - **Complex Data**: Nested objects and arrays
+
+### Capability Detection
+- **Discovery**: Check what features a provider supports
+- **Comparison**: Compare capabilities across providers
+- **Selection**: Choose providers based on required features
+- **Validation**: Ensure features are available before use
+
+### Model Listing
+- **Discovery**: Find available models from providers
+- **Filtering**: Filter models by type and capability
+- **Metadata**: Access model information and ownership
+- **Selection**: Choose appropriate models for tasks
 
 ### Error Handling
 - **Types**: Authentication, rate limits, network errors

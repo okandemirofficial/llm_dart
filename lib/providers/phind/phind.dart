@@ -33,6 +33,7 @@
 ///   }
 /// }
 /// ```
+library;
 
 import 'config.dart';
 import 'provider.dart';

@@ -18,7 +18,8 @@ class OllamaProvider
         ChatCapability,
         CompletionCapability,
         EmbeddingCapability,
-        ModelListingCapability {
+        ModelListingCapability,
+        ProviderCapabilities {
   final OllamaClient _client;
   final OllamaConfig config;
 
@@ -89,8 +90,27 @@ class OllamaProvider
   /// Get provider name
   String get providerName => 'Ollama';
 
-  /// Get supported capabilities
-  List<String> get supportedCapabilities => [
+  // ========== ProviderCapabilities ==========
+
+  @override
+  Set<LLMCapability> get supportedCapabilities => {
+        LLMCapability.chat,
+        LLMCapability.streaming,
+        LLMCapability.completion,
+        LLMCapability.embedding,
+        LLMCapability.modelListing,
+        if (config.supportsToolCalling) LLMCapability.toolCalling,
+        if (config.supportsVision) LLMCapability.vision,
+        if (config.supportsReasoning) LLMCapability.reasoning,
+      };
+
+  @override
+  bool supports(LLMCapability capability) {
+    return supportedCapabilities.contains(capability);
+  }
+
+  /// Get supported capabilities as string list (legacy method)
+  List<String> get supportedCapabilitiesLegacy => [
         'chat',
         'streaming',
         'completion',
@@ -103,7 +123,7 @@ class OllamaProvider
         if (config.supportsCodeGeneration) 'code_generation',
       ];
 
-  /// Check if model supports a specific capability
+  /// Check if model supports a specific capability (legacy method)
   bool supportsCapability(String capability) {
     switch (capability.toLowerCase()) {
       case 'chat':
