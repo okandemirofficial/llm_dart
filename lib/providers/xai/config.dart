@@ -139,8 +139,9 @@ class XAIConfig {
 
   /// Check if this model supports tool calling
   bool get supportsToolCalling {
-    // xAI doesn't support tool calling yet
-    return false;
+    // xAI supports function calling as of October 2024
+    // Reference: https://docs.x.ai/docs/guides/function-calling
+    return true;
   }
 
   /// Check if this model supports search

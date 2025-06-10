@@ -127,7 +127,8 @@ class ReasoningUtils {
   /// should be based on response content, not model name
   static bool isKnownReasoningModel(String model) {
     return isOpenAIReasoningModel(model) ||
-        model.contains('deepseek-r1') ||
+        model == 'deepseek-reasoner' ||
+        model == 'deepseek-r1' ||
         model.contains('claude-3.7-sonnet') ||
         model.contains('claude-3-7-sonnet') ||
         model.contains('qwen') && model.contains('reasoning') ||

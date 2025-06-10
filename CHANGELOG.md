@@ -30,6 +30,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Centralized capability definitions for all providers
   - Eliminated configuration duplication across factory classes
 
+- **Unified Audio Capability Interface**: Revolutionary audio processing design
+  - Single `AudioCapability` interface for all audio operations (TTS, STT, translation)
+  - Feature discovery system with `supportedFeatures` property for runtime capability detection
+  - `BaseAudioCapability` class providing default implementations for convenience methods
+  - Support for streaming TTS, real-time audio sessions, and advanced audio features
+  - Enhanced audio models with character-level timing, speaker diarization, and audio events
+  - Graceful degradation with `UnsupportedError` for unsupported features
+  - Cross-provider audio functionality comparison and benchmarking support
+
 ### Changed
 
 - **All Providers**: Refactored to modular architecture
@@ -47,6 +56,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All factory methods now support complete provider configurations
   - Removed redundant helper methods in favor of base factory functionality
   - Better parameter validation and error handling
+
+- **Audio Capabilities**: Completely redesigned audio processing architecture
+  - Replaced separate `TextToSpeechCapability` and `SpeechToTextCapability` interfaces
+  - Unified all audio operations under single `AudioCapability` interface
+  - Enhanced audio models with advanced features (timing, diarization, events)
+  - Improved OpenAI audio support with translation capabilities
+  - Enhanced ElevenLabs audio support with streaming and real-time features
+  - Better error handling and feature detection for audio operations
 
 ### Removed
 
@@ -76,6 +93,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - OpenAI file operations remain unchanged
   - Anthropic now supports file operations through `FileManagementCapability`
   - Use universal file models for provider-agnostic code
+
+- **Audio Capabilities**: Migrate to unified audio interface
+  - Replace `TextToSpeechCapability` and `SpeechToTextCapability` checks with `AudioCapability`
+  - Use `provider.supportedFeatures.contains(AudioFeature.textToSpeech)` for feature detection
+  - Audio translation now available through `translateAudio()` method (OpenAI only)
+  - Enhanced audio models support advanced features like character timing and speaker diarization
+  - Convenience methods (`speech()`, `transcribe()`, `translate()`) automatically available
 
 ## [0.1.2] - 2025-6-8
 

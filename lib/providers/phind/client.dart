@@ -57,7 +57,7 @@ class PhindClient {
         ]
       };
     } on DioException catch (e) {
-      throw _handleDioError(e);
+      throw DioErrorHandler.handleDioError(e, 'Phind');
     }
   }
 
@@ -90,7 +90,7 @@ class PhindClient {
         yield chunk;
       }
     } on DioException catch (e) {
-      throw _handleDioError(e);
+      throw DioErrorHandler.handleDioError(e, 'Phind');
     }
   }
 
@@ -132,35 +132,6 @@ class PhindClient {
       return json['choices']?.first?['delta']?['content'] as String?;
     } catch (e) {
       return null;
-    }
-  }
-
-  /// Handle Dio errors and convert to appropriate LLMError
-  LLMError _handleDioError(DioException e) {
-    switch (e.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.sendTimeout:
-      case DioExceptionType.receiveTimeout:
-        return HttpError('Request timeout: ${e.message}');
-      case DioExceptionType.badResponse:
-        final statusCode = e.response?.statusCode;
-        final data = e.response?.data;
-        final responseData = e.response?.data is Map<String, dynamic>
-            ? e.response?.data as Map<String, dynamic>?
-            : null;
-
-        if (statusCode != null) {
-          return HttpErrorMapper.mapStatusCode(
-              statusCode, data?.toString() ?? 'Unknown error', responseData);
-        } else {
-          return ProviderError('HTTP error: $data');
-        }
-      case DioExceptionType.cancel:
-        return const GenericError('Request was cancelled');
-      case DioExceptionType.connectionError:
-        return HttpError('Connection error: ${e.message}');
-      default:
-        return HttpError('Network error: ${e.message}');
     }
   }
 }

@@ -15,7 +15,6 @@ import 'package:llm_dart/llm_dart.dart';
 ///
 /// Before running, set your API key:
 /// export OPENAI_API_KEY="your-key"
-/// export GROQ_API_KEY="your-key"
 void main() async {
   print('🔧 Tool Calling - Function Integration with AI\n');
 
@@ -26,7 +25,7 @@ void main() async {
   final provider = await ai()
       .openai()
       .apiKey(apiKey)
-      .model('gpt-4o-mini')
+      .model('gpt-4.1-mini')
       .temperature(0.1) // Lower temperature for more reliable tool calls
       .maxTokens(1000)
       .build();
@@ -538,7 +537,7 @@ Future<void> demonstrateStreamingWithTools(ChatCapability provider) async {
       }
     }
 
-    print('   ✅ Streaming with tools completed\n');
+    print('\n   ✅ Streaming with tools completed\n');
   } catch (e) {
     print('   ❌ Streaming with tools failed: $e\n');
   }

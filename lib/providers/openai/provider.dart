@@ -34,8 +34,7 @@ class OpenAIProvider
     implements
         ChatCapability,
         EmbeddingCapability,
-        TextToSpeechCapability,
-        SpeechToTextCapability,
+        AudioCapability,
         ImageGenerationCapability,
         FileManagementCapability,
         ModelListingCapability,
@@ -136,7 +135,10 @@ class OpenAIProvider
     return _embeddings.embed(input);
   }
 
-  // ========== TextToSpeechCapability (delegated to audio module) ==========
+  // ========== AudioCapability (delegated to audio module) ==========
+
+  @override
+  Set<AudioFeature> get supportedFeatures => _audio.supportedFeatures;
 
   @override
   Future<TTSResponse> textToSpeech(TTSRequest request) async {
@@ -144,8 +146,8 @@ class OpenAIProvider
   }
 
   @override
-  Future<List<int>> speech(String text) async {
-    return _audio.speech(text);
+  Stream<AudioStreamEvent> textToSpeechStream(TTSRequest request) {
+    return _audio.textToSpeechStream(request);
   }
 
   @override
@@ -154,30 +156,71 @@ class OpenAIProvider
   }
 
   @override
-  List<String> getSupportedAudioFormats() {
-    return _audio.getSupportedAudioFormats();
-  }
-
-  // ========== SpeechToTextCapability (delegated to audio module) ==========
-
-  @override
   Future<STTResponse> speechToText(STTRequest request) async {
     return _audio.speechToText(request);
   }
 
   @override
-  Future<String> transcribe(List<int> audio) async {
-    return _audio.transcribe(audio);
-  }
-
-  @override
-  Future<String> transcribeFile(String filePath) async {
-    return _audio.transcribeFile(filePath);
+  Future<STTResponse> translateAudio(AudioTranslationRequest request) async {
+    return _audio.translateAudio(request);
   }
 
   @override
   Future<List<LanguageInfo>> getSupportedLanguages() async {
     return _audio.getSupportedLanguages();
+  }
+
+  @override
+  Future<RealtimeAudioSession> startRealtimeSession(
+      RealtimeAudioConfig config) async {
+    return _audio.startRealtimeSession(config);
+  }
+
+  @override
+  List<String> getSupportedAudioFormats() {
+    return _audio.getSupportedAudioFormats();
+  }
+
+  // AudioCapability convenience methods implementation
+  @override
+  Future<List<int>> speech(String text) async {
+    final response = await textToSpeech(TTSRequest(text: text));
+    return response.audioData;
+  }
+
+  @override
+  Stream<List<int>> speechStream(String text) async* {
+    await for (final event in textToSpeechStream(TTSRequest(text: text))) {
+      if (event is AudioDataEvent) {
+        yield event.data;
+      }
+    }
+  }
+
+  @override
+  Future<String> transcribe(List<int> audio) async {
+    final response = await speechToText(STTRequest.fromAudio(audio));
+    return response.text;
+  }
+
+  @override
+  Future<String> transcribeFile(String filePath) async {
+    final response = await speechToText(STTRequest.fromFile(filePath));
+    return response.text;
+  }
+
+  @override
+  Future<String> translate(List<int> audio) async {
+    final response =
+        await translateAudio(AudioTranslationRequest.fromAudio(audio));
+    return response.text;
+  }
+
+  @override
+  Future<String> translateFile(String filePath) async {
+    final response =
+        await translateAudio(AudioTranslationRequest.fromFile(filePath));
+    return response.text;
   }
 
   // ========== ImageGenerationCapability (delegated to images module) ==========

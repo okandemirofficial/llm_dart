@@ -3,23 +3,28 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:llm_dart/llm_dart.dart';
 
-/// 🟣 Anthropic File Handling - Document Processing and Analysis
+/// 🟣 Anthropic File Handling - File Management and Document Processing
 ///
-/// This example demonstrates Claude's file processing capabilities:
-/// - PDF document analysis
-/// - Text file processing
-/// - Image analysis and description
-/// - Multi-file document comparison
+/// This example demonstrates:
+/// - File upload and management using Anthropic Files API
+/// - Document processing and analysis with Claude
+/// - File listing, retrieval, and deletion
+/// - Multi-file analysis capabilities
+///
+/// **Note:** Anthropic Files API is currently in beta and requires
+/// the `anthropic-beta: files-api-2025-04-14` header.
 ///
 /// Before running, set your API key:
 /// export ANTHROPIC_API_KEY="your-anthropic-api-key"
 void main() async {
-  print('🟣 Anthropic File Handling - Document Processing\n');
+  print(
+      '🟣 Anthropic File Handling - File Management and Document Processing\n');
 
   // Get API key
   final apiKey = Platform.environment['ANTHROPIC_API_KEY'] ?? 'sk-ant-TESTKEY';
 
-  // Demonstrate Claude's file handling capabilities
+  // Demonstrate file management capabilities
+  await demonstrateFileManagement(apiKey);
   await demonstrateTextFileProcessing(apiKey);
   await demonstrateImageAnalysis(apiKey);
   await demonstratePDFProcessing(apiKey);
@@ -27,7 +32,112 @@ void main() async {
   await demonstrateDocumentComparison(apiKey);
 
   print('\n✅ Anthropic file handling completed!');
-  print('📖 Next: Try vision_capabilities.dart for advanced image processing');
+  print('📖 Next: Try other provider examples for comparison');
+}
+
+/// Demonstrate file management capabilities
+Future<void> demonstrateFileManagement(String apiKey) async {
+  print('📁 File Management API:\n');
+
+  try {
+    final provider = createAnthropicProvider(
+      apiKey: apiKey,
+      model: 'claude-3-5-sonnet-20241022',
+    );
+
+    // Example 1: Upload a text file
+    print('   === Uploading a text file ===');
+    final textContent = 'Hello, this is a test file for Anthropic Files API!';
+    final textBytes = Uint8List.fromList(textContent.codeUnits);
+
+    final uploadRequest = FileUploadRequest(
+      file: textBytes,
+      filename: 'test.txt',
+    );
+
+    final uploadedFile = await provider.uploadFile(uploadRequest);
+    print('      Uploaded file: ${uploadedFile.filename}');
+    print('      File ID: ${uploadedFile.id}');
+    print('      Size: ${uploadedFile.sizeBytes} bytes');
+    print('      MIME type: ${uploadedFile.mimeType}');
+    print('      Created: ${uploadedFile.createdAt}');
+    print('      Downloadable: ${uploadedFile.downloadable}');
+
+    // Example 2: Upload file from bytes with automatic filename
+    print('\n   === Uploading with automatic filename ===');
+    final jsonContent = '{"message": "Hello from JSON file"}';
+    final jsonBytes = jsonContent.codeUnits;
+
+    final autoFile = await provider.uploadFileFromBytes(
+      jsonBytes,
+      filename: 'data.json',
+    );
+    print('      Auto-uploaded file: ${autoFile.filename} (${autoFile.id})');
+
+    // Example 3: List all files
+    print('\n   === Listing all files ===');
+    final fileList = await provider.listFiles();
+    print('      Total files: ${fileList.data.length}');
+    print('      Has more: ${fileList.hasMore}');
+
+    for (final file in fileList.data) {
+      print('      - ${file.filename} (${file.id}) - ${file.sizeBytes} bytes');
+    }
+
+    // Example 4: List files with pagination
+    print('\n   === Listing files with pagination ===');
+    final paginatedQuery = FileListQuery(
+      limit: 5,
+      // beforeId: 'some-file-id',  // For pagination
+      // afterId: 'some-file-id',   // For pagination
+    );
+
+    final paginatedList = await provider.listFiles(paginatedQuery);
+    print('      Paginated results: ${paginatedList.data.length} files');
+    if (paginatedList.firstId != null) {
+      print('      First ID: ${paginatedList.firstId}');
+    }
+    if (paginatedList.lastId != null) {
+      print('      Last ID: ${paginatedList.lastId}');
+    }
+
+    // Example 5: Get file metadata
+    print('\n   === Getting file metadata ===');
+    final metadata = await provider.retrieveFile(uploadedFile.id);
+    print('      File metadata for ${metadata.filename}:');
+    print('      - ID: ${metadata.id}');
+    print('      - Size: ${metadata.sizeBytes} bytes');
+    print('      - MIME type: ${metadata.mimeType}');
+    print('      - Created: ${metadata.createdAt}');
+
+    // Example 6: Download file content
+    print('\n   === Downloading file content ===');
+    final downloadedBytes = await provider.getFileContent(uploadedFile.id);
+    final downloadedText = String.fromCharCodes(downloadedBytes);
+    print('      Downloaded content: $downloadedText');
+
+    // Example 7: Check if file exists
+    print('\n   === Checking file existence ===');
+    final exists = await provider.fileExists(uploadedFile.id);
+    print('      File exists: $exists');
+
+    final nonExistentExists = await provider.fileExists('non-existent-id');
+    print('      Non-existent file exists: $nonExistentExists');
+
+    // Example 8: Delete files
+    print('\n   === Deleting files ===');
+    final deleteResult1 = await provider.deleteFile(uploadedFile.id);
+    print(
+        '      Delete ${uploadedFile.filename}: ${deleteResult1.deleted ? "Success" : "Failed"}');
+
+    final deleteResult2 = await provider.deleteFile(autoFile.id);
+    print(
+        '      Delete ${autoFile.filename}: ${deleteResult2.deleted ? "Success" : "Failed"}');
+
+    print('   ✅ File management demonstration completed\n');
+  } catch (e) {
+    print('   ❌ File management failed: $e\n');
+  }
 }
 
 /// Demonstrate text file processing
@@ -35,13 +145,12 @@ Future<void> demonstrateTextFileProcessing(String apiKey) async {
   print('📄 Text File Processing:\n');
 
   try {
-    final provider = await ai()
-        .anthropic()
-        .apiKey(apiKey)
-        .model('claude-3-5-sonnet-20241022')
-        .temperature(0.3)
-        .maxTokens(1500)
-        .build();
+    final provider = createAnthropicProvider(
+      apiKey: apiKey,
+      model: 'claude-3-5-sonnet-20241022',
+      temperature: 0.3,
+      maxTokens: 1500,
+    );
 
     // Create a sample text file
     const sampleText = '''
@@ -114,13 +223,12 @@ Future<void> demonstrateImageAnalysis(String apiKey) async {
   print('🖼️  Image Analysis:\n');
 
   try {
-    final provider = await ai()
-        .anthropic()
-        .apiKey(apiKey)
-        .model('claude-3-5-sonnet-20241022')
-        .temperature(0.4)
-        .maxTokens(1000)
-        .build();
+    final provider = createAnthropicProvider(
+      apiKey: apiKey,
+      model: 'claude-3-5-sonnet-20241022',
+      temperature: 0.4,
+      maxTokens: 1000,
+    );
 
     // Create a simple test image (placeholder - in real use, you'd have actual images)
     print('   Note: This example shows the structure for image analysis.');
@@ -174,13 +282,12 @@ Future<void> demonstratePDFProcessing(String apiKey) async {
   print('📋 PDF Processing:\n');
 
   try {
-    final provider = await ai()
-        .anthropic()
-        .apiKey(apiKey)
-        .model('claude-3-5-sonnet-20241022')
-        .temperature(0.3)
-        .maxTokens(2000)
-        .build();
+    final provider = createAnthropicProvider(
+      apiKey: apiKey,
+      model: 'claude-3-5-sonnet-20241022',
+      temperature: 0.3,
+      maxTokens: 2000,
+    );
 
     // Create a sample PDF content (as text for demonstration)
     const pdfContent = '''
@@ -253,13 +360,12 @@ Future<void> demonstrateMultiFileAnalysis(String apiKey) async {
   print('📚 Multi-File Analysis:\n');
 
   try {
-    final provider = await ai()
-        .anthropic()
-        .apiKey(apiKey)
-        .model('claude-3-5-sonnet-20241022')
-        .temperature(0.3)
-        .maxTokens(2000)
-        .build();
+    final provider = createAnthropicProvider(
+      apiKey: apiKey,
+      model: 'claude-3-5-sonnet-20241022',
+      temperature: 0.3,
+      maxTokens: 2000,
+    );
 
     // Create multiple sample files
     const file1Content = '''
@@ -351,13 +457,12 @@ Future<void> demonstrateDocumentComparison(String apiKey) async {
   print('🔍 Document Comparison:\n');
 
   try {
-    final provider = await ai()
-        .anthropic()
-        .apiKey(apiKey)
-        .model('claude-3-5-sonnet-20241022')
-        .temperature(0.2) // Lower for analytical comparison
-        .maxTokens(1500)
-        .build();
+    final provider = createAnthropicProvider(
+      apiKey: apiKey,
+      model: 'claude-3-5-sonnet-20241022',
+      temperature: 0.2, // Lower for analytical comparison
+      maxTokens: 1500,
+    );
 
     // Create two versions of a document
     const version1 = '''
@@ -431,23 +536,34 @@ Please provide:
 
 /// 🎯 Key Anthropic File Handling Concepts Summary:
 ///
+/// File Management API:
+/// - Upload files: uploadFile(FileUploadRequest) or uploadFileFromBytes()
+/// - List files: listFiles([FileListQuery?])
+/// - Get metadata: retrieveFile(String fileId)
+/// - Download content: getFileContent(String fileId)
+/// - Delete files: deleteFile(String fileId)
+/// - Check existence: fileExists(String fileId)
+///
 /// Supported File Types:
 /// - Text files (.txt, .md, .csv)
 /// - PDF documents
 /// - Images (PNG, JPEG, GIF, WebP)
-/// - Various document formats
+/// - JSON and structured data files
 ///
 /// File Processing Capabilities:
 /// - Document analysis and summarization
 /// - Multi-file comparison and synthesis
 /// - Image analysis and description
 /// - Data extraction from structured documents
+/// - Cross-document pattern recognition
 ///
 /// Best Practices:
+/// - Use createAnthropicProvider() for full file management access
 /// - Use appropriate MIME types for files
 /// - Provide context with file uploads
 /// - Use lower temperature for analytical tasks
 /// - Break down complex analysis into steps
+/// - Clean up uploaded files after processing
 ///
 /// Configuration Tips:
 /// - claude-3-5-sonnet: Best for document analysis
@@ -461,8 +577,9 @@ Please provide:
 /// - Business report processing
 /// - Image and chart analysis
 /// - Multi-document synthesis
+/// - File storage and retrieval systems
 ///
 /// Next Steps:
-/// - vision_capabilities.dart: Advanced image processing
-/// - ../../03_advanced_features/multi_modal.dart: Cross-modal analysis
-/// - ../../05_use_cases/data_analysis.dart: Real-world applications
+/// - Try other provider examples for comparison
+/// - Explore advanced multi-modal capabilities
+/// - Implement real-world file processing workflows

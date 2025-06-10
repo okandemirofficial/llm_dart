@@ -430,7 +430,7 @@ class OpenAIClient {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return const GenericError('Request timeout');
+        return TimeoutError('Request timeout: ${e.message}');
       case DioExceptionType.badResponse:
         final statusCode = e.response?.statusCode;
         final responseData = e.response?.data;
@@ -438,7 +438,7 @@ class OpenAIClient {
         if (statusCode != null) {
           // Use HttpErrorMapper for consistent error handling
           final errorMessage =
-              _extractErrorMessage(responseData) ?? 'HTTP error: $statusCode';
+              _extractErrorMessage(responseData) ?? '$statusCode';
           final responseMap =
               responseData is Map<String, dynamic> ? responseData : null;
 

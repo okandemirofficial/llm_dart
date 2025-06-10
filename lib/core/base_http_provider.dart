@@ -195,34 +195,32 @@ abstract class BaseHttpProvider implements ChatCapability {
 
   /// Handle Dio exceptions with consistent error mapping
   LLMError handleDioError(DioException e) {
+    final error = DioErrorHandler.handleDioError(e, providerName);
+
+    // Log the error with provider context
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        final error = HttpError('Request timeout: ${e.message}');
         _logger.warning('$providerName timeout error: ${error.message}');
-        return error;
+        break;
       case DioExceptionType.badResponse:
         final statusCode = e.response?.statusCode;
         final data = e.response?.data;
         _logger.warning('$providerName bad response: $statusCode, data: $data');
-
-        if (statusCode == 401) {
-          return AuthError('Invalid $providerName API key');
-        } else if (statusCode == 429) {
-          return const ProviderError('Rate limit exceeded');
-        } else {
-          return ProviderError('HTTP $statusCode: $data');
-        }
-      case DioExceptionType.cancel:
-        return const GenericError('Request was cancelled');
+        break;
       case DioExceptionType.connectionError:
-        return HttpError('Connection error: ${e.message}');
+        _logger.warning('$providerName connection error: ${error.message}');
+        break;
       case DioExceptionType.badCertificate:
-        return HttpError('SSL certificate error: ${e.message}');
-      case DioExceptionType.unknown:
-        return GenericError('Network error: ${e.message}');
+        _logger.warning('$providerName SSL error: ${error.message}');
+        break;
+      default:
+        _logger.warning('$providerName error: ${error.message}');
+        break;
     }
+
+    return error;
   }
 
   /// Create a standardized Dio instance with common configuration

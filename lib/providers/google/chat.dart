@@ -206,58 +206,49 @@ class GoogleChat implements ChatCapability {
 
   /// Handle Dio errors and convert to appropriate LLM errors
   LLMError _handleDioError(DioException e) {
+    // Handle Google-specific error response format first
     if (e.response?.data is Map<String, dynamic>) {
       final errorData = e.response!.data as Map<String, dynamic>;
-      final error = errorData['error'] as Map<String, dynamic>?;
-
-      if (error != null) {
-        final message = error['message'] as String? ?? 'Unknown error';
-        final details = error['details'] as List?;
-
-        // Handle specific Google API error types
-        if (details != null) {
-          for (final detail in details) {
-            if (detail is Map && detail['reason'] == 'API_KEY_INVALID') {
-              return const AuthError('Invalid Google API key');
-            }
-          }
+      try {
+        return _handleGoogleApiError(errorData);
+      } catch (googleError) {
+        if (googleError is LLMError) {
+          return googleError;
         }
-
-        return ProviderError('Google API error: $message');
       }
     }
 
-    // Generic error handling
-    switch (e.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.sendTimeout:
-      case DioExceptionType.receiveTimeout:
-        return GenericError('Request timeout: ${e.message}');
-      case DioExceptionType.badResponse:
-        return ProviderError('HTTP ${e.response?.statusCode}: ${e.message}');
-      default:
-        return GenericError('Network error: ${e.message}');
+    // Fall back to standard error handling
+    return DioErrorHandler.handleDioError(e, 'Google');
+  }
+
+  /// Handle Google API error response format
+  LLMError _handleGoogleApiError(Map<String, dynamic> responseData) {
+    if (!responseData.containsKey('error')) {
+      throw ArgumentError('No error found in response data');
     }
+
+    final error = responseData['error'] as Map<String, dynamic>;
+    final message = error['message'] as String? ?? 'Unknown error';
+    final details = error['details'] as List?;
+
+    // Handle specific Google API error types
+    if (details != null) {
+      for (final detail in details) {
+        if (detail is Map && detail['reason'] == 'API_KEY_INVALID') {
+          return const AuthError('Invalid Google API key');
+        }
+      }
+    }
+
+    return ProviderError('Google API error: $message');
   }
 
   /// Parse response from Google API
   GoogleChatResponse _parseResponse(Map<String, dynamic> responseData) {
     // Check for Google API errors first
     if (responseData.containsKey('error')) {
-      final error = responseData['error'] as Map<String, dynamic>;
-      final message = error['message'] as String? ?? 'Unknown error';
-      final details = error['details'] as List?;
-
-      // Handle specific Google API error types
-      if (details != null) {
-        for (final detail in details) {
-          if (detail is Map && detail['reason'] == 'API_KEY_INVALID') {
-            throw const AuthError('Invalid Google API key');
-          }
-        }
-      }
-
-      throw ProviderError('Google API error: $message');
+      throw _handleGoogleApiError(responseData);
     }
 
     return GoogleChatResponse(responseData);

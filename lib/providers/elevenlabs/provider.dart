@@ -13,8 +13,7 @@ import 'models.dart';
 /// This is the main provider class that implements audio capabilities
 /// and delegates to specialized modules for different functionalities.
 /// ElevenLabs specializes in text-to-speech and speech-to-text services.
-class ElevenLabsProvider
-    implements ChatCapability, TextToSpeechCapability, SpeechToTextCapability {
+class ElevenLabsProvider implements ChatCapability, AudioCapability {
   final ElevenLabsConfig config;
   final ElevenLabsClient client;
   late final ElevenLabsAudio audio;
@@ -58,10 +57,19 @@ class ElevenLabsProvider
         const ProviderError('ElevenLabs does not support chat functionality'));
   }
 
-  // TextToSpeechCapability implementation
+  // AudioCapability implementation (delegated to audio module)
+
+  @override
+  Set<AudioFeature> get supportedFeatures => audio.supportedFeatures;
+
   @override
   Future<TTSResponse> textToSpeech(TTSRequest request) async {
     return audio.textToSpeech(request);
+  }
+
+  @override
+  Stream<AudioStreamEvent> textToSpeechStream(TTSRequest request) {
+    return audio.textToSpeechStream(request);
   }
 
   @override
@@ -70,14 +78,13 @@ class ElevenLabsProvider
   }
 
   @override
-  List<String> getSupportedAudioFormats() {
-    return audio.getSupportedAudioFormats();
-  }
-
-  // SpeechToTextCapability implementation
-  @override
   Future<STTResponse> speechToText(STTRequest request) async {
     return audio.speechToText(request);
+  }
+
+  @override
+  Future<STTResponse> translateAudio(AudioTranslationRequest request) async {
+    return audio.translateAudio(request);
   }
 
   @override
@@ -85,20 +92,57 @@ class ElevenLabsProvider
     return audio.getSupportedLanguages();
   }
 
-  // Convenience methods for backward compatibility
+  @override
+  Future<RealtimeAudioSession> startRealtimeSession(
+      RealtimeAudioConfig config) async {
+    return audio.startRealtimeSession(config);
+  }
+
+  @override
+  List<String> getSupportedAudioFormats() {
+    return audio.getSupportedAudioFormats();
+  }
+
+  // AudioCapability convenience methods implementation
   @override
   Future<List<int>> speech(String text) async {
-    return audio.speech(text);
+    final response = await textToSpeech(TTSRequest(text: text));
+    return response.audioData;
+  }
+
+  @override
+  Stream<List<int>> speechStream(String text) async* {
+    await for (final event in textToSpeechStream(TTSRequest(text: text))) {
+      if (event is AudioDataEvent) {
+        yield event.data;
+      }
+    }
   }
 
   @override
   Future<String> transcribe(List<int> audio) async {
-    return this.audio.transcribe(audio);
+    final response = await speechToText(STTRequest.fromAudio(audio));
+    return response.text;
   }
 
   @override
   Future<String> transcribeFile(String filePath) async {
-    return audio.transcribeFile(filePath);
+    final response = await speechToText(STTRequest.fromFile(filePath));
+    return response.text;
+  }
+
+  @override
+  Future<String> translate(List<int> audio) async {
+    final response =
+        await translateAudio(AudioTranslationRequest.fromAudio(audio));
+    return response.text;
+  }
+
+  @override
+  Future<String> translateFile(String filePath) async {
+    final response =
+        await translateAudio(AudioTranslationRequest.fromFile(filePath));
+    return response.text;
   }
 
   /// Get available models
@@ -140,8 +184,7 @@ class ElevenLabsProvider
 
   /// Check if the provider supports a specific capability
   bool supportsCapability(Type capability) {
-    if (capability == TextToSpeechCapability) return true;
-    if (capability == SpeechToTextCapability) return true;
+    if (capability == AudioCapability) return true;
     // ElevenLabs doesn't support chat
     if (capability == ChatCapability) return false;
     return false;

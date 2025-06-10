@@ -12,10 +12,13 @@ export 'core/config.dart';
 export 'core/registry.dart';
 export 'core/base_http_provider.dart';
 export 'core/openai_compatible_configs.dart';
+export 'core/tool_validator.dart';
+export 'core/responses_capability.dart';
 
 // Model exports
 export 'models/chat_models.dart';
 export 'models/tool_models.dart';
+export 'models/advanced_tool_models.dart';
 export 'models/audio_models.dart';
 export 'models/image_models.dart';
 export 'models/file_models.dart';

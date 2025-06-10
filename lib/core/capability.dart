@@ -21,8 +21,17 @@ enum LLMCapability {
   /// Text-to-speech conversion
   textToSpeech,
 
+  /// Streaming text-to-speech conversion
+  streamingTextToSpeech,
+
   /// Speech-to-text conversion
   speechToText,
+
+  /// Audio translation (speech to English text)
+  audioTranslation,
+
+  /// Real-time audio processing
+  realtimeAudio,
 
   /// Model listing
   modelListing,
@@ -50,6 +59,42 @@ enum LLMCapability {
 
   /// Assistant capabilities
   assistants,
+}
+
+/// Audio features that providers can support
+enum AudioFeature {
+  /// Basic text-to-speech conversion
+  textToSpeech,
+
+  /// Streaming text-to-speech conversion
+  streamingTTS,
+
+  /// Basic speech-to-text conversion
+  speechToText,
+
+  /// Audio translation (speech to English text)
+  audioTranslation,
+
+  /// Real-time audio processing
+  realtimeProcessing,
+
+  /// Speaker diarization (identifying different speakers)
+  speakerDiarization,
+
+  /// Character-level timing information
+  characterTiming,
+
+  /// Audio event detection (laughter, applause, etc.)
+  audioEventDetection,
+
+  /// Voice cloning capabilities
+  voiceCloning,
+
+  /// Audio enhancement and noise reduction
+  audioEnhancement,
+
+  /// Multi-modal audio-visual processing
+  multimodalAudio,
 }
 
 /// Response from a chat provider
@@ -131,6 +176,11 @@ class UsageInfo {
 }
 
 /// Core chat capability interface that most LLM providers implement
+///
+/// **API References:**
+/// - OpenAI: https://platform.openai.com/docs/guides/tools
+/// - Anthropic: https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview
+/// - xAI: https://docs.x.ai/docs/guides/function-calling
 abstract class ChatCapability {
   /// Sends a chat request to the provider with a sequence of messages.
   ///
@@ -273,10 +323,79 @@ abstract class EmbeddingCapability {
   Future<List<List<double>>> embed(List<String> input);
 }
 
-/// Capability interface for text-to-speech conversion
-abstract class TextToSpeechCapability {
+/// Unified audio processing capability interface
+///
+/// This interface provides a single entry point for all audio-related functionality,
+/// including text-to-speech, speech-to-text, audio translation, and real-time processing.
+/// Use the `supportedFeatures` property to discover which features are available.
+abstract class AudioCapability {
+  // === Feature Discovery ===
+
+  /// Get all audio features supported by this provider
+  Set<AudioFeature> get supportedFeatures;
+
+  // === Audio Generation (Text-to-Speech) ===
+
   /// Convert text to speech with full configuration support
-  Future<TTSResponse> textToSpeech(TTSRequest request);
+  ///
+  /// Throws [UnsupportedError] if not supported. Check [supportedFeatures] first.
+  Future<TTSResponse> textToSpeech(TTSRequest request) {
+    throw UnsupportedError('Text-to-speech not supported by this provider');
+  }
+
+  /// Convert text to speech with streaming output
+  ///
+  /// Throws [UnsupportedError] if not supported. Check [supportedFeatures] first.
+  Stream<AudioStreamEvent> textToSpeechStream(TTSRequest request) {
+    throw UnsupportedError(
+        'Streaming text-to-speech not supported by this provider');
+  }
+
+  /// Get available voices for this provider
+  Future<List<VoiceInfo>> getVoices() {
+    throw UnsupportedError('Voice listing not supported by this provider');
+  }
+
+  // === Audio Understanding (Speech-to-Text) ===
+
+  /// Convert speech to text with full configuration support
+  ///
+  /// Throws [UnsupportedError] if not supported. Check [supportedFeatures] first.
+  Future<STTResponse> speechToText(STTRequest request) {
+    throw UnsupportedError('Speech-to-text not supported by this provider');
+  }
+
+  /// Translate audio to English text
+  ///
+  /// Throws [UnsupportedError] if not supported. Check [supportedFeatures] first.
+  Future<STTResponse> translateAudio(AudioTranslationRequest request) {
+    throw UnsupportedError('Audio translation not supported by this provider');
+  }
+
+  /// Get supported languages for transcription and translation
+  Future<List<LanguageInfo>> getSupportedLanguages() {
+    throw UnsupportedError('Language listing not supported by this provider');
+  }
+
+  // === Real-time Audio Processing ===
+
+  /// Create and start a real-time audio session
+  ///
+  /// Returns a session object for managing the real-time interaction.
+  /// Throws [UnsupportedError] if not supported. Check [supportedFeatures] first.
+  Future<RealtimeAudioSession> startRealtimeSession(
+      RealtimeAudioConfig config) {
+    throw UnsupportedError('Real-time audio not supported by this provider');
+  }
+
+  // === Metadata ===
+
+  /// Get supported input/output audio formats
+  List<String> getSupportedAudioFormats() {
+    return ['mp3', 'wav', 'ogg']; // Default formats
+  }
+
+  // === Convenience Methods ===
 
   /// Simple text-to-speech conversion (convenience method)
   Future<List<int>> speech(String text) async {
@@ -284,17 +403,14 @@ abstract class TextToSpeechCapability {
     return response.audioData;
   }
 
-  /// Get available voices for this provider
-  Future<List<VoiceInfo>> getVoices();
-
-  /// Get supported audio formats
-  List<String> getSupportedAudioFormats();
-}
-
-/// Capability interface for speech-to-text conversion
-abstract class SpeechToTextCapability {
-  /// Transcribe audio with full configuration support
-  Future<STTResponse> speechToText(STTRequest request);
+  /// Simple streaming text-to-speech conversion (convenience method)
+  Stream<List<int>> speechStream(String text) async* {
+    await for (final event in textToSpeechStream(TTSRequest(text: text))) {
+      if (event is AudioDataEvent) {
+        yield event.data;
+      }
+    }
+  }
 
   /// Simple audio transcription (convenience method)
   Future<String> transcribe(List<int> audio) async {
@@ -308,8 +424,218 @@ abstract class SpeechToTextCapability {
     return response.text;
   }
 
-  /// Get supported languages for STT
-  Future<List<LanguageInfo>> getSupportedLanguages();
+  /// Simple audio translation (convenience method)
+  Future<String> translate(List<int> audio) async {
+    final response =
+        await translateAudio(AudioTranslationRequest.fromAudio(audio));
+    return response.text;
+  }
+
+  /// Simple file translation (convenience method)
+  Future<String> translateFile(String filePath) async {
+    final response =
+        await translateAudio(AudioTranslationRequest.fromFile(filePath));
+    return response.text;
+  }
+}
+
+/// Base implementation of AudioCapability with convenience methods
+abstract class BaseAudioCapability implements AudioCapability {
+  // Convenience methods with default implementations
+
+  @override
+  Future<List<int>> speech(String text) async {
+    final response = await textToSpeech(TTSRequest(text: text));
+    return response.audioData;
+  }
+
+  @override
+  Stream<List<int>> speechStream(String text) async* {
+    await for (final event in textToSpeechStream(TTSRequest(text: text))) {
+      if (event is AudioDataEvent) {
+        yield event.data;
+      }
+    }
+  }
+
+  @override
+  Future<String> transcribe(List<int> audio) async {
+    final response = await speechToText(STTRequest.fromAudio(audio));
+    return response.text;
+  }
+
+  @override
+  Future<String> transcribeFile(String filePath) async {
+    final response = await speechToText(STTRequest.fromFile(filePath));
+    return response.text;
+  }
+
+  @override
+  Future<String> translate(List<int> audio) async {
+    final response =
+        await translateAudio(AudioTranslationRequest.fromAudio(audio));
+    return response.text;
+  }
+
+  @override
+  Future<String> translateFile(String filePath) async {
+    final response =
+        await translateAudio(AudioTranslationRequest.fromFile(filePath));
+    return response.text;
+  }
+}
+
+/// Configuration for real-time audio sessions
+class RealtimeAudioConfig {
+  /// Audio input format
+  final String? inputFormat;
+
+  /// Audio output format
+  final String? outputFormat;
+
+  /// Sample rate for audio processing
+  final int? sampleRate;
+
+  /// Enable voice activity detection
+  final bool enableVAD;
+
+  /// Enable echo cancellation
+  final bool enableEchoCancellation;
+
+  /// Enable noise suppression
+  final bool enableNoiseSuppression;
+
+  /// Session timeout in seconds
+  final int? timeoutSeconds;
+
+  /// Custom session parameters
+  final Map<String, dynamic>? customParams;
+
+  const RealtimeAudioConfig({
+    this.inputFormat,
+    this.outputFormat,
+    this.sampleRate,
+    this.enableVAD = true,
+    this.enableEchoCancellation = true,
+    this.enableNoiseSuppression = true,
+    this.timeoutSeconds,
+    this.customParams,
+  });
+
+  Map<String, dynamic> toJson() => {
+        if (inputFormat != null) 'input_format': inputFormat,
+        if (outputFormat != null) 'output_format': outputFormat,
+        if (sampleRate != null) 'sample_rate': sampleRate,
+        'enable_vad': enableVAD,
+        'enable_echo_cancellation': enableEchoCancellation,
+        'enable_noise_suppression': enableNoiseSuppression,
+        if (timeoutSeconds != null) 'timeout_seconds': timeoutSeconds,
+        if (customParams != null) 'custom_params': customParams,
+      };
+
+  factory RealtimeAudioConfig.fromJson(Map<String, dynamic> json) =>
+      RealtimeAudioConfig(
+        inputFormat: json['input_format'] as String?,
+        outputFormat: json['output_format'] as String?,
+        sampleRate: json['sample_rate'] as int?,
+        enableVAD: json['enable_vad'] as bool? ?? true,
+        enableEchoCancellation:
+            json['enable_echo_cancellation'] as bool? ?? true,
+        enableNoiseSuppression:
+            json['enable_noise_suppression'] as bool? ?? true,
+        timeoutSeconds: json['timeout_seconds'] as int?,
+        customParams: json['custom_params'] as Map<String, dynamic>?,
+      );
+}
+
+/// A stateful real-time audio session
+abstract class RealtimeAudioSession {
+  /// Send audio data to the session
+  void sendAudio(List<int> audioData);
+
+  /// Receive events from the session
+  Stream<RealtimeAudioEvent> get events;
+
+  /// Close the session gracefully
+  Future<void> close();
+
+  /// Check if the session is still active
+  bool get isActive;
+
+  /// Session ID for tracking
+  String get sessionId;
+}
+
+/// Events from real-time audio sessions
+abstract class RealtimeAudioEvent {
+  /// Timestamp of the event
+  final DateTime timestamp;
+
+  const RealtimeAudioEvent({required this.timestamp});
+}
+
+/// Real-time transcription event
+class RealtimeTranscriptionEvent extends RealtimeAudioEvent {
+  /// Transcribed text
+  final String text;
+
+  /// Whether this is a final transcription
+  final bool isFinal;
+
+  /// Confidence score
+  final double? confidence;
+
+  const RealtimeTranscriptionEvent({
+    required super.timestamp,
+    required this.text,
+    required this.isFinal,
+    this.confidence,
+  });
+}
+
+/// Real-time audio response event
+class RealtimeAudioResponseEvent extends RealtimeAudioEvent {
+  /// Audio response data
+  final List<int> audioData;
+
+  /// Whether this is the final chunk
+  final bool isFinal;
+
+  const RealtimeAudioResponseEvent({
+    required super.timestamp,
+    required this.audioData,
+    required this.isFinal,
+  });
+}
+
+/// Real-time session status event
+class RealtimeSessionStatusEvent extends RealtimeAudioEvent {
+  /// Session status
+  final String status;
+
+  /// Additional status information
+  final Map<String, dynamic>? details;
+
+  const RealtimeSessionStatusEvent({
+    required super.timestamp,
+    required this.status,
+    this.details,
+  });
+}
+
+/// Real-time error event
+class RealtimeErrorEvent extends RealtimeAudioEvent {
+  /// Error message
+  final String message;
+
+  /// Error code
+  final String? code;
+
+  const RealtimeErrorEvent({
+    required super.timestamp,
+    required this.message,
+    this.code,
+  });
 }
 
 /// Capability interface for model listing
@@ -397,11 +723,7 @@ abstract class EmbeddingLLMProvider
 
 /// LLM provider with voice capabilities
 abstract class VoiceLLMProvider
-    implements
-        ChatCapability,
-        TextToSpeechCapability,
-        SpeechToTextCapability,
-        ProviderCapabilities {}
+    implements ChatCapability, AudioCapability, ProviderCapabilities {}
 
 /// Full-featured LLM provider with all common capabilities
 abstract class FullLLMProvider
@@ -469,4 +791,105 @@ abstract class AssistantCapability {
 
   /// Delete an assistant
   Future<DeleteAssistantResponse> deleteAssistant(String assistantId);
+}
+
+/// Tool execution capability for providers that support client-side tool execution
+///
+/// This capability allows providers to execute tools locally and return results
+/// to the model for further processing.
+abstract class ToolExecutionCapability {
+  /// Execute multiple tools in parallel and return results
+  ///
+  /// [toolCalls] - List of tool calls to execute
+  /// [config] - Optional parallel execution configuration
+  ///
+  /// Returns a list of tool results
+  Future<List<ToolResult>> executeToolsParallel(
+    List<ToolCall> toolCalls, {
+    ParallelToolConfig? config,
+  }) async {
+    // Default implementation executes sequentially
+    final results = <ToolResult>[];
+    final effectiveConfig = config ?? const ParallelToolConfig();
+
+    for (final toolCall in toolCalls) {
+      try {
+        final result = await executeTool(toolCall);
+        results.add(result);
+      } catch (e) {
+        results.add(ToolResult.error(
+          toolCallId: toolCall.id,
+          errorMessage: 'Tool execution failed: $e',
+        ));
+        if (!effectiveConfig.continueOnError) break;
+      }
+    }
+    return results;
+  }
+
+  /// Execute a single tool call
+  ///
+  /// [toolCall] - The tool call to execute
+  ///
+  /// Returns the tool result
+  Future<ToolResult> executeTool(ToolCall toolCall);
+
+  /// Register a tool executor function
+  ///
+  /// [toolName] - Name of the tool
+  /// [executor] - Function that executes the tool
+  void registerToolExecutor(
+    String toolName,
+    Future<ToolResult> Function(ToolCall toolCall) executor,
+  );
+
+  /// Get registered tool executors
+  Map<String, Future<ToolResult> Function(ToolCall toolCall)> get toolExecutors;
+}
+
+/// Enhanced chat capability with advanced tool and output control
+///
+/// This extends the basic ChatCapability with advanced features like:
+/// - Tool choice strategies (auto, required, specific tool, none)
+/// - Structured output formats (JSON schema, etc.)
+/// - Advanced streaming with tool choice support
+///
+/// **When to use:**
+/// - When you need precise control over tool selection
+/// - When you need structured/typed responses
+/// - When working with providers that support advanced tool features
+///
+/// **API References:**
+/// - OpenAI: https://platform.openai.com/docs/guides/tools/tool-choice
+/// - Anthropic: https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview
+abstract class EnhancedChatCapability extends ChatCapability {
+  /// Sends a chat request with advanced tool and output configuration
+  ///
+  /// [messages] - The conversation history as a list of chat messages
+  /// [tools] - Optional list of tools to use in the chat
+  /// [toolChoice] - Optional tool choice strategy (auto, required, specific, none)
+  /// [structuredOutput] - Optional structured output format for typed responses
+  ///
+  /// Returns the provider's response or throws an LLMError
+  Future<ChatResponse> chatWithAdvancedTools(
+    List<ChatMessage> messages, {
+    List<Tool>? tools,
+    ToolChoice? toolChoice,
+    StructuredOutputFormat? structuredOutput,
+  });
+
+  /// Sends a streaming chat request with advanced tool and output configuration
+  ///
+  /// [messages] - The conversation history as a list of chat messages
+  /// [tools] - Optional list of tools to use in the chat
+  /// [toolChoice] - Optional tool choice strategy (auto, required, specific, none)
+  /// [structuredOutput] - Optional structured output format for typed responses
+  ///
+  /// Returns a stream of chat events
+  Stream<ChatStreamEvent> chatStreamWithAdvancedTools(
+    List<ChatMessage> messages, {
+    List<Tool>? tools,
+    ToolChoice? toolChoice,
+    StructuredOutputFormat? structuredOutput,
+  });
 }

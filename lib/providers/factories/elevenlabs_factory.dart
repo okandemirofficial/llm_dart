@@ -1,5 +1,6 @@
 import '../../core/capability.dart';
 import '../../core/config.dart';
+import '../../core/provider_defaults.dart';
 import '../elevenlabs/elevenlabs.dart';
 import 'base_factory.dart';
 
@@ -42,10 +43,7 @@ class ElevenLabsProviderFactory extends BaseProviderFactory<ChatCapability> {
 
   @override
   Map<String, dynamic> getProviderDefaults() {
-    return {
-      'baseUrl': 'https://api.elevenlabs.io/v1/',
-      'model': 'eleven_multilingual_v2', // Updated to better default
-    };
+    return ProviderDefaults.getDefaults('elevenlabs');
   }
 
   /// Transform unified config to ElevenLabs-specific config

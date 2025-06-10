@@ -24,7 +24,6 @@ class XAIChat implements ChatCapability {
     List<ChatMessage> messages,
     List<Tool>? tools,
   ) async {
-    // Note: xAI doesn't support tools yet, but we include them for API compatibility
     if (config.apiKey.isEmpty) {
       throw const AuthError('Missing xAI API key');
     }
@@ -131,7 +130,17 @@ class XAIChat implements ChatCapability {
       return TextDeltaEvent(content);
     }
 
-    // xAI doesn't support tool calls yet, so we don't parse them
+    // Check for tool calls in streaming response
+    final toolCalls = delta['tool_calls'] as List?;
+    if (toolCalls != null && toolCalls.isNotEmpty) {
+      final toolCall = toolCalls.first as Map<String, dynamic>;
+      try {
+        return ToolCallDeltaEvent(ToolCall.fromJson(toolCall));
+      } catch (e) {
+        client.logger.warning('Failed to parse tool call: $e');
+      }
+    }
+
     return null;
   }
 
@@ -165,7 +174,7 @@ class XAIChat implements ChatCapability {
     if (config.topP != null) body['top_p'] = config.topP;
     if (config.topK != null) body['top_k'] = config.topK;
 
-    // Add tools if provided (Note: xAI doesn't support tools yet, but keeping for compatibility)
+    // Add tools if provided (xAI supports function calling as of October 2024)
     final effectiveTools = tools ?? config.tools;
     if (effectiveTools != null && effectiveTools.isNotEmpty) {
       body['tools'] = effectiveTools.map((t) => t.toJson()).toList();
@@ -207,12 +216,20 @@ class XAIChat implements ChatCapability {
         result['content'] = message.content;
         break;
       case ToolUseMessage():
-        // xAI doesn't support tool calls yet, fallback to content
-        result['content'] = message.content;
+        // xAI supports tool calls, convert to proper format
+        final toolUseMsg = message.messageType as ToolUseMessage;
+        result['tool_calls'] =
+            toolUseMsg.toolCalls.map((tc) => tc.toJson()).toList();
+        if (message.content.isNotEmpty) {
+          result['content'] = message.content;
+        }
         break;
       case ToolResultMessage():
         // Tool results are handled as separate messages in xAI
+        final toolResultMsg = message.messageType as ToolResultMessage;
+        result['role'] = 'tool';
         result['content'] = message.content;
+        result['tool_call_id'] = toolResultMsg.results.first.id;
         break;
       default:
         result['content'] = message.content;
@@ -257,8 +274,17 @@ class XAIChatResponse implements ChatResponse {
 
   @override
   List<ToolCall>? get toolCalls {
-    // xAI doesn't support tool calls yet
-    return null;
+    final choices = _rawResponse['choices'] as List?;
+    if (choices == null || choices.isEmpty) return null;
+
+    final message = choices.first['message'] as Map<String, dynamic>?;
+    final toolCalls = message?['tool_calls'] as List?;
+
+    if (toolCalls == null) return null;
+
+    return toolCalls
+        .map((tc) => ToolCall.fromJson(tc as Map<String, dynamic>))
+        .toList();
   }
 
   @override

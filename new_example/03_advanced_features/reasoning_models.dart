@@ -6,42 +6,47 @@ import 'package:llm_dart/llm_dart.dart';
 ///
 /// This example demonstrates how to use reasoning models that show their thinking:
 /// - Understanding reasoning vs standard models
-/// - Accessing AI thinking processes
+/// - Accessing AI thinking processes with DeepSeek R1
 /// - Optimizing for complex problems
 /// - Comparing different reasoning approaches
 ///
 /// Before running, set your API key:
+/// export DEEPSEEK_API_KEY="your-key"
 /// export OPENAI_API_KEY="your-key"
 /// export ANTHROPIC_API_KEY="your-key"
 void main() async {
   print('🧠 Reasoning Models - AI Thinking Processes\n');
 
   // Get API keys
+  final deepseekKey = Platform.environment['DEEPSEEK_API_KEY'] ?? 'sk-TESTKEY';
   final openaiKey = Platform.environment['OPENAI_API_KEY'] ?? 'sk-TESTKEY';
   final anthropicKey =
       Platform.environment['ANTHROPIC_API_KEY'] ?? 'sk-ant-TESTKEY';
 
-  // Demonstrate different reasoning scenarios
-  await demonstrateBasicReasoning(openaiKey);
-  await demonstrateComplexProblemSolving(openaiKey);
-  await demonstrateReasoningComparison(openaiKey, anthropicKey);
-  await demonstrateThinkingProcessAnalysis(anthropicKey);
+  // Demonstrate different reasoning scenarios using DeepSeek
+  await demonstrateBasicReasoning(deepseekKey);
+  await demonstrateComplexProblemSolving(deepseekKey);
+  await demonstrateStreamingReasoning(deepseekKey);
+  await demonstrateReasoningComparison(deepseekKey, openaiKey, anthropicKey);
+  await demonstrateThinkingProcessAnalysis(deepseekKey);
 
   print('\n✅ Reasoning models completed!');
   print('📖 Next: Try multi_modal.dart for image and audio processing');
 }
 
-/// Demonstrate basic reasoning capabilities
+/// Demonstrate basic reasoning capabilities with DeepSeek R1
 Future<void> demonstrateBasicReasoning(String apiKey) async {
-  print('🔍 Basic Reasoning:\n');
+  print('🔍 Basic Reasoning with DeepSeek R1:\n');
 
   try {
-    // Create reasoning model (OpenAI o1 series)
+    // Create DeepSeek reasoning model
     final reasoningProvider = await ai()
-        .openai()
+        .deepseek()
         .apiKey(apiKey)
-        .model('o1-mini') // Reasoning model
-        .temperature(1.0) // Reasoning models use fixed temperature
+        .model('deepseek-reasoner') // DeepSeek reasoning model
+        .temperature(0.7)
+        .maxTokens(2000)
+        .timeout(const Duration(seconds: 300)) // Reasoning can take longer
         .build();
 
     final problem = '''
@@ -60,26 +65,43 @@ Show your reasoning step by step.
     if (response.thinking != null && response.thinking!.isNotEmpty) {
       print(
           '\n   🧠 Thinking Process Available: ${response.thinking!.length} characters');
-      print(
-          '   First 200 chars: ${response.thinking!.substring(0, response.thinking!.length > 200 ? 200 : response.thinking!.length)}...');
+      print('   First 200 chars of thinking:');
+      final thinkingPreview = response.thinking!.length > 200
+          ? response.thinking!.substring(0, 200) + '...'
+          : response.thinking!;
+      print('   \x1B[90m$thinkingPreview\x1B[0m'); // Gray color for thinking
     } else {
       print('\n   ℹ️  No thinking process available for this model');
     }
 
     print('   ✅ Basic reasoning successful\n');
-  } catch (e) {
-    print('   ❌ Basic reasoning failed: $e\n');
+  } catch (e, stackTrace) {
+    print('   ❌ Basic reasoning failed!');
+    print('   Error type: ${e.runtimeType}');
+    print('   Error message: $e');
+    if (e.toString().contains('API') || e.toString().contains('HTTP')) {
+      print('   💡 Tip: Check your DEEPSEEK_API_KEY and network connection');
+    }
+    print(
+        '   Stack trace: ${stackTrace.toString().split('\n').take(3).join('\n')}');
+    print('');
   }
 }
 
-/// Demonstrate complex problem solving
+/// Demonstrate complex problem solving with DeepSeek R1
 Future<void> demonstrateComplexProblemSolving(String apiKey) async {
-  print('🧩 Complex Problem Solving:\n');
+  print('🧩 Complex Problem Solving with DeepSeek R1:\n');
 
   try {
-    // Create reasoning model for complex problems
-    final reasoningProvider =
-        await ai().openai().apiKey(apiKey).model('o1-mini').build();
+    // Create DeepSeek reasoning model for complex problems
+    final reasoningProvider = await ai()
+        .deepseek()
+        .apiKey(apiKey)
+        .model('deepseek-reasoner')
+        .temperature(0.8)
+        .maxTokens(3000)
+        .timeout(const Duration(seconds: 300)) // Reasoning can take longer
+        .build();
 
     final complexProblem = '''
 You are planning a dinner party for 8 people. You have the following constraints:
@@ -126,40 +148,167 @@ Include estimated costs and explain your reasoning.
           print('      • Mentions "$pattern": $count times');
         }
       }
+
+      // Show a sample of the thinking process
+      print('\n      • Sample thinking process:');
+      final thinkingSample =
+          thinking.length > 300 ? thinking.substring(0, 300) + '...' : thinking;
+      print('        \x1B[90m$thinkingSample\x1B[0m'); // Gray color
     }
 
     print('   ✅ Complex problem solving successful\n');
-  } catch (e) {
-    print('   ❌ Complex problem solving failed: $e\n');
+  } catch (e, stackTrace) {
+    print('   ❌ Complex problem solving failed!');
+    print('   Error type: ${e.runtimeType}');
+    print('   Error message: $e');
+    if (e.toString().contains('API') || e.toString().contains('HTTP')) {
+      print('   💡 Tip: Check your DEEPSEEK_API_KEY and network connection');
+    }
+    print(
+        '   Stack trace: ${stackTrace.toString().split('\n').take(3).join('\n')}');
+    print('');
+  }
+}
+
+/// Demonstrate streaming reasoning with real-time thinking process
+Future<void> demonstrateStreamingReasoning(String apiKey) async {
+  print('🌊 Streaming Reasoning with DeepSeek R1:');
+  print('=' * 50);
+
+  try {
+    // Create DeepSeek reasoning model for streaming
+    final reasoningProvider = await ai()
+        .deepseek()
+        .apiKey(apiKey)
+        .model('deepseek-reasoner')
+        .temperature(0.7)
+        .maxTokens(2000)
+        .build();
+
+    final problem =
+        'What is 15 + 27? Please show your calculation step by step.';
+
+    print('Problem: $problem');
+    print('🧠 Starting streaming reasoning with thinking support...\n');
+
+    var thinkingContent = StringBuffer();
+    var responseContent = StringBuffer();
+    var isThinking = true;
+
+    // Send streaming chat request and handle events
+    await for (final event
+        in reasoningProvider.chatStream([ChatMessage.user(problem)])) {
+      switch (event) {
+        case ThinkingDeltaEvent(delta: final delta):
+          // Collect thinking/reasoning content
+          thinkingContent.write(delta);
+          stdout.write(
+              '\x1B[90m$delta\x1B[0m'); // Gray color for thinking content, no newline
+          break;
+        case TextDeltaEvent(delta: final delta):
+          // This is the actual response after thinking
+          if (isThinking) {
+            print('\n\n   🎯 Final Answer:');
+            isThinking = false;
+          }
+          responseContent.write(delta);
+          stdout.write(delta); // No newline for continuous text
+          break;
+        case ToolCallDeltaEvent(toolCall: final toolCall):
+          // Handle tool call events (if supported)
+          print('\n   [Tool Call: ${toolCall.function.name}]');
+          break;
+        case CompletionEvent(response: final response):
+          // Handle completion
+          print('\n\n✅ Streaming reasoning completed!');
+
+          if (response.usage != null) {
+            final usage = response.usage!;
+            print(
+              '\n📊 Usage: ${usage.promptTokens} prompt + ${usage.completionTokens} completion = ${usage.totalTokens} total tokens',
+            );
+          }
+          break;
+        case ErrorEvent(error: final error):
+          // Handle errors
+          print('\n❌ Stream error: $error');
+          break;
+      }
+    }
+
+    // Summary
+    print('\n📝 Streaming Summary:');
+    print('Thinking content length: ${thinkingContent.length} characters');
+    print('Response content length: ${responseContent.length} characters');
+    print('✅ Streaming reasoning successful\n');
+  } catch (e, stackTrace) {
+    print('❌ Streaming reasoning failed!');
+    print('Error type: ${e.runtimeType}');
+    print('Error message: $e');
+    print('Stack trace:');
+    print(stackTrace);
+    print('');
   }
 }
 
 /// Compare reasoning vs standard models
 Future<void> demonstrateReasoningComparison(
-    String openaiKey, String anthropicKey) async {
+    String deepseekKey, String openaiKey, String anthropicKey) async {
   print('⚖️  Reasoning vs Standard Model Comparison:\n');
 
   final mathProblem = '''
-If a train travels at 60 mph for 2 hours, then 80 mph for 1.5 hours, 
+If a train travels at 60 mph for 2 hours, then 80 mph for 1.5 hours,
 and finally 40 mph for 30 minutes, what is the total distance traveled?
 ''';
 
   print('   Math Problem: $mathProblem');
 
-  // Test with standard model
-  await testStandardModel(openaiKey, mathProblem);
+  // Test with DeepSeek reasoning model
+  await testDeepSeekReasoningModel(deepseekKey, mathProblem);
 
-  // Test with reasoning model
-  await testReasoningModel(openaiKey, mathProblem);
+  // Test with standard model (OpenAI)
+  await testStandardModel(openaiKey, mathProblem);
 
   // Test with Anthropic (which has built-in reasoning)
   await testAnthropicModel(anthropicKey, mathProblem);
 
   print('   💡 Comparison Insights:');
+  print('      • DeepSeek R1: Shows detailed thinking process');
   print('      • Standard models: Fast, direct answers');
-  print('      • Reasoning models: Slower, step-by-step thinking');
   print('      • Anthropic: Good balance of speed and reasoning');
   print('   ✅ Model comparison completed\n');
+}
+
+/// Test DeepSeek reasoning model
+Future<void> testDeepSeekReasoningModel(String apiKey, String problem) async {
+  try {
+    final reasoningProvider = await ai()
+        .deepseek()
+        .apiKey(apiKey)
+        .model('deepseek-r1') // DeepSeek reasoning model
+        .temperature(0.7)
+        .build();
+
+    final stopwatch = Stopwatch()..start();
+    final response = await reasoningProvider.chat([ChatMessage.user(problem)]);
+    stopwatch.stop();
+
+    print('\n   🧠 DeepSeek Reasoning Model (deepseek-r1):');
+    print('      Response time: ${stopwatch.elapsedMilliseconds}ms');
+    print('      Answer: ${response.text}');
+
+    if (response.thinking != null && response.thinking!.isNotEmpty) {
+      print('      Thinking process: ${response.thinking!.length} chars');
+      print(
+          '      Sample thinking: \x1B[90m${response.thinking!.substring(0, response.thinking!.length > 100 ? 100 : response.thinking!.length)}...\x1B[0m');
+    }
+  } catch (e, stackTrace) {
+    print('\n   ❌ DeepSeek reasoning model test failed!');
+    print('   Error type: ${e.runtimeType}');
+    print('   Error message: $e');
+    print(
+        '   Stack trace: ${stackTrace.toString().split('\n').take(2).join('\n')}');
+  }
 }
 
 /// Test standard model
@@ -180,32 +329,12 @@ Future<void> testStandardModel(String apiKey, String problem) async {
     print('      Response time: ${stopwatch.elapsedMilliseconds}ms');
     print('      Answer: ${response.text}');
   } catch (e) {
-    print('\n   ❌ Standard model test failed: $e');
-  }
-}
-
-/// Test reasoning model
-Future<void> testReasoningModel(String apiKey, String problem) async {
-  try {
-    final reasoningProvider = await ai()
-        .openai()
-        .apiKey(apiKey)
-        .model('o1-mini') // Reasoning model
-        .build();
-
-    final stopwatch = Stopwatch()..start();
-    final response = await reasoningProvider.chat([ChatMessage.user(problem)]);
-    stopwatch.stop();
-
-    print('\n   🧠 Reasoning Model (o1-mini):');
-    print('      Response time: ${stopwatch.elapsedMilliseconds}ms');
-    print('      Answer: ${response.text}');
-
-    if (response.thinking != null) {
-      print('      Thinking process: ${response.thinking!.length} chars');
+    print('\n   ❌ Standard model test failed!');
+    print('   Error type: ${e.runtimeType}');
+    print('   Error message: $e');
+    if (e.toString().contains('API') || e.toString().contains('HTTP')) {
+      print('   💡 Tip: Check your OPENAI_API_KEY and network connection');
     }
-  } catch (e) {
-    print('\n   ❌ Reasoning model test failed: $e');
   }
 }
 
@@ -227,20 +356,26 @@ Future<void> testAnthropicModel(String apiKey, String problem) async {
     print('      Response time: ${stopwatch.elapsedMilliseconds}ms');
     print('      Answer: ${response.text}');
   } catch (e) {
-    print('\n   ❌ Anthropic model test failed: $e');
+    print('\n   ❌ Anthropic model test failed!');
+    print('   Error type: ${e.runtimeType}');
+    print('   Error message: $e');
+    if (e.toString().contains('API') || e.toString().contains('HTTP')) {
+      print('   💡 Tip: Check your ANTHROPIC_API_KEY and network connection');
+    }
   }
 }
 
-/// Demonstrate thinking process analysis
+/// Demonstrate thinking process analysis with DeepSeek
 Future<void> demonstrateThinkingProcessAnalysis(String apiKey) async {
-  print('🔬 Thinking Process Analysis:\n');
+  print('🔬 Thinking Process Analysis with DeepSeek R1:\n');
 
   try {
-    final anthropicProvider = await ai()
-        .anthropic()
+    final deepseekProvider = await ai()
+        .deepseek()
         .apiKey(apiKey)
-        .model('claude-3-5-sonnet-20241022')
+        .model('deepseek-r1')
         .temperature(0.7)
+        .maxTokens(3000)
         .build();
 
     final analyticalProblem = '''
@@ -259,7 +394,7 @@ What are the top 3 priorities to address, and why?
     print('   Business Problem: Coffee shop losing customers');
 
     final response =
-        await anthropicProvider.chat([ChatMessage.user(analyticalProblem)]);
+        await deepseekProvider.chat([ChatMessage.user(analyticalProblem)]);
 
     print('   🤖 AI Analysis: ${response.text}');
 
@@ -302,17 +437,31 @@ What are the top 3 priorities to address, and why?
         '      • Well-structured response: ${structureScore > 5 ? 'Yes' : 'No'}');
 
     print('   ✅ Thinking process analysis completed\n');
-  } catch (e) {
-    print('   ❌ Thinking process analysis failed: $e\n');
+  } catch (e, stackTrace) {
+    print('   ❌ Thinking process analysis failed!');
+    print('   Error type: ${e.runtimeType}');
+    print('   Error message: $e');
+    if (e.toString().contains('API') || e.toString().contains('HTTP')) {
+      print('   💡 Tip: Check your DEEPSEEK_API_KEY and network connection');
+    }
+    print(
+        '   Stack trace: ${stackTrace.toString().split('\n').take(3).join('\n')}');
+    print('');
   }
 }
 
 /// 🎯 Key Reasoning Concepts Summary:
 ///
 /// Reasoning Models:
-/// - o1-mini: Fast reasoning for simpler problems
-/// - o1-preview: Advanced reasoning for complex problems
+/// - deepseek-r1: DeepSeek's reasoning model with visible thinking process
+/// - o1-mini/o1-preview: OpenAI reasoning models (thinking not visible)
 /// - Claude: Built-in reasoning capabilities
+///
+/// DeepSeek R1 Advantages:
+/// - Shows complete thinking process
+/// - Excellent for learning and debugging
+/// - Strong mathematical reasoning
+/// - Transparent problem-solving steps
 ///
 /// When to Use Reasoning:
 /// - Complex multi-step problems
@@ -320,25 +469,29 @@ What are the top 3 priorities to address, and why?
 /// - Logical puzzles
 /// - Planning and analysis
 /// - Code debugging
+/// - Learning from AI reasoning
 ///
-/// Thinking Process:
-/// - Internal reasoning steps
-/// - Problem decomposition
-/// - Verification and checking
-/// - Alternative approaches
+/// Thinking Process Features:
+/// - Internal reasoning steps visible
+/// - Problem decomposition shown
+/// - Verification and checking exposed
+/// - Alternative approaches considered
+/// - Real-time streaming of thoughts
 ///
 /// Best Practices:
-/// 1. Use reasoning models for complex problems
+/// 1. Use DeepSeek R1 when you need to see thinking
 /// 2. Allow extra time for reasoning
 /// 3. Analyze thinking process for insights
 /// 4. Compare with standard models
-/// 5. Consider cost vs accuracy trade-offs
+/// 5. Use streaming for real-time thinking
+/// 6. Consider cost vs transparency trade-offs
 ///
 /// Performance Characteristics:
 /// - Slower response times
 /// - Higher accuracy on complex tasks
-/// - More expensive per token
+/// - Visible thinking process
 /// - Better at self-correction
+/// - Great for educational purposes
 ///
 /// Next Steps:
 /// - multi_modal.dart: Image and audio processing

@@ -2,21 +2,30 @@ import 'package:dio/dio.dart';
 
 import '../../core/capability.dart';
 import '../../core/llm_error.dart';
+import '../../core/provider_defaults.dart';
 import '../../models/audio_models.dart';
 import 'client.dart';
 import 'config.dart';
 
 /// OpenAI Audio capabilities implementation
 ///
-/// This module handles both text-to-speech and speech-to-text functionality
-/// for OpenAI providers.
-class OpenAIAudio implements TextToSpeechCapability, SpeechToTextCapability {
+/// This module handles text-to-speech, speech-to-text, and audio translation
+/// functionality for OpenAI providers.
+class OpenAIAudio extends BaseAudioCapability {
   final OpenAIClient client;
   final OpenAIConfig config;
 
   OpenAIAudio(this.client, this.config);
 
-  // TextToSpeechCapability implementation
+  // AudioCapability implementation
+
+  @override
+  Set<AudioFeature> get supportedFeatures => {
+        AudioFeature.textToSpeech,
+        AudioFeature.speechToText,
+        AudioFeature.audioTranslation,
+        // OpenAI doesn't support streaming TTS or real-time processing
+      };
 
   @override
   Future<TTSResponse> textToSpeech(TTSRequest request) async {
@@ -26,18 +35,45 @@ class OpenAIAudio implements TextToSpeechCapability, SpeechToTextCapability {
     }
 
     final requestBody = <String, dynamic>{
-      'model': request.model ?? 'tts-1',
+      'model': request.model ?? ProviderDefaults.openaiDefaultTTSModel,
       'input': request.text,
-      'voice': request.voice ?? 'alloy',
+      'voice': request.voice ?? ProviderDefaults.openaiDefaultVoice,
       if (request.format != null) 'response_format': request.format,
       if (request.speed != null) 'speed': request.speed,
     };
 
     final audioData = await client.postRaw('audio/speech', requestBody);
 
+    // Determine content type based on format
+    String contentType = 'audio/mpeg'; // Default for mp3
+    if (request.format != null) {
+      switch (request.format!.toLowerCase()) {
+        case 'mp3':
+          contentType = 'audio/mpeg';
+          break;
+        case 'opus':
+          contentType = 'audio/opus';
+          break;
+        case 'aac':
+          contentType = 'audio/aac';
+          break;
+        case 'flac':
+          contentType = 'audio/flac';
+          break;
+        case 'wav':
+          contentType = 'audio/wav';
+          break;
+        case 'pcm':
+          contentType = 'audio/pcm';
+          break;
+        default:
+          contentType = 'audio/mpeg';
+      }
+    }
+
     return TTSResponse(
       audioData: audioData,
-      contentType: 'audio/mpeg', // Default for OpenAI
+      contentType: contentType,
       voice: request.voice,
       model: request.model,
       duration: null, // OpenAI doesn't provide duration
@@ -47,31 +83,32 @@ class OpenAIAudio implements TextToSpeechCapability, SpeechToTextCapability {
   }
 
   @override
-  Future<List<int>> speech(String text) async {
-    final response = await textToSpeech(TTSRequest(text: text));
-    return response.audioData;
-  }
-
-  @override
   Future<List<VoiceInfo>> getVoices() async {
     // OpenAI has predefined voices
+    // Reference: https://platform.openai.com/docs/guides/text-to-speech/voice-options
     return const [
       VoiceInfo(id: 'alloy', name: 'Alloy', description: 'Neutral voice'),
+      VoiceInfo(id: 'ash', name: 'Ash', description: 'Expressive voice'),
+      VoiceInfo(id: 'ballad', name: 'Ballad', description: 'Melodic voice'),
+      VoiceInfo(id: 'coral', name: 'Coral', description: 'Warm voice'),
       VoiceInfo(id: 'echo', name: 'Echo', description: 'Male voice'),
       VoiceInfo(id: 'fable', name: 'Fable', description: 'British accent'),
-      VoiceInfo(id: 'onyx', name: 'Onyx', description: 'Deep male voice'),
       VoiceInfo(id: 'nova', name: 'Nova', description: 'Female voice'),
+      VoiceInfo(id: 'onyx', name: 'Onyx', description: 'Deep male voice'),
+      VoiceInfo(id: 'sage', name: 'Sage', description: 'Wise voice'),
       VoiceInfo(
         id: 'shimmer',
         name: 'Shimmer',
         description: 'Soft female voice',
       ),
+      VoiceInfo(id: 'verse', name: 'Verse', description: 'Poetic voice'),
     ];
   }
 
   @override
   List<String> getSupportedAudioFormats() {
-    return ['mp3', 'opus', 'aac', 'flac'];
+    // Reference: https://platform.openai.com/docs/api-reference/audio/createSpeech
+    return ProviderDefaults.openaiSupportedTTSFormats;
   }
 
   // SpeechToTextCapability implementation
@@ -103,12 +140,16 @@ class OpenAIAudio implements TextToSpeechCapability, SpeechToTextCapability {
       );
     }
 
-    formData.fields.add(MapEntry('model', request.model ?? 'whisper-1'));
+    formData.fields.add(MapEntry(
+        'model', request.model ?? ProviderDefaults.openaiDefaultSTTModel));
     if (request.language != null) {
       formData.fields.add(MapEntry('language', request.language!));
     }
-    if (request.includeWordTiming) {
-      formData.fields.add(MapEntry('timestamp_granularities[]', 'word'));
+    if (request.prompt != null) {
+      formData.fields.add(MapEntry('prompt', request.prompt!));
+    }
+    if (request.responseFormat != null) {
+      formData.fields.add(MapEntry('response_format', request.responseFormat!));
     }
     if (request.temperature != null) {
       formData.fields.add(
@@ -116,12 +157,30 @@ class OpenAIAudio implements TextToSpeechCapability, SpeechToTextCapability {
       );
     }
 
+    // Handle timestamp granularities
+    // Reference: https://platform.openai.com/docs/api-reference/audio/createTranscription
+    final granularities = <String>[];
+    if (request.includeWordTiming ||
+        request.timestampGranularity == TimestampGranularity.word) {
+      granularities.add('word');
+    }
+    if (request.timestampGranularity == TimestampGranularity.segment) {
+      granularities.add('segment');
+    }
+
+    // Add each granularity as a separate field
+    for (final granularity in granularities) {
+      formData.fields.add(MapEntry('timestamp_granularities[]', granularity));
+    }
+
     final responseData =
         await client.postForm('audio/transcriptions', formData);
 
     // Parse word timing if available
     List<WordTiming>? words;
-    if (request.includeWordTiming && responseData['words'] != null) {
+    if ((request.includeWordTiming ||
+            request.timestampGranularity == TimestampGranularity.word) &&
+        responseData['words'] != null) {
       final wordsData = responseData['words'] as List;
       words = wordsData.map((w) {
         final wordMap = w as Map<String, dynamic>;
@@ -143,18 +202,6 @@ class OpenAIAudio implements TextToSpeechCapability, SpeechToTextCapability {
       duration: responseData['duration'] as double?,
       usage: null,
     );
-  }
-
-  @override
-  Future<String> transcribe(List<int> audio) async {
-    final response = await speechToText(STTRequest.fromAudio(audio));
-    return response.text;
-  }
-
-  @override
-  Future<String> transcribeFile(String filePath) async {
-    final response = await speechToText(STTRequest.fromFile(filePath));
-    return response.text;
   }
 
   @override
@@ -261,5 +308,74 @@ class OpenAIAudio implements TextToSpeechCapability, SpeechToTextCapability {
       LanguageInfo(code: 'jw', name: 'Javanese'),
       LanguageInfo(code: 'su', name: 'Sundanese'),
     ];
+  }
+
+  // Audio translation implementation (OpenAI specific)
+
+  @override
+  Future<STTResponse> translateAudio(AudioTranslationRequest request) async {
+    // Basic validation
+    if (request.audioData == null && request.filePath == null) {
+      throw const InvalidRequestError(
+        'Either audioData or filePath must be provided',
+      );
+    }
+
+    final formData = FormData();
+
+    if (request.audioData != null) {
+      formData.files.add(
+        MapEntry(
+          'file',
+          MultipartFile.fromBytes(
+            request.audioData!,
+            filename: 'audio.${request.format ?? 'wav'}',
+          ),
+        ),
+      );
+    } else if (request.filePath != null) {
+      formData.files.add(
+        MapEntry('file', await MultipartFile.fromFile(request.filePath!)),
+      );
+    }
+
+    formData.fields.add(MapEntry(
+        'model', request.model ?? ProviderDefaults.openaiDefaultSTTModel));
+    if (request.prompt != null) {
+      formData.fields.add(MapEntry('prompt', request.prompt!));
+    }
+    if (request.responseFormat != null) {
+      formData.fields.add(MapEntry('response_format', request.responseFormat!));
+    }
+    if (request.temperature != null) {
+      formData.fields.add(
+        MapEntry('temperature', request.temperature.toString()),
+      );
+    }
+
+    final responseData = await client.postForm('audio/translations', formData);
+
+    return STTResponse(
+      text: responseData['text'] as String,
+      language: 'en', // Translations are always to English
+      confidence: null,
+      words: null, // Translation doesn't provide word timing
+      model: request.model,
+      duration: responseData['duration'] as double?,
+      usage: null,
+    );
+  }
+
+  // Unsupported features - throw UnsupportedError
+
+  @override
+  Stream<AudioStreamEvent> textToSpeechStream(TTSRequest request) {
+    throw UnsupportedError('OpenAI does not support streaming text-to-speech');
+  }
+
+  @override
+  Future<RealtimeAudioSession> startRealtimeSession(
+      RealtimeAudioConfig config) {
+    throw UnsupportedError('OpenAI does not support real-time audio sessions');
   }
 }

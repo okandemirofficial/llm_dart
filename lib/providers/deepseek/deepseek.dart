@@ -32,6 +32,10 @@ export 'provider.dart';
 
 // Capability modules
 export 'chat.dart';
+export 'models.dart';
+
+// Error handling
+export 'error_handler.dart';
 
 /// Create a DeepSeek provider with default configuration
 DeepSeekProvider createDeepSeekProvider({
@@ -79,43 +83,10 @@ DeepSeekProvider createDeepSeekChatProvider({
 }
 
 /// Create a DeepSeek provider for reasoning tasks
+/// Uses the deepseek-reasoner model which supports reasoning/thinking
 DeepSeekProvider createDeepSeekReasoningProvider({
   required String apiKey,
-  String model = 'deepseek-r1',
-  String? systemPrompt,
-  double? temperature,
-  int? maxTokens,
-}) {
-  return createDeepSeekProvider(
-    apiKey: apiKey,
-    model: model,
-    systemPrompt: systemPrompt,
-    temperature: temperature,
-    maxTokens: maxTokens,
-  );
-}
-
-/// Create a DeepSeek provider for code generation
-DeepSeekProvider createDeepSeekCoderProvider({
-  required String apiKey,
-  String model = 'deepseek-coder',
-  String? systemPrompt,
-  double? temperature,
-  int? maxTokens,
-}) {
-  return createDeepSeekProvider(
-    apiKey: apiKey,
-    model: model,
-    systemPrompt: systemPrompt,
-    temperature: temperature,
-    maxTokens: maxTokens,
-  );
-}
-
-/// Create a DeepSeek provider for vision tasks
-DeepSeekProvider createDeepSeekVisionProvider({
-  required String apiKey,
-  String model = 'deepseek-vl-chat',
+  String model = 'deepseek-reasoner',
   String? systemPrompt,
   double? temperature,
   int? maxTokens,

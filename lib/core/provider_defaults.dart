@@ -10,8 +10,54 @@ class ProviderDefaults {
   static const String openaiBaseUrl = 'https://api.openai.com/v1/';
   static const String openaiDefaultModel = 'gpt-4o';
 
+  // OpenAI Audio defaults
+  static const String openaiDefaultTTSModel = 'tts-1';
+  static const String openaiDefaultSTTModel = 'whisper-1';
+  static const String openaiDefaultVoice = 'alloy';
+  static const String openaiDefaultAudioFormat = 'mp3';
+
+  // OpenAI supported voices
+  // Reference: https://platform.openai.com/docs/guides/text-to-speech#voice-options
+  static const List<String> openaiSupportedVoices = [
+    'alloy', // Neutral voice
+    'ash', // Expressive voice
+    'ballad', // Melodic voice
+    'coral', // Warm voice
+    'echo', // Male voice
+    'fable', // British accent
+    'nova', // Female voice
+    'onyx', // Deep male voice
+    'sage', // Wise voice
+    'shimmer', // Soft female voice
+    'verse', // Poetic voice
+  ];
+
+  // OpenAI supported audio formats for TTS
+  static const List<String> openaiSupportedTTSFormats = [
+    'mp3',
+    'opus',
+    'aac',
+    'flac',
+    'wav',
+    'pcm',
+  ];
+
+  // OpenAI supported audio formats for STT (input)
+  static const List<String> openaiSupportedSTTFormats = [
+    'flac',
+    'm4a',
+    'mp3',
+    'mp4',
+    'mpeg',
+    'mpga',
+    'oga',
+    'ogg',
+    'wav',
+    'webm',
+  ];
+
   // Anthropic
-  static const String anthropicBaseUrl = 'https://api.anthropic.com/v1/';
+  static const String anthropicBaseUrl = 'https://api1.oaipro.com/v1/';
   static const String anthropicDefaultModel = 'claude-3-5-sonnet-20241022';
 
   // Google (Gemini)
@@ -38,8 +84,19 @@ class ProviderDefaults {
   // ElevenLabs
   static const String elevenLabsBaseUrl = 'https://api.elevenlabs.io/v1/';
   static const String elevenLabsDefaultVoiceId = 'JBFqnCBsd6RMkjVDRZzb';
-  static const String elevenLabsDefaultTTSModel = 'eleven_monolingual_v1';
-  static const String elevenLabsDefaultSTTModel = 'eleven_multilingual_v2';
+  static const String elevenLabsDefaultTTSModel = 'eleven_multilingual_v2';
+  static const String elevenLabsDefaultSTTModel = 'scribe_v1';
+
+  // ElevenLabs supported audio formats
+  static const List<String> elevenLabsSupportedAudioFormats = [
+    'mp3_44100_128',
+    'mp3_44100_192',
+    'pcm_16000',
+    'pcm_22050',
+    'pcm_24000',
+    'pcm_44100',
+    'ulaw_8000',
+  ];
 
   // Ollama
   static const String ollamaBaseUrl = 'http://localhost:11434';
@@ -65,6 +122,13 @@ class ProviderDefaults {
         return {
           'baseUrl': openaiBaseUrl,
           'model': openaiDefaultModel,
+          'ttsModel': openaiDefaultTTSModel,
+          'sttModel': openaiDefaultSTTModel,
+          'defaultVoice': openaiDefaultVoice,
+          'defaultAudioFormat': openaiDefaultAudioFormat,
+          'supportedVoices': openaiSupportedVoices,
+          'supportedTTSFormats': openaiSupportedTTSFormats,
+          'supportedSTTFormats': openaiSupportedSTTFormats,
         };
       case 'anthropic':
         return {
@@ -100,7 +164,9 @@ class ProviderDefaults {
         return {
           'baseUrl': elevenLabsBaseUrl,
           'voiceId': elevenLabsDefaultVoiceId,
-          'model': elevenLabsDefaultTTSModel,
+          'ttsModel': elevenLabsDefaultTTSModel,
+          'sttModel': elevenLabsDefaultSTTModel,
+          'supportedAudioFormats': elevenLabsSupportedAudioFormats,
         };
       case 'ollama':
         return {

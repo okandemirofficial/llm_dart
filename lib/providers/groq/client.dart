@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:logging/logging.dart';
 
+import '../../core/llm_error.dart';
 import '../../utils/config_utils.dart';
 import 'config.dart';
 
@@ -38,7 +39,7 @@ class GroqClient {
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       logger.severe('HTTP request failed: ${e.message}');
-      rethrow;
+      throw DioErrorHandler.handleDioError(e, 'Groq');
     }
   }
 
@@ -76,7 +77,7 @@ class GroqClient {
       }
     } on DioException catch (e) {
       logger.severe('Stream request failed: ${e.message}');
-      rethrow;
+      throw DioErrorHandler.handleDioError(e, 'Groq');
     }
   }
 }

@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 /// Error types that can occur when interacting with LLM providers.
 abstract class LLMError implements Exception {
   final String message;
@@ -13,7 +15,7 @@ class HttpError extends LLMError {
   const HttpError(super.message);
 
   @override
-  String toString() => 'HTTP Error: $message';
+  String toString() => 'HTTP error: $message';
 }
 
 /// Authentication and authorization errors
@@ -21,7 +23,7 @@ class AuthError extends LLMError {
   const AuthError(super.message);
 
   @override
-  String toString() => 'Auth Error: $message';
+  String toString() => 'Authentication error: $message';
 }
 
 /// Invalid request parameters or format
@@ -29,7 +31,7 @@ class InvalidRequestError extends LLMError {
   const InvalidRequestError(super.message);
 
   @override
-  String toString() => 'Invalid Request: $message';
+  String toString() => 'Invalid request: $message';
 }
 
 /// Errors returned by the LLM provider
@@ -37,7 +39,7 @@ class ProviderError extends LLMError {
   const ProviderError(super.message);
 
   @override
-  String toString() => 'Provider Error: $message';
+  String toString() => 'Provider error: $message';
 }
 
 /// API response parsing or format error
@@ -48,7 +50,7 @@ class ResponseFormatError extends LLMError {
 
   @override
   String toString() =>
-      'Response Format Error: $message. Raw response: $rawResponse';
+      'Response format error: $message. Raw response: $rawResponse';
 }
 
 /// Generic error
@@ -56,7 +58,7 @@ class GenericError extends LLMError {
   const GenericError(super.message);
 
   @override
-  String toString() => 'Generic Error: $message';
+  String toString() => message;
 }
 
 /// Timeout error for request timeouts
@@ -64,7 +66,7 @@ class TimeoutError extends LLMError {
   const TimeoutError(super.message);
 
   @override
-  String toString() => 'Timeout Error: $message';
+  String toString() => 'Request timeout: $message';
 }
 
 /// Resource not found error (404)
@@ -72,7 +74,7 @@ class NotFoundError extends LLMError {
   const NotFoundError(super.message);
 
   @override
-  String toString() => 'Not Found Error: $message';
+  String toString() => 'Resource not found: $message';
 }
 
 /// JSON serialization/deserialization errors
@@ -80,7 +82,7 @@ class JsonError extends LLMError {
   const JsonError(super.message);
 
   @override
-  String toString() => 'JSON Parse Error: $message';
+  String toString() => 'JSON parsing error: $message';
 }
 
 /// Tool configuration error
@@ -88,7 +90,72 @@ class ToolConfigError extends LLMError {
   const ToolConfigError(super.message);
 
   @override
-  String toString() => 'Tool Configuration Error: $message';
+  String toString() => 'Tool configuration error: $message';
+}
+
+/// Tool execution error
+class ToolExecutionError extends LLMError {
+  final String toolName;
+  final String? toolId;
+  final Map<String, dynamic>? toolArguments;
+
+  const ToolExecutionError(
+    super.message, {
+    required this.toolName,
+    this.toolId,
+    this.toolArguments,
+  });
+
+  @override
+  String toString() => 'Tool execution error ($toolName): $message';
+}
+
+/// Tool validation error
+class ToolValidationError extends LLMError {
+  final String toolName;
+  final String? parameterName;
+  final dynamic providedValue;
+  final String? expectedType;
+
+  const ToolValidationError(
+    super.message, {
+    required this.toolName,
+    this.parameterName,
+    this.providedValue,
+    this.expectedType,
+  });
+
+  @override
+  String toString() {
+    final parts = ['Tool validation error ($toolName): $message'];
+    if (parameterName != null) {
+      parts.add('Parameter: $parameterName');
+    }
+    if (expectedType != null) {
+      parts.add('Expected type: $expectedType');
+    }
+    if (providedValue != null) {
+      parts.add('Provided value: $providedValue');
+    }
+    return parts.join(', ');
+  }
+}
+
+/// Structured output validation error
+class StructuredOutputError extends LLMError {
+  final String? schemaName;
+  final Map<String, dynamic>? schema;
+  final String? actualOutput;
+
+  const StructuredOutputError(
+    super.message, {
+    this.schemaName,
+    this.schema,
+    this.actualOutput,
+  });
+
+  @override
+  String toString() => 'Structured output error: $message';
 }
 
 /// Rate limit exceeded error
@@ -101,7 +168,7 @@ class RateLimitError extends LLMError {
 
   @override
   String toString() =>
-      'Rate Limit Error: $message${retryAfter != null ? ' (retry after ${retryAfter!.inSeconds}s)' : ''}';
+      'Rate limit exceeded: $message${retryAfter != null ? ' (retry after ${retryAfter!.inSeconds}s)' : ''}';
 }
 
 /// Quota exceeded error
@@ -112,7 +179,7 @@ class QuotaExceededError extends LLMError {
 
   @override
   String toString() =>
-      'Quota Exceeded Error: $message${quotaType != null ? ' (quota type: $quotaType)' : ''}';
+      'Quota exceeded: $message${quotaType != null ? ' (quota type: $quotaType)' : ''}';
 }
 
 /// Model not available error
@@ -125,11 +192,10 @@ class ModelNotAvailableError extends LLMError {
 
   @override
   String toString() {
-    final base = 'Model Not Available Error: $message';
     if (availableModels != null && availableModels!.isNotEmpty) {
-      return '$base. Available models: ${availableModels!.join(', ')}';
+      return '$message. Available models: ${availableModels!.join(', ')}';
     }
-    return base;
+    return message;
   }
 }
 
@@ -141,7 +207,7 @@ class ContentFilterError extends LLMError {
 
   @override
   String toString() =>
-      'Content Filter Error: $message${filterType != null ? ' (filter: $filterType)' : ''}';
+      'Content filtered: $message${filterType != null ? ' (filter: $filterType)' : ''}';
 }
 
 /// Server error (5xx status codes)
@@ -152,7 +218,50 @@ class ServerError extends LLMError {
 
   @override
   String toString() =>
-      'Server Error: $message${statusCode != null ? ' (HTTP $statusCode)' : ''}';
+      'Server error: $message${statusCode != null ? ' (HTTP $statusCode)' : ''}';
+}
+
+/// Dio error handler utility for consistent error handling across providers
+class DioErrorHandler {
+  /// Handle Dio errors and convert to appropriate LLM errors
+  static LLMError handleDioError(DioException e, String providerName) {
+    switch (e.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return TimeoutError('${e.message}');
+      case DioExceptionType.badResponse:
+        final statusCode = e.response?.statusCode;
+        final data = e.response?.data;
+        if (statusCode != null) {
+          // Extract clean error message from response data
+          String errorMessage = data?.toString() ?? 'Unknown error';
+          if (data is Map<String, dynamic>) {
+            final error = data['error'];
+            if (error is Map<String, dynamic>) {
+              errorMessage = error['message']?.toString() ?? errorMessage;
+            } else if (error is String) {
+              errorMessage = error;
+            }
+          }
+          return HttpErrorMapper.mapStatusCode(
+            statusCode,
+            errorMessage,
+            data is Map<String, dynamic> ? data : null,
+          );
+        } else {
+          return ProviderError('$providerName HTTP error: $data');
+        }
+      case DioExceptionType.cancel:
+        return GenericError('Request was cancelled');
+      case DioExceptionType.connectionError:
+        return HttpError('Connection error: ${e.message}');
+      case DioExceptionType.badCertificate:
+        return HttpError('SSL certificate error: ${e.message}');
+      case DioExceptionType.unknown:
+        return GenericError('$providerName request failed: ${e.message}');
+    }
+  }
 }
 
 /// HTTP error mapper utility
@@ -171,6 +280,9 @@ class HttpErrorMapper {
         return InvalidRequestError(message);
       case 401:
         return AuthError(message);
+      case 402:
+        // DeepSeek API specific: Insufficient Balance
+        return QuotaExceededError(message, quotaType: 'credits');
       case 403:
         return AuthError('Forbidden: $message');
       case 404:
@@ -197,12 +309,11 @@ class HttpErrorMapper {
         return ServerError('Gateway Timeout: $message', statusCode: statusCode);
       default:
         if (statusCode >= 400 && statusCode < 500) {
-          return HttpError('Client error (HTTP $statusCode): $message');
+          return HttpError(message);
         } else if (statusCode >= 500) {
-          return ServerError('Server error (HTTP $statusCode): $message',
-              statusCode: statusCode);
+          return ServerError(message, statusCode: statusCode);
         } else {
-          return HttpError('HTTP $statusCode: $message');
+          return HttpError(message);
         }
     }
   }

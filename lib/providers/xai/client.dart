@@ -62,7 +62,7 @@ class XAIClient {
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       logger.severe('HTTP request failed: ${e.message}');
-      throw _handleDioError(e);
+      throw DioErrorHandler.handleDioError(e, 'xAI');
     }
   }
 
@@ -105,33 +105,7 @@ class XAIClient {
       }
     } on DioException catch (e) {
       logger.severe('Stream request failed: ${e.message}');
-      throw _handleDioError(e);
-    }
-  }
-
-  /// Handle Dio errors and convert to appropriate LLMError types
-  LLMError _handleDioError(DioException e) {
-    switch (e.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.sendTimeout:
-      case DioExceptionType.receiveTimeout:
-        return HttpError('Request timeout: ${e.message}');
-      case DioExceptionType.badResponse:
-        final statusCode = e.response?.statusCode;
-        final data = e.response?.data;
-        if (statusCode == 401) {
-          return const AuthError('Invalid API key');
-        } else if (statusCode == 429) {
-          return const ProviderError('Rate limit exceeded');
-        } else {
-          return ProviderError('HTTP $statusCode: $data');
-        }
-      case DioExceptionType.cancel:
-        return const GenericError('Request was cancelled');
-      case DioExceptionType.connectionError:
-        return HttpError('Connection error: ${e.message}');
-      default:
-        return HttpError('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e, 'xAI');
     }
   }
 }

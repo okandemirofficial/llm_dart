@@ -12,13 +12,26 @@ class Word {
   final String text;
   final double start;
   final double end;
+  final String? type; // 'word', 'spacing', 'punctuation'
+  final double? logprob;
+  final String? speakerId;
 
-  const Word({required this.text, required this.start, required this.end});
+  const Word({
+    required this.text,
+    required this.start,
+    required this.end,
+    this.type,
+    this.logprob,
+    this.speakerId,
+  });
 
   factory Word.fromJson(Map<String, dynamic> json) => Word(
         text: json['text'] as String,
         start: (json['start'] as num?)?.toDouble() ?? 0.0,
         end: (json['end'] as num?)?.toDouble() ?? 0.0,
+        type: json['type'] as String?,
+        logprob: (json['logprob'] as num?)?.toDouble(),
+        speakerId: json['speaker_id'] as String?,
       );
 }
 
@@ -36,12 +49,14 @@ class ElevenLabsSTTResponse {
   final String? languageCode;
   final double? languageProbability;
   final List<Word>? words;
+  final Map<String, dynamic>? additionalFormats;
 
   const ElevenLabsSTTResponse({
     required this.text,
     this.languageCode,
     this.languageProbability,
     this.words,
+    this.additionalFormats,
   });
 
   factory ElevenLabsSTTResponse.fromJson(Map<String, dynamic> json) {
@@ -55,6 +70,7 @@ class ElevenLabsSTTResponse {
       languageCode: json['language_code'] as String?,
       languageProbability: (json['language_probability'] as num?)?.toDouble(),
       words: words,
+      additionalFormats: json['additional_formats'] as Map<String, dynamic>?,
     );
   }
 }
@@ -62,21 +78,42 @@ class ElevenLabsSTTResponse {
 /// ElevenLabs Audio capability implementation
 ///
 /// This module handles all audio-related functionality for ElevenLabs providers,
-/// including text-to-speech and speech-to-text capabilities.
-class ElevenLabsAudio
-    implements TextToSpeechCapability, SpeechToTextCapability {
+/// including text-to-speech, speech-to-text, and streaming capabilities.
+class ElevenLabsAudio extends BaseAudioCapability {
   final ElevenLabsClient client;
   final ElevenLabsConfig config;
 
   ElevenLabsAudio(this.client, this.config);
 
-  // TextToSpeechCapability implementation
+  // AudioCapability implementation
+
+  @override
+  Set<AudioFeature> get supportedFeatures => {
+        AudioFeature.textToSpeech,
+        AudioFeature.speechToText,
+        AudioFeature.streamingTTS,
+        AudioFeature.speakerDiarization,
+        AudioFeature.characterTiming,
+        AudioFeature.audioEventDetection,
+        // ElevenLabs supports real-time processing
+        if (config.supportsRealTimeStreaming) AudioFeature.realtimeProcessing,
+        // ElevenLabs doesn't support audio translation
+      };
   @override
   Future<TTSResponse> textToSpeech(TTSRequest request) async {
     final response = await _textToSpeechInternal(
       request.text,
       voiceId: request.voice,
       model: request.model,
+      languageCode: request.languageCode,
+      seed: request.seed,
+      previousText: request.previousText,
+      nextText: request.nextText,
+      previousRequestIds: request.previousRequestIds,
+      nextRequestIds: request.nextRequestIds,
+      textNormalization: request.textNormalization.name,
+      enableLogging: request.enableLogging,
+      optimizeStreamingLatency: request.optimizeStreamingLatency,
     );
 
     return TTSResponse(
@@ -122,11 +159,25 @@ class ElevenLabsAudio
       response = await _speechToTextInternal(
         Uint8List.fromList(request.audioData!),
         model: request.model,
+        languageCode: request.language,
+        tagAudioEvents: request.tagAudioEvents,
+        numSpeakers: request.numSpeakers,
+        timestampsGranularity: request.timestampGranularity.name,
+        diarize: request.diarize,
+        fileFormat: request.format,
+        enableLogging: request.enableLogging,
       );
     } else if (request.filePath != null) {
       response = await _speechToTextFromFileInternal(
         request.filePath!,
         model: request.model,
+        languageCode: request.language,
+        tagAudioEvents: request.tagAudioEvents,
+        numSpeakers: request.numSpeakers,
+        timestampsGranularity: request.timestampGranularity.name,
+        diarize: request.diarize,
+        fileFormat: request.format,
+        enableLogging: request.enableLogging,
       );
     } else {
       throw const InvalidRequestError(
@@ -149,6 +200,7 @@ class ElevenLabsAudio
       model: request.model,
       duration: null,
       usage: null,
+      additionalFormats: response.additionalFormats,
     );
   }
 
@@ -176,30 +228,20 @@ class ElevenLabsAudio
     ];
   }
 
-  // Convenience methods for backward compatibility
-  @override
-  Future<List<int>> speech(String text) async {
-    final response = await textToSpeech(TTSRequest(text: text));
-    return response.audioData;
-  }
-
-  @override
-  Future<String> transcribe(List<int> audio) async {
-    final response = await speechToText(STTRequest.fromAudio(audio));
-    return response.text;
-  }
-
-  @override
-  Future<String> transcribeFile(String filePath) async {
-    final response = await speechToText(STTRequest.fromFile(filePath));
-    return response.text;
-  }
-
   /// Convert text to speech using ElevenLabs TTS (internal method)
   Future<ElevenLabsTTSResponse> _textToSpeechInternal(
     String text, {
     String? voiceId,
     String? model,
+    String? languageCode,
+    int? seed,
+    String? previousText,
+    String? nextText,
+    List<String>? previousRequestIds,
+    List<String>? nextRequestIds,
+    String? textNormalization,
+    bool? enableLogging,
+    int? optimizeStreamingLatency,
   }) async {
     if (config.apiKey.isEmpty) {
       throw const AuthError('Missing ElevenLabs API key');
@@ -213,17 +255,44 @@ class ElevenLabsAudio
     );
 
     try {
-      final requestBody = {
+      final requestBody = <String, dynamic>{
         'text': text,
         'model_id': effectiveModel,
         'voice_settings': config.voiceSettings,
       };
 
-      // Add query parameter for output format
+      // Add optional parameters based on ElevenLabs API documentation
+      if (languageCode != null) requestBody['language_code'] = languageCode;
+      if (seed != null) requestBody['seed'] = seed;
+      if (previousText != null) requestBody['previous_text'] = previousText;
+      if (nextText != null) requestBody['next_text'] = nextText;
+      if (previousRequestIds != null && previousRequestIds.isNotEmpty) {
+        requestBody['previous_request_ids'] =
+            previousRequestIds.take(3).toList();
+      }
+      if (nextRequestIds != null && nextRequestIds.isNotEmpty) {
+        requestBody['next_request_ids'] = nextRequestIds.take(3).toList();
+      }
+      if (textNormalization != null) {
+        requestBody['apply_text_normalization'] = textNormalization;
+      }
+
+      // Build query parameters
+      final queryParams = <String, String>{
+        'output_format': 'mp3_44100_128',
+      };
+      if (enableLogging != null) {
+        queryParams['enable_logging'] = enableLogging.toString();
+      }
+      if (optimizeStreamingLatency != null) {
+        queryParams['optimize_streaming_latency'] =
+            optimizeStreamingLatency.toString();
+      }
+
       final audioData = await client.postBinary(
         'text-to-speech/$effectiveVoiceId',
         requestBody,
-        queryParams: {'output_format': 'mp3_44100_128'},
+        queryParams: queryParams,
       );
 
       return ElevenLabsTTSResponse(
@@ -240,6 +309,13 @@ class ElevenLabsAudio
   Future<ElevenLabsSTTResponse> _speechToTextInternal(
     Uint8List audioData, {
     String? model,
+    String? languageCode,
+    bool? tagAudioEvents,
+    int? numSpeakers,
+    String? timestampsGranularity,
+    bool? diarize,
+    String? fileFormat,
+    bool? enableLogging,
   }) async {
     if (config.apiKey.isEmpty) {
       throw const AuthError('Missing ElevenLabs API key');
@@ -250,18 +326,40 @@ class ElevenLabsAudio
     client.logger.info('Converting speech to text with model: $effectiveModel');
 
     try {
-      // Use 'file' as the field name to match API requirements
-      final formData = FormData.fromMap({
+      // Build form data with all supported parameters
+      final formDataMap = <String, dynamic>{
         'file': MultipartFile.fromBytes(
           audioData,
           filename: 'audio.wav',
           contentType: DioMediaType('audio', 'wav'),
         ),
         'model_id': effectiveModel,
-      });
+      };
 
-      final responseData =
-          await client.postFormData('speech-to-text', formData);
+      // Add optional parameters based on ElevenLabs API documentation
+      if (languageCode != null) formDataMap['language_code'] = languageCode;
+      if (tagAudioEvents != null)
+        formDataMap['tag_audio_events'] = tagAudioEvents.toString();
+      if (numSpeakers != null)
+        formDataMap['num_speakers'] = numSpeakers.toString();
+      if (timestampsGranularity != null)
+        formDataMap['timestamps_granularity'] = timestampsGranularity;
+      if (diarize != null) formDataMap['diarize'] = diarize.toString();
+      if (fileFormat != null) formDataMap['file_format'] = fileFormat;
+
+      final formData = FormData.fromMap(formDataMap);
+
+      // Build query parameters
+      final queryParams = <String, String>{};
+      if (enableLogging != null) {
+        queryParams['enable_logging'] = enableLogging.toString();
+      }
+
+      final responseData = await client.postFormData(
+        'speech-to-text',
+        formData,
+        queryParams: queryParams.isNotEmpty ? queryParams : null,
+      );
 
       try {
         final sttResponse = ElevenLabsSTTResponse.fromJson(responseData);
@@ -274,6 +372,7 @@ class ElevenLabsAudio
             languageCode: sttResponse.languageCode,
             languageProbability: sttResponse.languageProbability,
             words: sttResponse.words,
+            additionalFormats: sttResponse.additionalFormats,
           );
         }
 
@@ -294,6 +393,13 @@ class ElevenLabsAudio
   Future<ElevenLabsSTTResponse> _speechToTextFromFileInternal(
     String filePath, {
     String? model,
+    String? languageCode,
+    bool? tagAudioEvents,
+    int? numSpeakers,
+    String? timestampsGranularity,
+    bool? diarize,
+    String? fileFormat,
+    bool? enableLogging,
   }) async {
     if (config.apiKey.isEmpty) {
       throw const AuthError('Missing ElevenLabs API key');
@@ -306,10 +412,24 @@ class ElevenLabsAudio
     );
 
     try {
-      final formData = FormData.fromMap({
+      // Build form data with all supported parameters
+      final formDataMap = <String, dynamic>{
         'file': await MultipartFile.fromFile(filePath),
         'model_id': effectiveModel,
-      });
+      };
+
+      // Add optional parameters based on ElevenLabs API documentation
+      if (languageCode != null) formDataMap['language_code'] = languageCode;
+      if (tagAudioEvents != null)
+        formDataMap['tag_audio_events'] = tagAudioEvents.toString();
+      if (numSpeakers != null)
+        formDataMap['num_speakers'] = numSpeakers.toString();
+      if (timestampsGranularity != null)
+        formDataMap['timestamps_granularity'] = timestampsGranularity;
+      if (diarize != null) formDataMap['diarize'] = diarize.toString();
+      if (fileFormat != null) formDataMap['file_format'] = fileFormat;
+
+      final formData = FormData.fromMap(formDataMap);
 
       final responseData =
           await client.postFormData('speech-to-text', formData);
@@ -325,6 +445,7 @@ class ElevenLabsAudio
             languageCode: sttResponse.languageCode,
             languageProbability: sttResponse.languageProbability,
             words: sttResponse.words,
+            additionalFormats: sttResponse.additionalFormats,
           );
         }
 
@@ -347,5 +468,29 @@ class ElevenLabsAudio
     final responseData = await client.getJson('voices');
     final voices = responseData['voices'] as List<dynamic>? ?? [];
     return voices.cast<Map<String, dynamic>>();
+  }
+
+  // Additional AudioCapability methods
+
+  @override
+  Stream<AudioStreamEvent> textToSpeechStream(TTSRequest request) {
+    // ElevenLabs supports streaming TTS
+    // This is a simplified implementation - in practice, you'd implement
+    // the actual streaming API calls
+    throw UnsupportedError('Streaming TTS implementation pending');
+  }
+
+  @override
+  Future<STTResponse> translateAudio(AudioTranslationRequest request) {
+    // ElevenLabs doesn't support audio translation
+    throw UnsupportedError('ElevenLabs does not support audio translation');
+  }
+
+  @override
+  Future<RealtimeAudioSession> startRealtimeSession(
+      RealtimeAudioConfig config) {
+    // ElevenLabs supports real-time audio processing
+    // This would need to be implemented based on their WebSocket API
+    throw UnsupportedError('Real-time audio session implementation pending');
   }
 }

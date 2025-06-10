@@ -115,8 +115,15 @@ Future<void> testInvalidRequestError() async {
   } on InvalidRequestError catch (e) {
     print('      ✅ Caught InvalidRequestError: ${e.message}');
     print('      💡 Action: Validate request parameters before sending');
+  } on ModelNotAvailableError catch (e) {
+    print('      ✅ Caught ModelNotAvailableError: ${e.message}');
+    print('      💡 Action: Use a valid model name');
+  } on ServerError catch (e) {
+    print('      ✅ Caught ServerError (model not found): ${e.message}');
+    print('      💡 Action: Verify model availability');
   } catch (e) {
     print('      ⚠️  Unexpected error type: ${e.runtimeType}');
+    print('      📝 Error details: $e');
   }
 }
 
@@ -137,8 +144,12 @@ Future<void> testNetworkError() async {
   } on HttpError catch (e) {
     print('      ✅ Caught HttpError: ${e.message}');
     print('      💡 Action: Check network connectivity and endpoint URL');
+  } on GenericError catch (e) {
+    print('      ✅ Caught GenericError (connection failed): ${e.message}');
+    print('      💡 Action: Verify network connectivity and endpoint URL');
   } catch (e) {
     print('      ⚠️  Network-related error: ${e.runtimeType}');
+    print('      📝 Error details: $e');
   }
 }
 

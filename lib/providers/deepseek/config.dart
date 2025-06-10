@@ -20,6 +20,13 @@ class DeepSeekConfig {
   final List<Tool>? tools;
   final ToolChoice? toolChoice;
 
+  // DeepSeek-specific parameters
+  final bool? logprobs;
+  final int? topLogprobs;
+  final double? frequencyPenalty;
+  final double? presencePenalty;
+  final Map<String, dynamic>? responseFormat;
+
   /// Reference to original LLMConfig for accessing extensions
   final LLMConfig? _originalConfig;
 
@@ -35,6 +42,11 @@ class DeepSeekConfig {
     this.topK,
     this.tools,
     this.toolChoice,
+    this.logprobs,
+    this.topLogprobs,
+    this.frequencyPenalty,
+    this.presencePenalty,
+    this.responseFormat,
     LLMConfig? originalConfig,
   }) : _originalConfig = originalConfig;
 
@@ -52,6 +64,13 @@ class DeepSeekConfig {
       topK: config.topK,
       tools: config.tools,
       toolChoice: config.toolChoice,
+      // DeepSeek-specific parameters from extensions
+      logprobs: config.getExtension<bool>('logprobs'),
+      topLogprobs: config.getExtension<int>('top_logprobs'),
+      frequencyPenalty: config.getExtension<double>('frequency_penalty'),
+      presencePenalty: config.getExtension<double>('presence_penalty'),
+      responseFormat:
+          config.getExtension<Map<String, dynamic>>('response_format'),
       originalConfig: config,
     );
   }
@@ -61,26 +80,29 @@ class DeepSeekConfig {
 
   /// Check if this model supports reasoning/thinking
   bool get supportsReasoning {
-    // DeepSeek R1 models support reasoning
-    return model.contains('r1') || model.contains('reasoning');
+    // DeepSeek reasoner model supports reasoning
+    // Reference: https://api-docs.deepseek.com/api/create-chat-completion
+    return model == 'deepseek-reasoner';
   }
 
   /// Check if this model supports vision
   bool get supportsVision {
-    // DeepSeek VL models support vision
-    return model.contains('vl') || model.contains('vision');
+    // Currently no vision models available in DeepSeek API
+    // Reference: https://api-docs.deepseek.com/api/list-models
+    return false;
   }
 
   /// Check if this model supports tool calling
   bool get supportsToolCalling {
-    // Most DeepSeek models support tool calling
-    return !model.contains('base');
+    // Both deepseek-chat and deepseek-reasoner support tool calling
+    // Reference: https://api-docs.deepseek.com/guides/function_calling
+    return model == 'deepseek-chat' || model == 'deepseek-reasoner';
   }
 
   /// Check if this model supports code generation
   bool get supportsCodeGeneration {
-    // DeepSeek Coder models are optimized for code
-    return model.contains('coder') || model.contains('code');
+    // Both models can handle code generation tasks
+    return model == 'deepseek-chat' || model == 'deepseek-reasoner';
   }
 
   DeepSeekConfig copyWith({
@@ -95,6 +117,11 @@ class DeepSeekConfig {
     int? topK,
     List<Tool>? tools,
     ToolChoice? toolChoice,
+    bool? logprobs,
+    int? topLogprobs,
+    double? frequencyPenalty,
+    double? presencePenalty,
+    Map<String, dynamic>? responseFormat,
   }) =>
       DeepSeekConfig(
         apiKey: apiKey ?? this.apiKey,
@@ -108,5 +135,10 @@ class DeepSeekConfig {
         topK: topK ?? this.topK,
         tools: tools ?? this.tools,
         toolChoice: toolChoice ?? this.toolChoice,
+        logprobs: logprobs ?? this.logprobs,
+        topLogprobs: topLogprobs ?? this.topLogprobs,
+        frequencyPenalty: frequencyPenalty ?? this.frequencyPenalty,
+        presencePenalty: presencePenalty ?? this.presencePenalty,
+        responseFormat: responseFormat ?? this.responseFormat,
       );
 }

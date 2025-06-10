@@ -29,7 +29,7 @@ class OllamaCompletion implements CompletionCapability {
           await client.postJson(completionEndpoint, requestBody);
       return _parseResponse(responseData);
     } on DioException catch (e) {
-      throw _handleDioError(e);
+      throw DioErrorHandler.handleDioError(e, 'Ollama');
     } catch (e) {
       throw GenericError('Unexpected error: $e');
     }
@@ -67,32 +67,5 @@ class OllamaCompletion implements CompletionCapability {
     }
 
     return CompletionResponse(text: text);
-  }
-
-  /// Handle Dio errors and convert to appropriate LLM errors
-  LLMError _handleDioError(DioException e) {
-    switch (e.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.sendTimeout:
-      case DioExceptionType.receiveTimeout:
-        return HttpError('Request timeout: ${e.message}');
-      case DioExceptionType.badResponse:
-        final statusCode = e.response?.statusCode;
-        final data = e.response?.data;
-        if (statusCode != null) {
-          return HttpErrorMapper.mapStatusCode(
-            statusCode,
-            'Ollama API error: $data',
-            data is Map<String, dynamic> ? data : null,
-          );
-        }
-        return ProviderError('HTTP error: $data');
-      case DioExceptionType.cancel:
-        return const GenericError('Request was cancelled');
-      case DioExceptionType.connectionError:
-        return HttpError('Connection error: ${e.message}');
-      default:
-        return HttpError('Network error: ${e.message}');
-    }
   }
 }

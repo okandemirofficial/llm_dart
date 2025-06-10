@@ -3,6 +3,7 @@ import 'package:logging/logging.dart';
 
 import '../../utils/config_utils.dart';
 import 'config.dart';
+import 'error_handler.dart';
 
 /// Core DeepSeek HTTP client shared across all capability modules
 ///
@@ -38,7 +39,7 @@ class DeepSeekClient {
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       logger.severe('HTTP request failed: ${e.message}');
-      rethrow;
+      throw DeepSeekErrorHandler.handleDioError(e);
     }
   }
 
@@ -76,7 +77,7 @@ class DeepSeekClient {
       }
     } on DioException catch (e) {
       logger.severe('Stream request failed: ${e.message}');
-      rethrow;
+      throw DeepSeekErrorHandler.handleDioError(e);
     }
   }
 }

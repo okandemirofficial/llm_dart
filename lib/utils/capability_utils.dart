@@ -216,10 +216,14 @@ class CapabilityUtils {
       capabilities.add(LLMCapability.moderation);
     if (provider is AssistantCapability)
       capabilities.add(LLMCapability.assistants);
-    if (provider is TextToSpeechCapability)
-      capabilities.add(LLMCapability.textToSpeech);
-    if (provider is SpeechToTextCapability)
-      capabilities.add(LLMCapability.speechToText);
+    if (provider is AudioCapability) {
+      if (provider.supportedFeatures.contains(AudioFeature.textToSpeech)) {
+        capabilities.add(LLMCapability.textToSpeech);
+      }
+      if (provider.supportedFeatures.contains(AudioFeature.speechToText)) {
+        capabilities.add(LLMCapability.speechToText);
+      }
+    }
     if (provider is ModelListingCapability)
       capabilities.add(LLMCapability.modelListing);
     if (provider is ImageGenerationCapability)

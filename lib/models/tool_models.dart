@@ -204,14 +204,41 @@ class Tool {
 
 /// Tool choice determines how the LLM uses available tools.
 /// The behavior is standardized across different LLM providers.
+///
+/// **API References:**
+/// - OpenAI: https://platform.openai.com/docs/guides/tools
+/// - Anthropic: https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview
+/// - xAI: https://docs.x.ai/docs/guides/function-calling
 sealed class ToolChoice {
   const ToolChoice();
 
   Map<String, dynamic> toJson();
+
+  /// Convert to OpenAI format
+  Map<String, dynamic> toOpenAIJson() => toJson();
+
+  /// Convert to Anthropic format
+  String toAnthropicJson() {
+    return switch (this) {
+      AutoToolChoice() => 'auto',
+      AnyToolChoice() => 'any',
+      NoneToolChoice() => 'none',
+      SpecificToolChoice(toolName: final name) =>
+        '{"type": "tool", "name": "$name"}',
+    };
+  }
+
+  /// Convert to xAI format (OpenAI-compatible)
+  Map<String, dynamic> toXAIJson() => toOpenAIJson();
 }
 
 /// Model can use any tool, but it must use at least one.
 /// This is useful when you want to force the model to use tools.
+///
+/// Maps to:
+/// - OpenAI: `{"type": "required"}`
+/// - Anthropic: `"any"`
+/// - xAI: `{"type": "required"}`
 class AnyToolChoice extends ToolChoice {
   const AnyToolChoice();
 
@@ -221,6 +248,11 @@ class AnyToolChoice extends ToolChoice {
 
 /// Model can use any tool, and may elect to use none.
 /// This is the default behavior and gives the model flexibility.
+///
+/// Maps to:
+/// - OpenAI: `{"type": "auto"}`
+/// - Anthropic: `"auto"`
+/// - xAI: `{"type": "auto"}`
 class AutoToolChoice extends ToolChoice {
   const AutoToolChoice();
 
@@ -231,6 +263,11 @@ class AutoToolChoice extends ToolChoice {
 /// Model must use the specified tool and only the specified tool.
 /// The string parameter is the name of the required tool.
 /// This is useful when you want the model to call a specific function.
+///
+/// Maps to:
+/// - OpenAI: `{"type": "function", "function": {"name": "tool_name"}}`
+/// - Anthropic: `{"type": "tool", "name": "tool_name"}`
+/// - xAI: `{"type": "function", "function": {"name": "tool_name"}}`
 class SpecificToolChoice extends ToolChoice {
   final String toolName;
 
@@ -241,18 +278,31 @@ class SpecificToolChoice extends ToolChoice {
         'type': 'function',
         'function': {'name': toolName},
       };
+
+  @override
+  String toAnthropicJson() => '{"type": "tool", "name": "$toolName"}';
 }
 
 /// Explicitly disables the use of tools.
 /// The model will not use any tools even if they are provided.
+///
+/// Maps to:
+/// - OpenAI: `{"type": "none"}`
+/// - Anthropic: `"none"`
+/// - xAI: `{"type": "none"}`
 class NoneToolChoice extends ToolChoice {
   const NoneToolChoice();
 
   @override
   Map<String, dynamic> toJson() => {'type': 'none'};
+
+  @override
+  String toAnthropicJson() => 'none';
 }
 
 /// Defines rules for structured output responses based on OpenAI's structured output requirements.
+///
+/// **API Reference:** https://platform.openai.com/docs/guides/structured-outputs
 class StructuredOutputFormat {
   /// Name of the schema
   final String name;
@@ -291,11 +341,112 @@ class StructuredOutputFormat {
     return json;
   }
 
+  /// Convert to OpenAI response_format
+  Map<String, dynamic> toOpenAIResponseFormat() => {
+        'type': 'json_schema',
+        'json_schema': toJson(),
+      };
+
   factory StructuredOutputFormat.fromJson(Map<String, dynamic> json) =>
       StructuredOutputFormat(
         name: json['name'] as String,
         description: json['description'] as String?,
         schema: json['schema'] as Map<String, dynamic>?,
         strict: json['strict'] as bool?,
+      );
+}
+
+/// Tool execution result that can be returned to the model
+class ToolResult {
+  /// The ID of the tool call this result corresponds to
+  final String toolCallId;
+
+  /// The result content (can be text, JSON, or error message)
+  final String content;
+
+  /// Whether this result represents an error
+  final bool isError;
+
+  /// Optional metadata about the execution
+  final Map<String, dynamic>? metadata;
+
+  const ToolResult({
+    required this.toolCallId,
+    required this.content,
+    this.isError = false,
+    this.metadata,
+  });
+
+  /// Create a successful tool result
+  factory ToolResult.success({
+    required String toolCallId,
+    required String content,
+    Map<String, dynamic>? metadata,
+  }) =>
+      ToolResult(
+        toolCallId: toolCallId,
+        content: content,
+        isError: false,
+        metadata: metadata,
+      );
+
+  /// Create an error tool result
+  factory ToolResult.error({
+    required String toolCallId,
+    required String errorMessage,
+    Map<String, dynamic>? metadata,
+  }) =>
+      ToolResult(
+        toolCallId: toolCallId,
+        content: errorMessage,
+        isError: true,
+        metadata: metadata,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'tool_call_id': toolCallId,
+        'content': content,
+        'is_error': isError,
+        if (metadata != null) 'metadata': metadata,
+      };
+
+  factory ToolResult.fromJson(Map<String, dynamic> json) => ToolResult(
+        toolCallId: json['tool_call_id'] as String,
+        content: json['content'] as String,
+        isError: json['is_error'] as bool? ?? false,
+        metadata: json['metadata'] as Map<String, dynamic>?,
+      );
+}
+
+/// Parallel tool execution configuration
+class ParallelToolConfig {
+  /// Maximum number of tools to execute in parallel
+  final int maxParallel;
+
+  /// Timeout for individual tool execution
+  final Duration? toolTimeout;
+
+  /// Whether to continue execution if one tool fails
+  final bool continueOnError;
+
+  const ParallelToolConfig({
+    this.maxParallel = 5,
+    this.toolTimeout,
+    this.continueOnError = true,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'max_parallel': maxParallel,
+        if (toolTimeout != null) 'tool_timeout_ms': toolTimeout!.inMilliseconds,
+        'continue_on_error': continueOnError,
+      };
+
+  factory ParallelToolConfig.fromJson(Map<String, dynamic> json) =>
+      ParallelToolConfig(
+        maxParallel: json['max_parallel'] as int? ?? 5,
+        toolTimeout: json['tool_timeout_ms'] != null
+            ? Duration(milliseconds: json['tool_timeout_ms'] as int)
+            : null,
+        continueOnError: json['continue_on_error'] as bool? ?? true,
       );
 }

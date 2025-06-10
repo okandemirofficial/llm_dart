@@ -4,21 +4,24 @@ import '../../models/tool_models.dart';
 import 'client.dart';
 import 'config.dart';
 import 'chat.dart';
+import 'models.dart';
 
 /// DeepSeek provider implementation
 ///
-/// This provider implements the ChatCapability interface and delegates
+/// This provider implements multiple capability interfaces and delegates
 /// to specialized capability modules for different functionalities.
-class DeepSeekProvider implements ChatCapability {
+class DeepSeekProvider implements ChatCapability, ModelListingCapability {
   final DeepSeekClient _client;
   final DeepSeekConfig config;
 
   // Capability modules
   late final DeepSeekChat _chat;
+  late final DeepSeekModels _models;
 
   DeepSeekProvider(this.config) : _client = DeepSeekClient(config) {
     // Initialize capability modules
     _chat = DeepSeekChat(_client, config);
+    _models = DeepSeekModels(_client, config);
   }
 
   @override
@@ -50,6 +53,11 @@ class DeepSeekProvider implements ChatCapability {
   @override
   Future<String> summarizeHistory(List<ChatMessage> messages) async {
     return _chat.summarizeHistory(messages);
+  }
+
+  @override
+  Future<List<AIModel>> models() async {
+    return _models.models();
   }
 
   /// Get provider name

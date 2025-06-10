@@ -33,7 +33,7 @@ class ElevenLabsClient {
 
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
-      throw _handleDioError(e);
+      throw DioErrorHandler.handleDioError(e, 'ElevenLabs');
     }
   }
 
@@ -50,7 +50,7 @@ class ElevenLabsClient {
 
       return response.data as List<dynamic>;
     } on DioException catch (e) {
-      throw _handleDioError(e);
+      throw DioErrorHandler.handleDioError(e, 'ElevenLabs');
     }
   }
 
@@ -76,19 +76,21 @@ class ElevenLabsClient {
 
       return Uint8List.fromList(response.data as List<int>);
     } on DioException catch (e) {
-      throw _handleDioError(e);
+      throw DioErrorHandler.handleDioError(e, 'ElevenLabs');
     }
   }
 
   /// Make a POST request with form data and return JSON response (for STT)
   Future<Map<String, dynamic>> postFormData(
     String endpoint,
-    FormData formData,
-  ) async {
+    FormData formData, {
+    Map<String, String>? queryParams,
+  }) async {
     try {
       final response = await _dio.post(
         endpoint,
         data: formData,
+        queryParameters: queryParams,
         options: Options(headers: {'xi-api-key': config.apiKey}),
       );
 
@@ -119,7 +121,7 @@ class ElevenLabsClient {
         return responseData as Map<String, dynamic>;
       }
     } on DioException catch (e) {
-      throw _handleDioError(e);
+      throw DioErrorHandler.handleDioError(e, 'ElevenLabs');
     } catch (e) {
       if (e is LLMError) rethrow;
       throw GenericError('Unexpected error: $e');
@@ -146,31 +148,5 @@ class ElevenLabsClient {
     );
 
     return dio;
-  }
-
-  /// Handle Dio errors and convert to appropriate LLMError
-  LLMError _handleDioError(DioException e) {
-    switch (e.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.sendTimeout:
-      case DioExceptionType.receiveTimeout:
-        return HttpError('Request timeout: ${e.message}');
-      case DioExceptionType.badResponse:
-        final statusCode = e.response?.statusCode;
-        final data = e.response?.data;
-        if (statusCode == 401) {
-          return const AuthError('Invalid ElevenLabs API key');
-        } else if (statusCode == 429) {
-          return const ProviderError('Rate limit exceeded');
-        } else {
-          return ProviderError('HTTP $statusCode: $data');
-        }
-      case DioExceptionType.cancel:
-        return const GenericError('Request was cancelled');
-      case DioExceptionType.connectionError:
-        return HttpError('Connection error: ${e.message}');
-      default:
-        return HttpError('Network error: ${e.message}');
-    }
   }
 }

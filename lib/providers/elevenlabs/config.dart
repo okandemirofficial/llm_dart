@@ -1,4 +1,5 @@
 import '../../core/config.dart';
+import '../../core/provider_defaults.dart';
 
 /// ElevenLabs provider configuration
 ///
@@ -20,7 +21,7 @@ class ElevenLabsConfig {
 
   const ElevenLabsConfig({
     required this.apiKey,
-    this.baseUrl = 'https://api.elevenlabs.io/v1/',
+    this.baseUrl = ProviderDefaults.elevenLabsBaseUrl,
     this.voiceId,
     this.model,
     this.timeout,
@@ -64,24 +65,19 @@ class ElevenLabsConfig {
   bool get supportsRealTimeStreaming => true;
 
   /// Get the default voice ID
-  String get defaultVoiceId => voiceId ?? 'JBFqnCBsd6RMkjVDRZzb';
+  String get defaultVoiceId =>
+      voiceId ?? ProviderDefaults.elevenLabsDefaultVoiceId;
 
-  /// Get the default TTS model (matches original implementation)
-  String get defaultTTSModel => model ?? 'eleven_monolingual_v1';
+  /// Get the default TTS model (matches ElevenLabs API documentation)
+  String get defaultTTSModel =>
+      model ?? ProviderDefaults.elevenLabsDefaultTTSModel;
 
-  /// Get the default STT model
-  String get defaultSTTModel => model ?? 'eleven_multilingual_v2';
+  /// Get the default STT model (matches ElevenLabs API documentation)
+  String get defaultSTTModel => ProviderDefaults.elevenLabsDefaultSTTModel;
 
   /// Get supported audio formats
-  List<String> get supportedAudioFormats => [
-        'mp3_44100_128',
-        'mp3_44100_192',
-        'pcm_16000',
-        'pcm_22050',
-        'pcm_24000',
-        'pcm_44100',
-        'ulaw_8000',
-      ];
+  List<String> get supportedAudioFormats =>
+      ProviderDefaults.elevenLabsSupportedAudioFormats;
 
   /// Get voice settings for TTS
   Map<String, dynamic> get voiceSettings => {

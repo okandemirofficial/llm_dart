@@ -87,7 +87,20 @@ class DeepSeekChat implements ChatCapability {
 
   /// Parse response from DeepSeek API
   DeepSeekChatResponse _parseResponse(Map<String, dynamic> responseData) {
-    return DeepSeekChatResponse(responseData);
+    // Extract reasoning content from non-streaming response
+    // Reference: https://api-docs.deepseek.com/guides/reasoning_model
+    String? thinkingContent;
+
+    final choices = responseData['choices'] as List?;
+    if (choices != null && choices.isNotEmpty) {
+      final message = choices.first['message'] as Map<String, dynamic>?;
+      if (message != null) {
+        // Extract reasoning_content field from the message
+        thinkingContent = message['reasoning_content'] as String?;
+      }
+    }
+
+    return DeepSeekChatResponse(responseData, thinkingContent);
   }
 
   /// Parse stream events from SSE chunks with reasoning support
@@ -151,14 +164,16 @@ class DeepSeekChat implements ChatCapability {
     final delta = choice['delta'] as Map<String, dynamic>?;
     if (delta == null) return events;
 
-    // Handle reasoning content using reasoning utils
-    final reasoningContent = ReasoningUtils.extractReasoningContent(delta);
+    // Handle reasoning content only for reasoning-capable models
+    if (config.supportsReasoning) {
+      final reasoningContent = ReasoningUtils.extractReasoningContent(delta);
 
-    if (reasoningContent != null && reasoningContent.isNotEmpty) {
-      thinkingBuffer.write(reasoningContent);
-      _hasReasoningContent = true; // Update state
-      events.add(ThinkingDeltaEvent(reasoningContent));
-      return events;
+      if (reasoningContent != null && reasoningContent.isNotEmpty) {
+        thinkingBuffer.write(reasoningContent);
+        _hasReasoningContent = true; // Update state
+        events.add(ThinkingDeltaEvent(reasoningContent));
+        return events;
+      }
     }
 
     // Handle regular content
@@ -167,19 +182,21 @@ class DeepSeekChat implements ChatCapability {
       // Update last chunk for reasoning detection
       _lastChunk = content;
 
-      // Check reasoning status using utils
-      final reasoningResult = ReasoningUtils.checkReasoningStatus(
-        delta: delta,
-        hasReasoningContent: _hasReasoningContent,
-        lastChunk: lastChunk,
-      );
+      // Check reasoning status only for reasoning-capable models
+      if (config.supportsReasoning) {
+        final reasoningResult = ReasoningUtils.checkReasoningStatus(
+          delta: delta,
+          hasReasoningContent: _hasReasoningContent,
+          lastChunk: lastChunk,
+        );
 
-      // Update state based on reasoning detection
-      _hasReasoningContent = reasoningResult.hasReasoningContent;
+        // Update state based on reasoning detection
+        _hasReasoningContent = reasoningResult.hasReasoningContent;
 
-      if (reasoningResult.isReasoningJustDone) {
-        client.logger
-            .fine('Reasoning phase completed, starting response phase');
+        if (reasoningResult.isReasoningJustDone) {
+          client.logger
+              .fine('Reasoning phase completed, starting response phase');
+        }
       }
 
       // Filter out thinking tags for models that use <think> tags
@@ -281,6 +298,54 @@ class DeepSeekChat implements ChatCapability {
     if (config.topP != null) body['top_p'] = config.topP;
     if (config.topK != null) body['top_k'] = config.topK;
 
+    // DeepSeek-specific parameters
+    // Reference: https://api-docs.deepseek.com/api/create-chat-completion
+
+    // Check if using reasoning model
+    final isReasonerModel = config.supportsReasoning;
+
+    if (isReasonerModel) {
+      // deepseek-reasoner model restrictions
+      // Reference: https://api-docs.deepseek.com/guides/reasoning_model
+      // "Not Supported Parameters: temperature, top_p, presence_penalty, frequency_penalty, logprobs, top_logprobs"
+
+      // logprobs and top_logprobs will trigger an error
+      if (config.logprobs == true || config.topLogprobs != null) {
+        client.logger.warning(
+            'logprobs and top_logprobs are not supported by deepseek-reasoner model');
+      }
+
+      // temperature, top_p, presence_penalty, frequency_penalty have no effect but don't error
+      if (config.temperature != null) {
+        client.logger.info(
+            'temperature parameter has no effect on deepseek-reasoner model');
+      }
+      if (config.topP != null) {
+        client.logger
+            .info('top_p parameter has no effect on deepseek-reasoner model');
+      }
+      if (config.frequencyPenalty != null) {
+        client.logger.info(
+            'frequency_penalty parameter has no effect on deepseek-reasoner model');
+      }
+      if (config.presencePenalty != null) {
+        client.logger.info(
+            'presence_penalty parameter has no effect on deepseek-reasoner model');
+      }
+    } else {
+      // For non-reasoner models, add all supported parameters
+      if (config.logprobs != null) body['logprobs'] = config.logprobs;
+      if (config.topLogprobs != null) body['top_logprobs'] = config.topLogprobs;
+      if (config.frequencyPenalty != null)
+        body['frequency_penalty'] = config.frequencyPenalty;
+      if (config.presencePenalty != null)
+        body['presence_penalty'] = config.presencePenalty;
+    }
+
+    // response_format is supported by both models
+    if (config.responseFormat != null)
+      body['response_format'] = config.responseFormat;
+
     // Add tools if provided
     final effectiveTools = tools ?? config.tools;
     if (effectiveTools != null && effectiveTools.isNotEmpty) {
@@ -319,6 +384,12 @@ class DeepSeekChat implements ChatCapability {
       default:
         result['content'] = message.content;
     }
+
+    // Important: Remove reasoning_content field if present
+    // Reference: https://api-docs.deepseek.com/guides/reasoning_model
+    // "if the reasoning_content field is included in the sequence of input messages,
+    // the API will return a 400 error"
+    result.remove('reasoning_content');
 
     return result;
   }

@@ -38,6 +38,7 @@
 /// }
 /// ```
 
+import '../../core/provider_defaults.dart';
 import 'config.dart';
 import 'provider.dart';
 
@@ -53,7 +54,7 @@ export 'models.dart';
 /// Create an ElevenLabs provider with default settings
 ElevenLabsProvider createElevenLabsProvider({
   required String apiKey,
-  String baseUrl = 'https://api.elevenlabs.io/v1/',
+  String baseUrl = ProviderDefaults.elevenLabsBaseUrl,
   String? voiceId,
   String? model,
   Duration? timeout,
@@ -80,8 +81,8 @@ ElevenLabsProvider createElevenLabsProvider({
 /// Create an ElevenLabs provider optimized for high-quality TTS
 ElevenLabsProvider createElevenLabsTTSProvider({
   required String apiKey,
-  String voiceId = 'JBFqnCBsd6RMkjVDRZzb', // Default high-quality voice
-  String model = 'eleven_multilingual_v2',
+  String voiceId = ProviderDefaults.elevenLabsDefaultVoiceId,
+  String model = ProviderDefaults.elevenLabsDefaultTTSModel,
   double stability = 0.5,
   double similarityBoost = 0.75,
   double style = 0.0,
@@ -103,7 +104,7 @@ ElevenLabsProvider createElevenLabsTTSProvider({
 /// Create an ElevenLabs provider optimized for STT
 ElevenLabsProvider createElevenLabsSTTProvider({
   required String apiKey,
-  String model = 'eleven_multilingual_v2',
+  String model = ProviderDefaults.elevenLabsDefaultSTTModel,
 }) {
   final config = ElevenLabsConfig(
     apiKey: apiKey,
@@ -117,7 +118,7 @@ ElevenLabsProvider createElevenLabsSTTProvider({
 ElevenLabsProvider createElevenLabsCustomVoiceProvider({
   required String apiKey,
   required String voiceId,
-  String model = 'eleven_multilingual_v2',
+  String model = ProviderDefaults.elevenLabsDefaultTTSModel,
   double stability = 0.5,
   double similarityBoost = 0.75,
   double style = 0.0,
@@ -139,7 +140,7 @@ ElevenLabsProvider createElevenLabsCustomVoiceProvider({
 /// Create an ElevenLabs provider for real-time streaming
 ElevenLabsProvider createElevenLabsStreamingProvider({
   required String apiKey,
-  String voiceId = 'JBFqnCBsd6RMkjVDRZzb',
+  String voiceId = ProviderDefaults.elevenLabsDefaultVoiceId,
   String model = 'eleven_turbo_v2', // Faster model for streaming
   double stability = 0.5,
   double similarityBoost = 0.75,
