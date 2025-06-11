@@ -12,11 +12,19 @@ class ParameterProperty {
   /// When type is "enum", this defines the possible values for the parameter
   final List<String>? enumList;
 
+  /// When type is "object", this defines the properties of the object
+  final Map<String, ParameterProperty>? properties;
+
+  /// When type is "object", this defines which properties are required
+  final List<String>? required;
+
   const ParameterProperty({
     required this.propertyType,
     required this.description,
     this.items,
     this.enumList,
+    this.properties,
+    this.required,
   });
 
   Map<String, dynamic> toJson() {
@@ -33,6 +41,15 @@ class ParameterProperty {
       json['enum'] = enumList;
     }
 
+    if (properties != null) {
+      json['properties'] =
+          properties!.map((key, value) => MapEntry(key, value.toJson()));
+    }
+
+    if (required != null) {
+      json['required'] = required;
+    }
+
     return json;
   }
 
@@ -45,6 +62,17 @@ class ParameterProperty {
             : null,
         enumList: json['enum'] != null
             ? List<String>.from(json['enum'] as List)
+            : null,
+        properties: json['properties'] != null
+            ? (json['properties'] as Map<String, dynamic>).map(
+                (key, value) => MapEntry(
+                  key,
+                  ParameterProperty.fromJson(value as Map<String, dynamic>),
+                ),
+              )
+            : null,
+        required: json['required'] != null
+            ? List<String>.from(json['required'] as List)
             : null,
       );
 }
