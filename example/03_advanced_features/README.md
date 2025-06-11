@@ -1,121 +1,144 @@
-# 🔴 Advanced Features
+# Advanced Features
 
-Explore the cutting-edge capabilities of LLM Dart. These examples demonstrate advanced AI features and sophisticated integration patterns.
+Sophisticated AI capabilities for production applications with LLM Dart.
 
-## 📚 Learning Path
+## Examples
 
-### Step 1: Reasoning Models
-**[reasoning_models.dart](reasoning_models.dart)** - AI thinking processes
-- Understanding reasoning models
-- Accessing thinking processes
-- Optimizing for complex problems
-- Comparing reasoning vs standard models
+### [reasoning_models.dart](reasoning_models.dart)
+AI reasoning with visible thinking processes using DeepSeek R1.
 
-### Step 2: Multi-modal Processing
-**[multi_modal.dart](multi_modal.dart)** - Images, audio, and files
-- Image processing and analysis
-- Audio transcription and generation
-- File handling and document processing
-- Multi-modal conversations
+### [multi_modal.dart](multi_modal.dart)
+Image, audio, and document processing with AI models.
 
-### Step 3: Custom Providers
-**[custom_providers.dart](custom_providers.dart)** - Build your own providers
-- Creating custom AI providers
-- Implementing required interfaces
-- Adding custom functionality
-- Integration patterns
+### [custom_providers.dart](custom_providers.dart)
+Build custom AI providers with specialized functionality.
 
-### Step 4: Performance Optimization
-**[performance_optimization.dart](performance_optimization.dart)** - Speed and efficiency
-- Caching strategies
-- Request optimization
-- Parallel processing
-- Memory management
+### [performance_optimization.dart](performance_optimization.dart)
+Caching, batching, and optimization for production workloads.
 
-## 🎯 What You'll Master
+### [batch_processing.dart](batch_processing.dart)
+Concurrent processing with rate limiting and error handling.
 
-After completing these examples, you'll be able to:
+### [semantic_search.dart](semantic_search.dart)
+Embedding-based search engine with hybrid ranking.
 
-- ✅ Leverage AI reasoning capabilities for complex problems
-- ✅ Process images, audio, and documents with AI
-- ✅ Build custom AI providers for specific needs
-- ✅ Optimize performance for production applications
-- ✅ Implement advanced integration patterns
+### [realtime_audio.dart](realtime_audio.dart)
+Real-time audio streaming and voice activity detection.
 
-## 🚀 Running Examples
+## Setup
 
 ```bash
-# Set required API keys
-export OPENAI_API_KEY="your-key"
-export ANTHROPIC_API_KEY="your-key"
-export ELEVENLABS_API_KEY="your-key"  # For audio features
+# Set up environment variables
+export OPENAI_API_KEY="your-openai-key"
+export ANTHROPIC_API_KEY="your-anthropic-key"
+export DEEPSEEK_API_KEY="your-deepseek-key"
+export ELEVENLABS_API_KEY="your-elevenlabs-key"
 
-# Run examples
+# Run advanced feature examples
 dart run reasoning_models.dart
 dart run multi_modal.dart
 dart run custom_providers.dart
 dart run performance_optimization.dart
 ```
 
-## 💡 Key Concepts
+## Key Concepts
 
 ### Reasoning Models
-- **Thinking Process**: Access to AI's internal reasoning
+- **Thinking Process**: Access to AI's internal reasoning steps
 - **Complex Problems**: Better performance on multi-step tasks
-- **Chain of Thought**: Step-by-step problem solving
-- **Verification**: Self-checking and validation
+- **DeepSeek R1**: Visible thinking process for learning and debugging
+- **Streaming**: Real-time reasoning with progressive thinking
 
 ### Multi-modal Processing
 - **Vision**: Image analysis and understanding
-- **Audio**: Speech processing and generation
-- **Documents**: PDF, text, and file processing
-- **Integration**: Combining different modalities
-
-### Custom Providers
-- **Interfaces**: Implementing ChatCapability
-- **Flexibility**: Custom behavior and features
-- **Integration**: Seamless library integration
-- **Testing**: Mock providers for development
+- **Audio**: Speech-to-text and text-to-speech
+- **Documents**: PDF and file processing
+- **Integration**: Combining different input modalities
 
 ### Performance Optimization
-- **Caching**: Response and computation caching
-- **Batching**: Efficient request grouping
-- **Streaming**: Real-time processing
-- **Monitoring**: Performance metrics and optimization
+- **Batch Processing**: Concurrent request handling with rate limits
+- **Semantic Search**: Vector-based search with embeddings
+- **Real-time Audio**: Low-latency streaming and voice detection
+- **Custom Providers**: Specialized implementations for specific needs
 
-## 📖 Prerequisites
+## Usage Examples
 
-Before diving into advanced features, ensure you've completed:
+### Reasoning with DeepSeek R1
+```dart
+// Access AI thinking process
+final provider = await ai().deepseek().apiKey('your-key')
+    .model('deepseek-reasoner').build();
 
-1. **[Getting Started](../01_getting_started/)** - Basic setup
-2. **[Core Features](../02_core_features/)** - Essential functionality
-3. **Basic understanding of async/await patterns**
-4. **Familiarity with Dart interfaces and classes**
+final response = await provider.chat([
+  ChatMessage.user('Solve this step by step: 15 + 27 * 3'),
+]);
 
-## 🔗 Related Examples
+// Access thinking process
+if (response.thinking != null) {
+  print('AI Thinking: ${response.thinking}');
+}
+print('Answer: ${response.text}');
+```
 
-- **Core**: [Streaming Chat](../02_core_features/streaming_chat.dart) - Foundation for advanced streaming
-- **Use Cases**: [Voice Assistant](../05_use_cases/voice_assistant.dart) - Multi-modal application
-- **Integration**: [Flutter App](../06_integration/flutter_app.dart) - Production integration
+### Multi-modal Processing
+```dart
+// Process image with text
+final provider = await ai().openai().apiKey('your-key').build();
 
-## ⚠️ Important Notes
+final response = await provider.chat([
+  ChatMessage.user([
+    ChatMessageContent.text('What do you see in this image?'),
+    ChatMessageContent.image('data:image/jpeg;base64,...'),
+  ]),
+]);
+```
 
-### API Requirements
-- **Reasoning models** require specific model access (e.g., OpenAI o1 series)
-- **Multi-modal features** may require additional API permissions
-- **Audio processing** requires ElevenLabs API for some features
+### Batch Processing
+```dart
+// Process multiple requests concurrently
+final batchProcessor = BatchProcessor(provider);
+final tasks = List.generate(10, (i) =>
+  BatchTask(id: 'task_$i', prompt: 'Analyze item $i'));
 
-### Performance Considerations
-- **Reasoning models** are slower but more accurate
-- **Multi-modal processing** requires more bandwidth
-- **Custom providers** should implement proper error handling
-- **Optimization techniques** may increase complexity
+final results = await batchProcessor.processBatch(tasks);
+print('Completed: ${results.where((r) => r.isSuccess).length}');
+```
 
-### Cost Implications
-- **Reasoning models** typically cost more per token
-- **Multi-modal processing** has additional costs for images/audio
-- **Performance optimization** can reduce overall costs
+### Semantic Search
+```dart
+// Build search engine with embeddings
+final searchEngine = SemanticSearchEngine(embeddingProvider);
+await searchEngine.indexDocuments(documents);
 
----
+final results = await searchEngine.search('machine learning');
+for (final result in results) {
+  print('${result.document.title}: ${result.score}');
+}
+```
 
-**💡 Tip**: These advanced features are powerful but complex. Start with the basics and gradually incorporate advanced capabilities as needed!
+## Best Practices
+
+### Reasoning Models
+- Use DeepSeek R1 when you need to see thinking process
+- Allow extra time for reasoning (slower but more accurate)
+- Analyze thinking patterns for insights and debugging
+- Compare with standard models for cost/accuracy trade-offs
+
+### Performance Optimization
+- Implement proper batch sizes for your use case
+- Use rate limiting to avoid API throttling
+- Cache embeddings and frequent responses
+- Monitor costs and optimize accordingly
+
+### Multi-modal Processing
+- Validate input formats before processing
+- Handle different modalities gracefully
+- Optimize image sizes for faster processing
+- Use appropriate models for each modality
+
+## Next Steps
+
+- [Provider Examples](../04_providers/) - Provider-specific features and optimizations
+- [Use Cases](../05_use_cases/) - Complete applications and Flutter integration
+- [Core Features](../02_core_features/) - Essential functionality
+- [Getting Started](../01_getting_started/) - Environment setup and configuration

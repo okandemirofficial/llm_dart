@@ -1,67 +1,47 @@
-# 🟠 DeepSeek Provider Examples
+# DeepSeek Unique Features
 
-DeepSeek offers high-performance reasoning models with excellent cost-effectiveness and strong coding capabilities.
+Cost-effective reasoning models with transparent thinking process.
 
-## 📁 Examples
+## Examples
 
-### 🚀 [basic_usage.dart](basic_usage.dart)
-**Getting Started with DeepSeek**
-- Model selection (Chat, Reasoner, Coder)
-- Basic configuration and chat
-- Cost-effective usage patterns
-- Performance comparison
-- Best practices for DeepSeek
+DeepSeek reasoning capabilities are demonstrated in the [Advanced Features](../../03_advanced_features/reasoning_models.dart) section.
 
-## 🎯 Key Features
+## Setup
 
-### Model Variants
-- **deepseek-chat**: General purpose conversational AI
-- **deepseek-reasoner**: Advanced reasoning with thinking process
-- **deepseek-coder**: Specialized for coding tasks
+```bash
+export DEEPSEEK_API_KEY="your-deepseek-api-key"
 
-### Unique Capabilities
-- **Cost-Effective**: Excellent price-performance ratio
-- **Reasoning**: Advanced thinking and analysis capabilities
-- **Coding**: Strong programming and development support
-- **Speed**: Fast inference and response times
-
-### Configuration Options
-- Temperature control for creativity
-- Reasoning mode for complex tasks
-- Token budget management
-- OpenAI-compatible interface
-
-## 🚀 Quick Start
-
-```dart
-// Basic DeepSeek usage
-final provider = await ai()
-    .deepseek()
-    .apiKey('your-deepseek-api-key')
-    .model('deepseek-chat')
-    .temperature(0.7)
-    .maxTokens(1000)
-    .build();
-
-final response = await provider.chat([
-  ChatMessage.user('Explain quantum computing')
-]);
+# DeepSeek reasoning examples are in advanced features
+cd ../../03_advanced_features
+dart run reasoning_models.dart
 ```
 
-## 💡 Best Practices
+## Unique Capabilities
 
-1. **Model Selection**: Use chat for general tasks, reasoner for complex problems
-2. **Cost Management**: Monitor token usage for cost optimization
-3. **Reasoning**: Enable thinking for mathematical and logical tasks
-4. **Coding**: Leverage strong programming capabilities
-5. **Streaming**: Use for real-time applications
+### Reasoning Models
+- **deepseek-reasoner**: Advanced reasoning with visible thinking process
+- **Transparent Thinking**: Access to step-by-step reasoning
+- **Cost-Effective**: High performance at low cost
 
-## 🔗 Related Examples
+## Usage Examples
+
+### Reasoning with Thinking Process
+```dart
+final provider = await ai().deepseek().apiKey('your-key')
+    .model('deepseek-reasoner').build();
+
+final response = await provider.chat([
+  ChatMessage.user('Solve this step by step: 15 + 27 * 3'),
+]);
+
+// Access transparent thinking process
+if (response.thinking != null) {
+  print('AI thinking: ${response.thinking}');
+}
+print('Final answer: ${response.text}');
+```
+
+## Next Steps
 
 - [Core Features](../../02_core_features/) - Basic chat and streaming
-- [Advanced Features](../../03_advanced_features/) - Reasoning models
-- [Use Cases](../../05_use_cases/) - Code assistant applications
-
----
-
-**💡 DeepSeek excels at reasoning tasks and coding with excellent cost-effectiveness!**
+- [Advanced Features](../../03_advanced_features/) - Cross-provider reasoning
