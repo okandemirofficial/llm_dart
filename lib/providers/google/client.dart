@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:logging/logging.dart';
 
+import '../../utils/utf8_stream_decoder.dart';
 import 'config.dart';
 
 /// Core Google HTTP client shared across all capability modules
@@ -78,9 +81,20 @@ class GoogleClient {
             'Unexpected response type: ${responseBody.runtimeType}');
       }
 
+      // Use UTF-8 stream decoder to handle incomplete byte sequences
+      final decoder = Utf8StreamDecoder();
+
       await for (final chunk in stream) {
-        final chunkString = String.fromCharCodes(chunk);
-        yield chunkString;
+        final decoded = decoder.decode(chunk);
+        if (decoded.isNotEmpty) {
+          yield decoded;
+        }
+      }
+
+      // Flush any remaining bytes
+      final remaining = decoder.flush();
+      if (remaining.isNotEmpty) {
+        yield remaining;
       }
     } on DioException catch (e) {
       logger.severe('Stream request failed: ${e.message}');

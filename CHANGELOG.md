@@ -11,9 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - New examples and restructured the example directory for better clarity.
 - **Comprehensive Test Suite**: Added extensive test coverage for core functionality
+- **UTF-8 Stream Decoder**: Robust handling of multi-byte characters in streaming responses
+  - `Utf8StreamDecoder` class for intelligent buffering of incomplete UTF-8 byte sequences
+  - Prevents `FormatException: Unfinished UTF-8 octet sequence` errors in streaming
 
 ### Fixed
 
+- **UTF-8 Streaming Issues**: Complete resolution of multi-byte character encoding problems
+  - Fixed garbled text output (e.g., `ä½ æ` → `你好`) in streaming responses
+  - Updated all provider clients (OpenAI, Anthropic, DeepSeek, Groq, Google, xAI, Ollama) to use UTF-8 stream decoder
+  - Proper handling of Chinese, Japanese, Korean, Arabic, and emoji characters in streams
+  - Eliminated `FormatException: Unfinished UTF-8 octet sequence` errors when multi-byte characters are split across network chunks
 - **BaseProviderFactory**: Improved validation logic in `validateConfigWithDetails` method
 
 ## [0.4.0] - 2025-6-11
