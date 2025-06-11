@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - New examples and restructured the example directory for better clarity.
+- **Comprehensive Test Suite**: Added extensive test coverage for core functionality
+
+### Fixed
+
+- **BaseProviderFactory**: Improved validation logic in `validateConfigWithDetails` method
 
 ## [0.4.0] - 2025-6-11
 

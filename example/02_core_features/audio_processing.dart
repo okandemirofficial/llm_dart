@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:llm_dart/llm_dart.dart';
 
 /// Audio processing examples using AudioCapability interface
-/// 
+///
 /// This example demonstrates:
 /// - Text-to-speech conversion
 /// - Speech-to-text transcription
@@ -18,10 +18,9 @@ Future<void> main() async {
 
   try {
     final provider = await ai().openai().apiKey(apiKey).buildAudio();
-    
+
     await demonstrateTextToSpeech(provider, 'OpenAI');
     await demonstrateSpeechToText(provider, 'OpenAI');
-    
   } catch (e) {
     print('❌ Failed to initialize audio processing: $e');
   }
@@ -30,12 +29,14 @@ Future<void> main() async {
 }
 
 /// Demonstrate text-to-speech functionality
-Future<void> demonstrateTextToSpeech(AudioCapability provider, String providerName) async {
+Future<void> demonstrateTextToSpeech(
+    AudioCapability provider, String providerName) async {
   print('🗣️ Text-to-Speech ($providerName):\n');
 
   try {
     final request = TTSRequest(
-      text: 'Hello! This is a demonstration of text-to-speech conversion using LLM Dart.',
+      text:
+          'Hello! This is a demonstration of text-to-speech conversion using LLM Dart.',
       voice: 'alloy',
       format: 'mp3',
       speed: 1.0,
@@ -45,12 +46,11 @@ Future<void> demonstrateTextToSpeech(AudioCapability provider, String providerNa
 
     print('   ✅ Audio generated successfully');
     print('   📊 Audio data size: ${response.audioData.length} bytes');
-    
+
     // Save audio to file
     final filename = 'tts_output_${DateTime.now().millisecondsSinceEpoch}.mp3';
     await File(filename).writeAsBytes(response.audioData);
     print('   💾 Saved audio to: $filename');
-
   } catch (e) {
     print('   ❌ Text-to-speech failed: $e');
   }
@@ -58,13 +58,14 @@ Future<void> demonstrateTextToSpeech(AudioCapability provider, String providerNa
 }
 
 /// Demonstrate speech-to-text functionality
-Future<void> demonstrateSpeechToText(AudioCapability provider, String providerName) async {
+Future<void> demonstrateSpeechToText(
+    AudioCapability provider, String providerName) async {
   print('🎤 Speech-to-Text ($providerName):\n');
 
   try {
     // Note: In real usage, you would provide an actual audio file
     // For demo purposes, we'll show the API structure
-    
+
     print('   📝 Speech-to-text API ready (provide audio file to test)');
     print('   Example usage:');
     print('   ```dart');
@@ -85,7 +86,6 @@ Future<void> demonstrateSpeechToText(AudioCapability provider, String providerNa
     // );
     // final response = await provider.speechToText(request);
     // print('   📝 Transcription: ${response.text}');
-
   } catch (e) {
     print('   ❌ Speech-to-text failed: $e');
   }

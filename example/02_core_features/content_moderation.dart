@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:llm_dart/llm_dart.dart';
 
 /// Content moderation examples using ModerationCapability interface
-/// 
+///
 /// This example demonstrates:
 /// - Basic content moderation
 /// - Batch processing
@@ -18,10 +18,9 @@ Future<void> main() async {
 
   try {
     final provider = await ai().openai().apiKey(apiKey).buildModeration();
-    
+
     await demonstrateBasicModeration(provider, 'OpenAI');
     await demonstrateBatchModeration(provider, 'OpenAI');
-    
   } catch (e) {
     print('❌ Failed to initialize moderation: $e');
   }
@@ -30,7 +29,8 @@ Future<void> main() async {
 }
 
 /// Demonstrate basic content moderation
-Future<void> demonstrateBasicModeration(ModerationCapability provider, String providerName) async {
+Future<void> demonstrateBasicModeration(
+    ModerationCapability provider, String providerName) async {
   print('🔍 Basic Content Moderation ($providerName):\n');
 
   final testContents = [
@@ -62,7 +62,8 @@ Future<void> demonstrateBasicModeration(ModerationCapability provider, String pr
 }
 
 /// Demonstrate batch moderation processing
-Future<void> demonstrateBatchModeration(ModerationCapability provider, String providerName) async {
+Future<void> demonstrateBatchModeration(
+    ModerationCapability provider, String providerName) async {
   print('📦 Batch Moderation ($providerName):\n');
 
   final batchContent = [
@@ -97,5 +98,6 @@ Future<void> demonstrateBatchModeration(ModerationCapability provider, String pr
   print('   📊 Batch Results:');
   print('      ✅ Safe: $safeCount');
   print('      🚨 Flagged: $flaggedCount');
-  print('      📈 Safety rate: ${(safeCount / results.length * 100).toStringAsFixed(1)}%');
+  print(
+      '      📈 Safety rate: ${(safeCount / results.length * 100).toStringAsFixed(1)}%');
 }

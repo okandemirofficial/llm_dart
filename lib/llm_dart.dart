@@ -36,6 +36,9 @@ export 'providers/phind/phind.dart';
 export 'providers/groq/groq.dart';
 export 'providers/elevenlabs/elevenlabs.dart';
 
+// Factory exports
+export 'providers/factories/base_factory.dart';
+
 // Builder exports
 export 'builder/llm_builder.dart';
 

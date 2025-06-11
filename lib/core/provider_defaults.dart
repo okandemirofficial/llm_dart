@@ -180,6 +180,7 @@ class ProviderDefaults {
       case 'elevenlabs':
         return {
           'baseUrl': elevenLabsBaseUrl,
+          'model': elevenLabsDefaultTTSModel, // Use TTS model as default model
           'voiceId': elevenLabsDefaultVoiceId,
           'ttsModel': elevenLabsDefaultTTSModel,
           'sttModel': elevenLabsDefaultSTTModel,

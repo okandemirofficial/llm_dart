@@ -51,7 +51,8 @@ Future<void> demonstrateSpeedBenchmark(String apiKey) async {
       stopwatch.stop();
 
       times.add(stopwatch.elapsedMilliseconds);
-      print('${i + 1}. ${testQuestions[i]} - ${stopwatch.elapsedMilliseconds}ms');
+      print(
+          '${i + 1}. ${testQuestions[i]} - ${stopwatch.elapsedMilliseconds}ms');
     }
 
     final avgTime = times.reduce((a, b) => a + b) / times.length;
@@ -62,8 +63,9 @@ Future<void> demonstrateSpeedBenchmark(String apiKey) async {
     print('• Average: ${avgTime.toStringAsFixed(1)}ms');
     print('• Fastest: ${minTime}ms');
     print('• Slowest: ${maxTime}ms');
-    print('• Consistency: ${((maxTime - minTime) / avgTime * 100).toStringAsFixed(1)}% variation');
-    
+    print(
+        '• Consistency: ${((maxTime - minTime) / avgTime * 100).toStringAsFixed(1)}% variation');
+
     print('\nGroq Speed Advantages:');
     print('• Sub-second responses for most queries');
     print('• Consistent low latency');
@@ -94,7 +96,8 @@ Future<void> demonstrateStreamingSpeed(String apiKey) async {
     var firstChunkTime = 0;
     var chunkCount = 0;
 
-    await for (final event in provider.chatStream([ChatMessage.user(question)])) {
+    await for (final event
+        in provider.chatStream([ChatMessage.user(question)])) {
       switch (event) {
         case TextDeltaEvent(delta: final delta):
           chunkCount++;
@@ -154,9 +157,10 @@ Future<void> demonstrateParallelProcessing(String apiKey) async {
     final stopwatch = Stopwatch()..start();
 
     // Process all questions simultaneously
-    final futures = questions.map((q) => provider.chat([ChatMessage.user(q)])).toList();
+    final futures =
+        questions.map((q) => provider.chat([ChatMessage.user(q)])).toList();
     final responses = await Future.wait(futures);
-    
+
     stopwatch.stop();
 
     print('\nResults:');
@@ -167,9 +171,11 @@ Future<void> demonstrateParallelProcessing(String apiKey) async {
 
     print('Parallel Processing Performance:');
     print('• Total time: ${stopwatch.elapsedMilliseconds}ms');
-    print('• Average per question: ${(stopwatch.elapsedMilliseconds / questions.length).toStringAsFixed(1)}ms');
-    print('• Throughput: ${(questions.length * 1000 / stopwatch.elapsedMilliseconds).toStringAsFixed(1)} requests/sec');
-    
+    print(
+        '• Average per question: ${(stopwatch.elapsedMilliseconds / questions.length).toStringAsFixed(1)}ms');
+    print(
+        '• Throughput: ${(questions.length * 1000 / stopwatch.elapsedMilliseconds).toStringAsFixed(1)} requests/sec');
+
     print('\nGroq Parallel Processing Benefits:');
     print('• High concurrent request handling');
     print('• Consistent performance under load');

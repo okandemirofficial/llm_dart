@@ -1,7 +1,5 @@
 // ignore_for_file: avoid_print
 import 'dart:io';
-import 'dart:convert';
-import 'dart:typed_data';
 import 'package:llm_dart/llm_dart.dart';
 
 /// 🎭 Multimodal Application - Text, Image, and Audio Processing
@@ -31,8 +29,8 @@ void main(List<String> arguments) async {
 /// Comprehensive multimodal AI application
 class MultimodalApp {
   late ChatCapability _chatProvider;
-  late ImageGenerationCapability _imageProvider;
-  late AudioCapability _audioProvider;
+  ImageGenerationCapability? _imageProvider;
+  AudioCapability? _audioProvider;
 
   bool _verbose = false;
 
@@ -130,25 +128,31 @@ EXAMPLES:
 
       // Initialize OpenAI for image and audio capabilities
       final openaiKey = Platform.environment['OPENAI_API_KEY'] ?? 'sk-TESTKEY';
-      final openaiProvider = await ai()
-          .openai()
-          .apiKey(openaiKey)
-          .model('gpt-4o')
-          .build();
 
-      // Check for image generation capability
-      if (openaiProvider is ImageGenerationCapability) {
-        _imageProvider = openaiProvider;
+      // Use capability factory methods for type-safe initialization
+      try {
+        _imageProvider = await ai()
+            .openai()
+            .apiKey(openaiKey)
+            .model('dall-e-3')
+            .buildImageGeneration();
         if (_verbose) {
           print('✅ Image provider initialized (OpenAI DALL-E)');
         }
+      } catch (e) {
+        if (_verbose) {
+          print('⚠️ Image generation not available: $e');
+        }
       }
 
-      // Check for audio capability
-      if (openaiProvider is AudioCapability) {
-        _audioProvider = openaiProvider;
+      try {
+        _audioProvider = await ai().openai().apiKey(openaiKey).buildAudio();
         if (_verbose) {
           print('✅ Audio provider initialized (OpenAI Whisper)');
+        }
+      } catch (e) {
+        if (_verbose) {
+          print('⚠️ Audio processing not available: $e');
         }
       }
 
@@ -195,7 +199,8 @@ EXAMPLES:
           await interactiveWorkflow();
           break;
         default:
-          print('❓ Unknown command. Available: text, image, audio, workflow, quit');
+          print(
+              '❓ Unknown command. Available: text, image, audio, workflow, quit');
       }
     }
   }
@@ -359,7 +364,7 @@ EXAMPLES:
         print('🎨 Generated image');
 
         final audioScript = await createAudioScript(textContent);
-        print('🎵 Created audio script');
+        print('🎵 Created audio script: ${audioScript.substring(0, 50)}...');
 
         print('✅ Workflow completed successfully!\n');
       } catch (e) {
@@ -401,11 +406,11 @@ EXAMPLES:
 
     final request = ImageGenerationRequest(
       prompt: prompt,
-      n: 1,
-      size: ImageSize.size1024x1024,
+      count: 1,
+      size: '1024x1024',
     );
 
-    final response = await _imageProvider.generateImages(request);
+    final response = await _imageProvider!.generateImages(request);
 
     if (response.images.isNotEmpty) {
       if (_verbose) {
@@ -430,11 +435,11 @@ EXAMPLES:
 
   /// Process audio text (simulated audio processing)
   Future<String> processAudioText(String text) async {
-    // In a real implementation, this would:
-    // 1. Convert text to speech
-    // 2. Process audio for clarity
-    // 3. Add effects or modifications
-    // 4. Return processed audio information
+    // In a real implementation, this would use _audioProvider for actual TTS/STT
+    if (_audioProvider != null) {
+      // Could use _audioProvider.textToSpeech() here for real audio processing
+      print('   🎵 Audio provider available for real processing');
+    }
 
     final messages = [
       ChatMessage.system(
