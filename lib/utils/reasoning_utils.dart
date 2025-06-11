@@ -130,7 +130,8 @@ class ReasoningUtils {
         model == 'deepseek-reasoner' ||
         model == 'deepseek-r1' ||
         model.contains('claude-3.7-sonnet') ||
-        model.contains('claude-3-7-sonnet') ||
+        model.contains('claude-opus-4') ||
+        model.contains('claude-sonnet-4') ||
         model.contains('qwen') && model.contains('reasoning') ||
         model.toLowerCase().contains('reasoning') ||
         model.toLowerCase().contains('thinking');
@@ -168,7 +169,8 @@ class ReasoningUtils {
 
     // Claude 3.7 Sonnet thinking support
     if (model.contains('claude-3.7-sonnet') ||
-        model.contains('claude-3-7-sonnet')) {
+        model.contains('claude-sonnet-4') ||
+        model.contains('claude-opus-4')) {
       const effortRatios = {
         ReasoningEffort.high: 0.8,
         ReasoningEffort.medium: 0.5,

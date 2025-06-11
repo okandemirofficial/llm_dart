@@ -42,7 +42,7 @@ Future<void> demonstrateFileManagement(String apiKey) async {
   try {
     final provider = createAnthropicProvider(
       apiKey: apiKey,
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-20250514',
     );
 
     // Example 1: Upload a text file
@@ -147,7 +147,7 @@ Future<void> demonstrateTextFileProcessing(String apiKey) async {
   try {
     final provider = createAnthropicProvider(
       apiKey: apiKey,
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-20250514',
       temperature: 0.3,
       maxTokens: 1500,
     );
@@ -225,7 +225,7 @@ Future<void> demonstrateImageAnalysis(String apiKey) async {
   try {
     final provider = createAnthropicProvider(
       apiKey: apiKey,
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-20250514',
       temperature: 0.4,
       maxTokens: 1000,
     );
@@ -284,7 +284,7 @@ Future<void> demonstratePDFProcessing(String apiKey) async {
   try {
     final provider = createAnthropicProvider(
       apiKey: apiKey,
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-20250514',
       temperature: 0.3,
       maxTokens: 2000,
     );
@@ -362,7 +362,7 @@ Future<void> demonstrateMultiFileAnalysis(String apiKey) async {
   try {
     final provider = createAnthropicProvider(
       apiKey: apiKey,
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-20250514',
       temperature: 0.3,
       maxTokens: 2000,
     );
@@ -459,7 +459,7 @@ Future<void> demonstrateDocumentComparison(String apiKey) async {
   try {
     final provider = createAnthropicProvider(
       apiKey: apiKey,
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-20250514',
       temperature: 0.2, // Lower for analytical comparison
       maxTokens: 1500,
     );

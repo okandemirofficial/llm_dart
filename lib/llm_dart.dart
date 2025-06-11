@@ -13,6 +13,7 @@ export 'core/registry.dart';
 export 'core/base_http_provider.dart';
 export 'core/openai_compatible_configs.dart';
 export 'core/tool_validator.dart';
+export 'core/web_search.dart';
 
 // Model exports
 export 'models/chat_models.dart';

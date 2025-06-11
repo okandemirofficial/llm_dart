@@ -46,7 +46,15 @@ Master the essential functionality of LLM Dart. These examples cover the most im
 - Model metadata inspection
 - Provider-specific model features
 
-### Step 7: Production Ready
+### Step 7: Web Search Integration
+**[web_search.dart](web_search.dart)** - Unified web search across providers
+- Real-time web search capabilities
+- Provider-agnostic search API
+- News search and filtering
+- Location-based search results
+- Domain filtering and customization
+
+### Step 8: Production Ready
 **[error_handling.dart](error_handling.dart)** - Robust error management
 - Error types and handling
 - Retry strategies
@@ -63,6 +71,7 @@ After completing these examples, you'll be able to:
 - ✅ Handle structured data and validation
 - ✅ Discover and compare provider capabilities
 - ✅ Explore and select appropriate models
+- ✅ Implement web search across providers
 - ✅ Build production-ready error handling
 
 ## 🚀 Running Examples
@@ -80,6 +89,7 @@ dart run tool_calling.dart
 dart run structured_output.dart
 dart run capability_detection.dart
 dart run model_listing.dart
+dart run web_search.dart
 dart run error_handling.dart
 ```
 
@@ -118,6 +128,12 @@ dart run error_handling.dart
 - **Filtering**: Filter models by type and capability
 - **Metadata**: Access model information and ownership
 - **Selection**: Choose appropriate models for tasks
+
+### Web Search
+- **Unified API**: Same interface across all providers
+- **Provider Adaptation**: Automatic translation to provider-specific formats
+- **Rich Configuration**: Domain filtering, location-based search, context control
+- **Multiple Sources**: Web, news, academic sources
 
 ### Error Handling
 - **Types**: Authentication, rate limits, network errors

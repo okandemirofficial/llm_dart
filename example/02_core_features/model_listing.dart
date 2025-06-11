@@ -41,14 +41,16 @@ Future<Map<String, ModelListingCapability>>
   final openaiKey = Platform.environment['OPENAI_API_KEY'];
   if (openaiKey != null) {
     try {
-      final openai =
-          await ai().openai().apiKey(openaiKey).model('gpt-4o-mini').build();
+      final openai = await ai()
+          .openai()
+          .apiKey(openaiKey)
+          .model('gpt-4o-mini')
+          .buildModelListing();
 
       if (openai is ProviderCapabilities &&
           (openai as ProviderCapabilities)
-              .supports(LLMCapability.modelListing) &&
-          openai is ModelListingCapability) {
-        providers['OpenAI'] = openai as ModelListingCapability;
+              .supports(LLMCapability.modelListing)) {
+        providers['OpenAI'] = openai;
       }
     } catch (e) {
       print('⚠️  Failed to create OpenAI provider: $e');
@@ -63,13 +65,12 @@ Future<Map<String, ModelListingCapability>>
           .anthropic()
           .apiKey(anthropicKey)
           .model('claude-3-5-haiku-20241022')
-          .build();
+          .buildModelListing();
 
       if (anthropic is ProviderCapabilities &&
           (anthropic as ProviderCapabilities)
-              .supports(LLMCapability.modelListing) &&
-          anthropic is ModelListingCapability) {
-        providers['Anthropic'] = anthropic as ModelListingCapability;
+              .supports(LLMCapability.modelListing)) {
+        providers['Anthropic'] = anthropic;
       }
     } catch (e) {
       print('⚠️  Failed to create Anthropic provider: $e');
@@ -80,13 +81,15 @@ Future<Map<String, ModelListingCapability>>
   final ollamaUrl =
       Platform.environment['OLLAMA_BASE_URL'] ?? 'http://localhost:11434';
   try {
-    final ollama =
-        await ai().ollama().baseUrl(ollamaUrl).model('llama3.2').build();
+    final ollama = await ai()
+        .ollama()
+        .baseUrl(ollamaUrl)
+        .model('llama3.2')
+        .buildModelListing();
 
     if (ollama is ProviderCapabilities &&
-        (ollama as ProviderCapabilities).supports(LLMCapability.modelListing) &&
-        ollama is ModelListingCapability) {
-      providers['Ollama'] = ollama as ModelListingCapability;
+        (ollama as ProviderCapabilities).supports(LLMCapability.modelListing)) {
+      providers['Ollama'] = ollama;
     }
   } catch (e) {
     print('⚠️  Failed to create Ollama provider: $e');

@@ -34,11 +34,11 @@ Future<void> demonstrateBasicThinking(String apiKey) async {
   print('🧠 Basic Thinking Process:\n');
 
   try {
-    // Use Claude 3.5 Sonnet for thinking capabilities
+    // Use Claude Sonnet 4 for thinking capabilities
     final provider = await ai()
         .anthropic()
         .apiKey(apiKey)
-        .model('claude-3-5-sonnet-20241022')
+        .model('claude-sonnet-4-20250514')
         .temperature(0.3) // Lower for more focused thinking
         .maxTokens(1500)
         .build();
@@ -52,7 +52,7 @@ How can I do this? Please show your thinking process step by step.
 
     print(
         '   Problem: Water jug puzzle (3-gallon and 5-gallon jugs, measure 4 gallons)');
-    print('   Model: claude-3-5-sonnet-20241022');
+    print('   Model: claude-sonnet-4-20250514');
 
     // Show the thinking process if available
     if (response.thinking != null && response.thinking!.isNotEmpty) {
@@ -83,7 +83,7 @@ Future<void> demonstrateComplexReasoning(String apiKey) async {
     final provider = await ai()
         .anthropic()
         .apiKey(apiKey)
-        .model('claude-3-5-sonnet-20241022')
+        .model('claude-sonnet-4-20250514')
         .temperature(0.2) // Even lower for analytical tasks
         .maxTokens(2000)
         .build();
@@ -135,7 +135,7 @@ Future<void> demonstrateStreamingThinking(String apiKey) async {
     final provider = await ai()
         .anthropic()
         .apiKey(apiKey)
-        .model('claude-3-5-sonnet-20241022')
+        .model('claude-sonnet-4-20250514')
         .temperature(0.4)
         .maxTokens(1500)
         .build();
@@ -207,7 +207,7 @@ Future<void> demonstrateEthicalReasoning(String apiKey) async {
     final provider = await ai()
         .anthropic()
         .apiKey(apiKey)
-        .model('claude-3-5-sonnet-20241022')
+        .model('claude-sonnet-4-20250514')
         .temperature(0.3)
         .maxTokens(1500)
         .build();
@@ -276,7 +276,7 @@ Future<void> demonstrateComparativeAnalysis(String apiKey) async {
     final provider = await ai()
         .anthropic()
         .apiKey(apiKey)
-        .model('claude-3-5-sonnet-20241022')
+        .model('claude-sonnet-4-20250514')
         .temperature(0.3)
         .maxTokens(2000)
         .build();

@@ -1,27 +1,26 @@
 # 🔧 Other Providers Examples
 
-Additional AI providers and specialized integrations for extended functionality.
+Additional AI providers and specialized integrations.
 
 ## 📁 Examples
 
 ### 🚀 [xai_grok.dart](xai_grok.dart)
+
 **X.AI Grok Integration**
 - Grok model access and configuration
-- Real-time information capabilities
-- Conversational AI with personality
-- Witty and engaging responses
-- Best practices for Grok usage
 
-## 🎯 Key Features
+### 🔗 [openai_compatible.dart](openai_compatible.dart)
 
-### X.AI Grok
-- **Real-Time**: Access to current information
-- **Personality**: Conversational and engaging
-- **Social Integration**: Twitter/X platform integration
-- **Humor**: Witty and entertaining responses
-- **Streaming**: Real-time response generation
+**OpenAI-Compatible Providers Demo**
+- All OpenAI-compatible providers in one example
+- DeepSeek, Groq, xAI, OpenRouter, GitHub Copilot, Together AI
+- Provider comparison and selection
+- Unified interface demonstration
+- Fallback strategies and best practices
 
 ## 🚀 Quick Start
+
+### X.AI Grok
 
 ```dart
 // X.AI Grok usage
@@ -37,20 +36,43 @@ final response = await grokProvider.chat([
 ]);
 ```
 
-## 💡 Best Practices
+### OpenAI-Compatible Providers
 
-1. **Personality Leverage**: Use Grok's wit and humor for engaging interactions
-2. **Real-Time Info**: Take advantage of current information access
-3. **Temperature Settings**: Adjust for personality vs factual responses
-4. **Error Handling**: Implement proper error handling for API calls
-5. **Streaming**: Use streaming for better user experience
+```dart
+// DeepSeek (OpenAI-compatible)
+final deepseek = await ai()
+    .deepseekOpenAI()
+    .apiKey('your-deepseek-key')
+    .model('deepseek-chat')
+    .build();
 
-## 🔗 Related Examples
+// Groq (OpenAI-compatible)
+final groq = await ai()
+    .groqOpenAI()
+    .apiKey('your-groq-key')
+    .model('llama-3.3-70b-versatile')
+    .build();
+
+// OpenRouter
+final openrouter = await ai()
+    .openRouter()
+    .apiKey('your-openrouter-key')
+    .model('openai/gpt-4')
+    .build();
+```
+
+## � Run Examples
+
+```bash
+# X.AI Grok example
+dart run xai_grok.dart
+
+# All OpenAI-compatible providers demo
+dart run openai_compatible.dart
+```
+
+## �🔗 Related Examples
 
 - [Core Features](../../02_core_features/) - Basic functionality
 - [Advanced Features](../../03_advanced_features/) - Custom providers
-- [Integration](../../06_integration/) - Service integration patterns
-
----
-
-**🔧 Extend llm_dart with additional providers and custom integrations!**
+- [Main Providers](../) - Core provider examples

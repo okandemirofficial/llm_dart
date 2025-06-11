@@ -7,13 +7,13 @@
 
 A modular Dart library for AI provider interactions. This library provides a unified interface for interacting with different AI providers using Dio for HTTP requests.
 
-**🧠 Full access to model thinking processes** - llm_dart provides direct access to the internal reasoning and thought processes of supported AI models (Claude, OpenAI o1, DeepSeek, Gemini), giving you unprecedented insight into how AI models arrive at their conclusions.
+**🧠 Full access to model thinking processes** - llm_dart provides direct access to the reasoning and thought processes of supported AI models (Claude, DeepSeek, Gemini), giving you unprecedented insight into how AI models arrive at their conclusions.
 
 ## 🚀 Quick Navigation
 
 | I want to... | Go to |
 |--------------|-------|
-| **Get started in 5 minutes** | [Quick Start](#quick-start) → [5-minute example](example/01_getting_started/quick_start.dart) |
+| **Get started quickly** | [Quick Start](#quick-start) → [Quick start example](example/01_getting_started/quick_start.dart) |
 | **Build a chatbot** | [Chatbot example](example/05_use_cases/chatbot.dart) |
 | **Add voice capabilities** | [ElevenLabs examples](example/04_providers/elevenlabs/) |
 | **Access AI thinking processes** | [Reasoning examples](example/03_advanced_features/reasoning_models.dart) |
@@ -31,6 +31,7 @@ A modular Dart library for AI provider interactions. This library provides a uni
 - **🎵 Unified audio capabilities**: Text-to-speech, speech-to-text, and audio processing with feature discovery
 - **🖼️ Image generation & processing**: DALL-E integration, image editing, variations, and multi-modal support
 - **📁 File management**: Unified file operations across providers (OpenAI, Anthropic)
+- **🏭 Type-safe capability building**: Compile-time type safety with capability factory methods
 - **Unified API**: Consistent interface across all providers with capability-based design
 - **Builder pattern**: Fluent API for easy configuration and provider setup
 - **Streaming support**: Real-time response streaming with thinking process access
@@ -53,10 +54,10 @@ A modular Dart library for AI provider interactions. This library provides a uni
 | xAI | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | Grok models with personality |
 | ElevenLabs | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | Advanced voice synthesis |
 
-**🧠 Thinking Process Support**: Access to model's internal reasoning and thought processes
-**🎵 Audio Support**: Text-to-speech, speech-to-text, and audio processing
-**🖼️ Image Support**: Image generation, editing, and multi-modal processing
-**📁 File Support**: File upload, management, and processing capabilities
+- **🧠 Thinking Process Support**: Access to model's reasoning and thought processes  
+- **🎵 Audio Support**: Text-to-speech, speech-to-text, and audio processing  
+- **🖼️ Image Support**: Image generation, editing, and multi-modal processing  
+- **📁 File Support**: File upload, management, and processing capabilities  
 
 ## Installation
 
@@ -64,7 +65,7 @@ Add this to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  llm_dart: ^0.2.0
+  llm_dart: ^0.4.0
 ```
 
 Then run:
@@ -172,7 +173,7 @@ Access the model's internal reasoning and thought processes:
 final claudeProvider = await ai()
     .anthropic()
     .apiKey('your-anthropic-key')
-    .model('claude-3-5-sonnet-20241022')
+    .model('claude-sonnet-4-20250514')
     .build();
 
 final messages = [
@@ -251,7 +252,7 @@ final provider = await createProvider(
 final provider = await ai()
     .anthropic()
     .apiKey('sk-ant-...')
-    .model('claude-3-5-sonnet-20241022')
+    .model('claude-sonnet-4-20250514')
     .build();
 
 final response = await provider.chat([
@@ -298,22 +299,22 @@ final provider = ollama(
 ### ElevenLabs (Audio Processing)
 
 ```dart
-final provider = await ai()
+// Use buildAudio() for type-safe audio capability building
+final audioProvider = await ai()
     .elevenlabs()
     .apiKey('your-elevenlabs-key')
     .voiceId('JBFqnCBsd6RMkjVDRZzb') // George voice
     .stability(0.7)
     .similarityBoost(0.9)
     .style(0.1)
-    .build();
+    .buildAudio(); // Type-safe audio capability building
 
-// Check supported audio features
-final audioCapability = provider as AudioCapability;
-final features = audioCapability.supportedFeatures;
+// Direct usage without type casting
+final features = audioProvider.supportedFeatures;
 print('Supports TTS: ${features.contains(AudioFeature.textToSpeech)}');
 
 // Text to speech with advanced options
-final ttsResponse = await audioCapability.textToSpeech(TTSRequest(
+final ttsResponse = await audioProvider.textToSpeech(TTSRequest(
   text: 'Hello world! This is ElevenLabs speaking.',
   voice: 'JBFqnCBsd6RMkjVDRZzb',
   model: 'eleven_multilingual_v2',
@@ -325,15 +326,15 @@ await File('output.mp3').writeAsBytes(ttsResponse.audioData);
 // Speech to text (if supported)
 if (features.contains(AudioFeature.speechToText)) {
   final audioData = await File('input.mp3').readAsBytes();
-  final sttResponse = await audioCapability.speechToText(
+  final sttResponse = await audioProvider.speechToText(
     STTRequest.fromAudio(audioData, model: 'scribe_v1')
   );
   print(sttResponse.text);
 }
 
 // Convenience methods
-final quickSpeech = await audioCapability.speech('Quick TTS');
-final quickTranscription = await audioCapability.transcribeFile('audio.mp3');
+final quickSpeech = await audioProvider.speech('Quick TTS');
+final quickTranscription = await audioProvider.transcribeFile('audio.mp3');
 ```
 
 ## Error Handling
@@ -373,6 +374,39 @@ abstract class EmbeddingCapability {
 // Providers implement only the capabilities they support
 class OpenAIProvider implements ChatCapability, EmbeddingCapability {
   // Implementation
+}
+```
+
+### Type-Safe Capability Building
+
+The library provides capability factory methods for compile-time type safety:
+
+```dart
+// Old approach - runtime type casting
+final provider = await ai().openai().apiKey(apiKey).build();
+if (provider is! AudioCapability) {
+  throw Exception('Audio not supported');
+}
+final audioProvider = provider as AudioCapability; // Runtime cast!
+
+// New approach - compile-time type safety
+final audioProvider = await ai().openai().apiKey(apiKey).buildAudio();
+// Direct usage without type casting - guaranteed AudioCapability!
+
+// Available factory methods:
+final audioProvider = await ai().openai().buildAudio();
+final imageProvider = await ai().openai().buildImageGeneration();
+final embeddingProvider = await ai().openai().buildEmbedding();
+final fileProvider = await ai().openai().buildFileManagement();
+final moderationProvider = await ai().openai().buildModeration();
+final assistantProvider = await ai().openai().buildAssistant();
+final modelProvider = await ai().openai().buildModelListing();
+
+// Clear error messages for unsupported capabilities
+try {
+  final audioProvider = await ai().groq().buildAudio(); // Groq doesn't support audio
+} catch (e) {
+  print(e); // UnsupportedCapabilityError: Provider "groq" does not support audio capabilities. Supported providers: OpenAI, ElevenLabs
 }
 ```
 
@@ -450,14 +484,16 @@ final provider = await ai()
 
 See the **[example directory](example)** for comprehensive usage examples organized by learning path:
 
-### 🟢 Getting Started (5-30 minutes)
+### 🟢 Getting Started
+
 **Perfect for first-time users**
 
-- **[quick_start.dart](example/01_getting_started/quick_start.dart)** - 5-minute quick experience with multiple providers
+- **[quick_start.dart](example/01_getting_started/quick_start.dart)** - Quick experience with multiple providers
 - **[provider_comparison.dart](example/01_getting_started/provider_comparison.dart)** - Compare providers and choose the right one
 - **[basic_configuration.dart](example/01_getting_started/basic_configuration.dart)** - Essential configuration patterns
 
-### 🟡 Core Features (30-60 minutes)
+### 🟡 Core Features
+
 **Master the essential functionality**
 
 - **[chat_basics.dart](example/02_core_features/chat_basics.dart)** - Foundation of all AI interactions
@@ -466,8 +502,10 @@ See the **[example directory](example)** for comprehensive usage examples organi
 - **[enhanced_tool_calling.dart](example/02_core_features/enhanced_tool_calling.dart)** - Advanced tool calling patterns
 - **[structured_output.dart](example/02_core_features/structured_output.dart)** - JSON schema and validation
 - **[error_handling.dart](example/02_core_features/error_handling.dart)** - Production-ready error handling
+- **[capability_factory_methods.dart](example/02_core_features/capability_factory_methods.dart)** - Type-safe capability building
 
-### 🔴 Advanced Features (1-2 hours)
+### 🔴 Advanced Features
+
 **Cutting-edge AI capabilities**
 
 - **[reasoning_models.dart](example/03_advanced_features/reasoning_models.dart)** - 🧠 AI thinking processes and reasoning
@@ -476,6 +514,7 @@ See the **[example directory](example)** for comprehensive usage examples organi
 - **[performance_optimization.dart](example/03_advanced_features/performance_optimization.dart)** - Production optimization techniques
 
 ### 🎯 Provider-Specific Examples
+
 **Deep dive into specific providers**
 
 - **[OpenAI](example/04_providers/openai/)** - GPT models, DALL-E, reasoning, assistants
@@ -488,6 +527,7 @@ See the **[example directory](example)** for comprehensive usage examples organi
 - **[Others](example/04_providers/others/)** - XAI Grok and emerging providers
 
 ### 🎪 Real-World Use Cases
+
 **Complete application examples**
 
 - **[chatbot.dart](example/05_use_cases/chatbot.dart)** - Complete chatbot with personality and context management
@@ -495,11 +535,13 @@ See the **[example directory](example)** for comprehensive usage examples organi
 - **[web_service.dart](example/05_use_cases/web_service.dart)** - HTTP API with AI capabilities, authentication, and rate limiting
 
 ### 🌟 Real-World Application
+
 **Actively developed application built with LLM Dart**
 
 - **[Yumcha](https://github.com/Latias94/yumcha)** - Cross-platform AI chat application actively developed by the creator of LLM Dart, showcasing real-world integration with multiple providers, real-time streaming, and advanced features
 
 ### 🔗 MCP Integration
+
 **Connect LLMs with external tools**
 
 - **[mcp_concept_demo.dart](example/06_mcp_integration/mcp_concept_demo.dart)** - 🎯 **START HERE** - Core MCP concepts

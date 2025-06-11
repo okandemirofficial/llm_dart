@@ -80,34 +80,4 @@ class DeepSeekProvider
   bool supports(LLMCapability capability) {
     return supportedCapabilities.contains(capability);
   }
-
-  /// Get supported capabilities as string list (legacy method)
-  List<String> get supportedCapabilitiesLegacy => [
-        'chat',
-        'streaming',
-        'tools',
-        if (config.supportsVision) 'vision',
-        if (config.supportsReasoning) 'reasoning',
-        if (config.supportsCodeGeneration) 'code_generation',
-      ];
-
-  /// Check if model supports a specific capability (legacy method)
-  bool supportsCapability(String capability) {
-    switch (capability.toLowerCase()) {
-      case 'chat':
-      case 'streaming':
-      case 'tools':
-        return true;
-      case 'vision':
-        return config.supportsVision;
-      case 'reasoning':
-      case 'thinking':
-        return config.supportsReasoning;
-      case 'code_generation':
-      case 'coding':
-        return config.supportsCodeGeneration;
-      default:
-        return false;
-    }
-  }
 }

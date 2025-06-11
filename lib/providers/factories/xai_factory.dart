@@ -22,6 +22,9 @@ class XAIProviderFactory implements LLMProviderFactory<ChatCapability> {
         LLMCapability.streaming,
         LLMCapability.toolCalling,
         LLMCapability.reasoning,
+        LLMCapability.liveSearch,
+        LLMCapability.embedding,
+        LLMCapability.vision, // Grok Vision models
       };
 
   @override
@@ -52,6 +55,7 @@ class XAIProviderFactory implements LLMProviderFactory<ChatCapability> {
       embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
       searchParameters:
           config.getExtension<SearchParameters>('searchParameters'),
+      liveSearch: config.getExtension<bool>('liveSearch'),
       originalConfig: config,
     );
   }

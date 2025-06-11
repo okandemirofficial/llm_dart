@@ -5,6 +5,9 @@ import 'package:llm_dart/llm_dart.dart';
 ///
 /// This example demonstrates OpenAI's DALL-E image generation capabilities
 /// including basic generation, advanced configuration, image editing, and variations.
+///
+/// **New Feature**: Uses the buildImageGeneration() capability factory method for
+/// type-safe provider building without runtime type casting.
 Future<void> main() async {
   // Get API key from environment
   final apiKey = Platform.environment['OPENAI_API_KEY'];
@@ -30,17 +33,13 @@ Future<void> testDALLE3Generation(String apiKey) async {
   print('🎨 DALL-E 3 Generation:');
 
   try {
-    // Create OpenAI provider for DALL-E 3
-    final provider =
-        await ai().openai().apiKey(apiKey).model('dall-e-3').build();
-
-    // Check if provider supports image generation
-    if (provider is! ImageGenerationCapability) {
-      print('   ❌ Provider does not support image generation');
-      return;
-    }
-
-    final imageProvider = provider as ImageGenerationCapability;
+    // Create OpenAI provider for DALL-E 3 using buildImageGeneration()
+    // This provides compile-time type safety and eliminates runtime type casting
+    final imageProvider = await ai()
+        .openai()
+        .apiKey(apiKey)
+        .model('dall-e-3')
+        .buildImageGeneration(); // Type-safe image generation capability building
 
     // Display capabilities
     print('   🔍 Supported sizes: ${imageProvider.getSupportedSizes()}');
@@ -105,11 +104,12 @@ Future<void> testDALLE2Generation(String apiKey) async {
   print('🎨 DALL-E 2 Generation:');
 
   try {
-    // Create OpenAI provider for DALL-E 2
-    final provider =
-        await ai().openai().apiKey(apiKey).model('dall-e-2').build();
-
-    final imageProvider = provider as ImageGenerationCapability;
+    // Create OpenAI provider for DALL-E 2 using buildImageGeneration()
+    final imageProvider = await ai()
+        .openai()
+        .apiKey(apiKey)
+        .model('dall-e-2')
+        .buildImageGeneration(); // Type-safe image generation capability building
 
     // Example: Multiple images with DALL-E 2
     print('   🔢 Multiple Images Generation:');
@@ -140,13 +140,12 @@ Future<void> testImageEditing(String apiKey) async {
   print('✂️  Image Editing:');
 
   try {
-    final provider = await ai()
+    // Create provider for image editing using buildImageGeneration()
+    final imageProvider = await ai()
         .openai()
         .apiKey(apiKey)
         .model('dall-e-2') // Only DALL-E 2 supports editing
-        .build();
-
-    final imageProvider = provider as ImageGenerationCapability;
+        .buildImageGeneration(); // Type-safe image generation capability building
 
     if (!imageProvider.supportsImageEditing) {
       print('   ⏭️  Skipping - image editing not supported');
@@ -170,13 +169,12 @@ Future<void> testImageVariations(String apiKey) async {
   print('🔄 Image Variations:');
 
   try {
-    final provider = await ai()
+    // Create provider for image variations using buildImageGeneration()
+    final imageProvider = await ai()
         .openai()
         .apiKey(apiKey)
         .model('dall-e-2') // Only DALL-E 2 supports variations
-        .build();
-
-    final imageProvider = provider as ImageGenerationCapability;
+        .buildImageGeneration(); // Type-safe image generation capability building
 
     if (!imageProvider.supportsImageVariations) {
       print('   ⏭️  Skipping - image variations not supported');

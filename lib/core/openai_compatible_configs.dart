@@ -23,6 +23,13 @@ class OpenAICompatibleConfigs {
       LLMCapability.toolCalling,
       LLMCapability.reasoning,
     },
+    // For unknown DeepSeek models, assume basic capabilities
+    defaultCapabilities: {
+      LLMCapability.chat,
+      LLMCapability.streaming,
+      LLMCapability.toolCalling,
+    },
+    allowDynamicCapabilities: true,
     supportsReasoningEffort: false,
     supportsStructuredOutput: true,
     modelConfigs: {
@@ -136,6 +143,12 @@ class OpenAICompatibleConfigs {
       LLMCapability.streaming,
       LLMCapability.toolCalling,
     },
+    // Groq focuses on speed, so default capabilities are conservative
+    defaultCapabilities: {
+      LLMCapability.chat,
+      LLMCapability.streaming,
+    },
+    allowDynamicCapabilities: true,
     supportsReasoningEffort: false,
     supportsStructuredOutput: true,
     modelConfigs: {

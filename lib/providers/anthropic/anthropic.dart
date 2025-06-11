@@ -15,7 +15,7 @@
 ///
 /// final provider = AnthropicProvider(AnthropicConfig(
 ///   apiKey: 'your-api-key',
-///   model: 'claude-3-5-sonnet-20241022',
+///   model: 'claude-sonnet-4-20250514',
 /// ));
 ///
 /// // Use chat capability
@@ -74,7 +74,7 @@ AnthropicProvider createAnthropicProvider({
 /// Create an Anthropic provider for chat
 AnthropicProvider createAnthropicChatProvider({
   required String apiKey,
-  String model = 'claude-3-5-sonnet-20241022',
+  String model = 'claude-sonnet-4-20250514',
   String? systemPrompt,
   double? temperature,
   int? maxTokens,
@@ -91,7 +91,7 @@ AnthropicProvider createAnthropicChatProvider({
 /// Create an Anthropic provider for reasoning tasks
 AnthropicProvider createAnthropicReasoningProvider({
   required String apiKey,
-  String model = 'claude-3-7-sonnet-20250219',
+  String model = 'claude-sonnet-4-20250514',
   String? systemPrompt,
   int? thinkingBudgetTokens,
   bool interleavedThinking = false,

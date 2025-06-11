@@ -274,6 +274,14 @@ class LLMConfig {
 }
 
 /// OpenAI-compatible provider configuration
+///
+/// This configuration defines the capabilities and behavior of providers that
+/// use OpenAI-compatible APIs. Since these providers can vary significantly
+/// in their actual capabilities, this configuration provides:
+///
+/// - **Default capability assumptions** for unknown models
+/// - **Model-specific overrides** for known models
+/// - **Flexible capability detection** for dynamic scenarios
 class OpenAICompatibleProviderConfig {
   /// Provider identifier
   final String providerId;
@@ -291,7 +299,26 @@ class OpenAICompatibleProviderConfig {
   final String defaultModel;
 
   /// Supported capabilities for this provider
+  ///
+  /// For OpenAI-compatible providers, this represents the capabilities that
+  /// are generally supported. Actual support may vary by specific model.
   final Set<LLMCapability> supportedCapabilities;
+
+  /// Default capabilities assumed for unknown models
+  ///
+  /// When a model is not explicitly configured in [modelConfigs],
+  /// these capabilities will be assumed. This provides a safe fallback
+  /// for OpenAI-compatible providers where we can't know all models.
+  ///
+  /// If null, defaults to [supportedCapabilities].
+  final Set<LLMCapability>? defaultCapabilities;
+
+  /// Whether to allow dynamic capability detection
+  ///
+  /// When true, the provider may attempt to detect capabilities at runtime
+  /// based on API responses or other indicators. This is useful for
+  /// OpenAI-compatible providers with unknown capabilities.
+  final bool allowDynamicCapabilities;
 
   /// Provider-specific model configurations
   final Map<String, ModelCapabilityConfig> modelConfigs;
@@ -318,6 +345,8 @@ class OpenAICompatibleProviderConfig {
     required this.defaultBaseUrl,
     required this.defaultModel,
     required this.supportedCapabilities,
+    this.defaultCapabilities,
+    this.allowDynamicCapabilities = true,
     this.modelConfigs = const {},
     this.supportsReasoningEffort = false,
     this.supportsStructuredOutput = false,
@@ -325,6 +354,10 @@ class OpenAICompatibleProviderConfig {
     this.requestBodyTransformer,
     this.headersTransformer,
   });
+
+  /// Get effective default capabilities for unknown models
+  Set<LLMCapability> get effectiveDefaultCapabilities =>
+      defaultCapabilities ?? supportedCapabilities;
 }
 
 /// Model-specific capability configuration

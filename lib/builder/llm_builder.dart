@@ -2,6 +2,7 @@ import '../core/capability.dart';
 import '../core/config.dart';
 import '../core/registry.dart';
 import '../core/llm_error.dart';
+import '../core/web_search.dart';
 import '../models/tool_models.dart';
 import '../models/chat_models.dart';
 
@@ -55,6 +56,9 @@ class LLMBuilder {
   LLMBuilder xaiOpenAI() => provider('xai-openai');
   LLMBuilder groqOpenAI() => provider('groq-openai');
   LLMBuilder phindOpenAI() => provider('phind-openai');
+  LLMBuilder openRouter() => provider('openrouter');
+  LLMBuilder githubCopilot() => provider('github-copilot');
+  LLMBuilder togetherAI() => provider('together-ai');
 
   /// Sets the API key for authentication
   LLMBuilder apiKey(String key) {
@@ -221,6 +225,273 @@ class LLMBuilder {
   LLMBuilder embeddingDimensions(int dimensions) =>
       extension('embeddingDimensions', dimensions);
 
+  /// Web Search configuration methods
+  ///
+  /// These methods provide a unified interface for configuring web search
+  /// across different providers (xAI, Anthropic, etc.). The implementation
+  /// details are handled automatically based on the selected provider.
+
+  /// Enables web search functionality
+  ///
+  /// This is a universal method that works across all providers that support
+  /// web search. The underlying implementation varies by provider:
+  /// - **xAI**: Uses Live Search with search_parameters
+  /// - **Anthropic**: Uses web_search tool
+  /// - **Others**: Provider-specific implementations
+  ///
+  /// Example:
+  /// ```dart
+  /// final provider = await ai()
+  ///     .xai()  // or .anthropic(), etc.
+  ///     .apiKey(apiKey)
+  ///     .enableWebSearch()
+  ///     .build();
+  /// ```
+  LLMBuilder enableWebSearch() => extension('webSearchEnabled', true);
+
+  /// Configures web search with detailed options
+  ///
+  /// This method provides fine-grained control over web search behavior
+  /// using a unified configuration that adapts to each provider's API.
+  ///
+  /// Example:
+  /// ```dart
+  /// final provider = await ai()
+  ///     .anthropic()
+  ///     .apiKey(apiKey)
+  ///     .webSearch(
+  ///       maxUses: 3,
+  ///       allowedDomains: ['wikipedia.org', 'github.com'],
+  ///       location: WebSearchLocation.sanFrancisco(),
+  ///     )
+  ///     .build();
+  /// ```
+  LLMBuilder webSearch({
+    int? maxUses,
+    int? maxResults,
+    List<String>? allowedDomains,
+    List<String>? blockedDomains,
+    WebSearchLocation? location,
+    String? mode,
+    String? fromDate,
+    String? toDate,
+  }) {
+    final config = WebSearchConfig(
+      maxUses: maxUses,
+      maxResults: maxResults,
+      allowedDomains: allowedDomains,
+      blockedDomains: blockedDomains,
+      location: location,
+      mode: mode,
+      fromDate: fromDate,
+      toDate: toDate,
+    );
+    return extension('webSearchConfig', config);
+  }
+
+  /// Quick web search setup with basic options
+  ///
+  /// A simplified method for common web search scenarios.
+  ///
+  /// Example:
+  /// ```dart
+  /// final provider = await ai()
+  ///     .xai()
+  ///     .apiKey(apiKey)
+  ///     .quickWebSearch(maxResults: 5)
+  ///     .build();
+  /// ```
+  LLMBuilder quickWebSearch({
+    int maxResults = 5,
+    List<String>? blockedDomains,
+  }) {
+    return webSearch(
+      maxResults: maxResults,
+      blockedDomains: blockedDomains,
+      mode: 'auto',
+    );
+  }
+
+  /// Enables news search functionality
+  ///
+  /// Configures the provider to search news sources specifically.
+  /// This is particularly useful for current events and recent information.
+  ///
+  /// Example:
+  /// ```dart
+  /// final provider = await ai()
+  ///     .xai()
+  ///     .apiKey(apiKey)
+  ///     .newsSearch(
+  ///       maxResults: 10,
+  ///       fromDate: '2024-01-01',
+  ///     )
+  ///     .build();
+  /// ```
+  LLMBuilder newsSearch({
+    int? maxResults,
+    String? fromDate,
+    String? toDate,
+    List<String>? blockedDomains,
+  }) {
+    final config = WebSearchConfig(
+      maxResults: maxResults,
+      fromDate: fromDate,
+      toDate: toDate,
+      blockedDomains: blockedDomains,
+      mode: 'auto',
+      searchType: WebSearchType.news,
+    );
+    return extension('webSearchConfig', config);
+  }
+
+  /// Configures search location for localized results
+  ///
+  /// This method sets the geographic context for search results,
+  /// which can improve relevance for location-specific queries.
+  ///
+  /// Example:
+  /// ```dart
+  /// final provider = await ai()
+  ///     .anthropic()
+  ///     .apiKey(apiKey)
+  ///     .enableWebSearch()
+  ///     .searchLocation(WebSearchLocation.newYork())
+  ///     .build();
+  /// ```
+  LLMBuilder searchLocation(WebSearchLocation location) {
+    return extension('webSearchLocation', location);
+  }
+
+  /// Provider-specific web search configurations
+
+  /// Configures web search for OpenAI models
+  ///
+  /// OpenAI supports web search through specific models like `gpt-4o-search-preview`
+  /// and provides context size control for search results.
+  ///
+  /// Example:
+  /// ```dart
+  /// final provider = await ai()
+  ///     .openai()
+  ///     .apiKey(apiKey)
+  ///     .model('gpt-4o-search-preview')
+  ///     .openaiWebSearch(contextSize: WebSearchContextSize.high)
+  ///     .build();
+  /// ```
+  LLMBuilder openaiWebSearch({
+    WebSearchContextSize contextSize = WebSearchContextSize.medium,
+  }) {
+    return extension(
+        'webSearchConfig',
+        WebSearchConfig.openai(
+          contextSize: contextSize,
+        ));
+  }
+
+  /// Configures web search for OpenRouter models
+  ///
+  /// OpenRouter supports web search in two ways:
+  /// 1. Simple: Add `:online` to model name
+  /// 2. Advanced: Use web plugin with custom parameters
+  ///
+  /// Example:
+  /// ```dart
+  /// final provider = await ai()
+  ///     .openRouter()
+  ///     .apiKey(apiKey)
+  ///     .openRouterWebSearch(
+  ///       maxResults: 5,
+  ///       searchPrompt: 'Focus on recent developments',
+  ///     )
+  ///     .build();
+  /// ```
+  LLMBuilder openRouterWebSearch({
+    int maxResults = 5,
+    String? searchPrompt,
+    bool useOnlineShortcut = true,
+  }) {
+    return extension(
+        'webSearchConfig',
+        WebSearchConfig.openRouter(
+          maxResults: maxResults,
+          searchPrompt: searchPrompt,
+          useOnlineShortcut: useOnlineShortcut,
+        ));
+  }
+
+  /// Configures web search for Perplexity models
+  ///
+  /// Perplexity has native web search capabilities with context size control.
+  ///
+  /// Example:
+  /// ```dart
+  /// final provider = await ai()
+  ///     .perplexity()
+  ///     .apiKey(apiKey)
+  ///     .perplexityWebSearch(contextSize: WebSearchContextSize.high)
+  ///     .build();
+  /// ```
+  LLMBuilder perplexityWebSearch({
+    WebSearchContextSize contextSize = WebSearchContextSize.medium,
+  }) {
+    return extension(
+        'webSearchConfig',
+        WebSearchConfig.perplexity(
+          contextSize: contextSize,
+        ));
+  }
+
+  /// Advanced web search configuration with full control
+  ///
+  /// This method provides access to all web search parameters and allows
+  /// fine-grained control over the search behavior across all providers.
+  ///
+  /// Example:
+  /// ```dart
+  /// final provider = await ai()
+  ///     .anthropic()
+  ///     .apiKey(apiKey)
+  ///     .advancedWebSearch(
+  ///       strategy: WebSearchStrategy.tool,
+  ///       contextSize: WebSearchContextSize.high,
+  ///       searchPrompt: 'Focus on academic sources',
+  ///       maxUses: 3,
+  ///       allowedDomains: ['arxiv.org', 'scholar.google.com'],
+  ///     )
+  ///     .build();
+  /// ```
+  LLMBuilder advancedWebSearch({
+    WebSearchStrategy? strategy,
+    WebSearchContextSize? contextSize,
+    String? searchPrompt,
+    int? maxUses,
+    int? maxResults,
+    List<String>? allowedDomains,
+    List<String>? blockedDomains,
+    WebSearchLocation? location,
+    String? mode,
+    String? fromDate,
+    String? toDate,
+    WebSearchType? searchType,
+  }) {
+    final config = WebSearchConfig(
+      strategy: strategy ?? WebSearchStrategy.auto,
+      contextSize: contextSize,
+      searchPrompt: searchPrompt,
+      maxUses: maxUses,
+      maxResults: maxResults,
+      allowedDomains: allowedDomains,
+      blockedDomains: blockedDomains,
+      location: location,
+      mode: mode,
+      fromDate: fromDate,
+      toDate: toDate,
+      searchType: searchType,
+    );
+    return extension('webSearchConfig', config);
+  }
+
   /// OpenAI-specific parameter convenience methods
   LLMBuilder frequencyPenalty(double penalty) =>
       extension('frequencyPenalty', penalty);
@@ -315,5 +586,207 @@ class LLMBuilder {
 
     // Use the registry to create the provider
     return LLMProviderRegistry.createProvider(_providerId!, _config);
+  }
+
+  // ========== Capability Factory Methods ==========
+  // These methods provide type-safe access to specific capabilities
+  // at build time, eliminating the need for runtime type casting.
+
+  /// Builds a provider with AudioCapability
+  ///
+  /// Returns a provider that implements AudioCapability for text-to-speech,
+  /// speech-to-text, and other audio processing features.
+  ///
+  /// Throws [UnsupportedCapabilityError] if the provider doesn't support audio capabilities.
+  ///
+  /// Example:
+  /// ```dart
+  /// final audioProvider = await ai()
+  ///     .openai()
+  ///     .apiKey(apiKey)
+  ///     .buildAudio();
+  ///
+  /// // Direct usage without type casting
+  /// final voices = await audioProvider.getVoices();
+  /// ```
+  Future<AudioCapability> buildAudio() async {
+    final provider = await build();
+    if (provider is! AudioCapability) {
+      throw UnsupportedCapabilityError(
+        'Provider "$_providerId" does not support audio capabilities. '
+        'Supported providers: OpenAI, ElevenLabs',
+      );
+    }
+    return provider as AudioCapability;
+  }
+
+  /// Builds a provider with ImageGenerationCapability
+  ///
+  /// Returns a provider that implements ImageGenerationCapability for
+  /// generating, editing, and creating variations of images.
+  ///
+  /// Throws [UnsupportedCapabilityError] if the provider doesn't support image generation.
+  ///
+  /// Example:
+  /// ```dart
+  /// final imageProvider = await ai()
+  ///     .openai()
+  ///     .apiKey(apiKey)
+  ///     .model('dall-e-3')
+  ///     .buildImageGeneration();
+  ///
+  /// // Direct usage without type casting
+  /// final images = await imageProvider.generateImage(prompt: 'A sunset');
+  /// ```
+  Future<ImageGenerationCapability> buildImageGeneration() async {
+    final provider = await build();
+    if (provider is! ImageGenerationCapability) {
+      throw UnsupportedCapabilityError(
+        'Provider "$_providerId" does not support image generation capabilities. '
+        'Supported providers: OpenAI (DALL-E)',
+      );
+    }
+    return provider as ImageGenerationCapability;
+  }
+
+  /// Builds a provider with EmbeddingCapability
+  ///
+  /// Returns a provider that implements EmbeddingCapability for
+  /// generating vector embeddings from text.
+  ///
+  /// Throws [UnsupportedCapabilityError] if the provider doesn't support embeddings.
+  ///
+  /// Example:
+  /// ```dart
+  /// final embeddingProvider = await ai()
+  ///     .openai()
+  ///     .apiKey(apiKey)
+  ///     .model('text-embedding-3-small')
+  ///     .buildEmbedding();
+  ///
+  /// // Direct usage without type casting
+  /// final embeddings = await embeddingProvider.embed(['Hello world']);
+  /// ```
+  Future<EmbeddingCapability> buildEmbedding() async {
+    final provider = await build();
+    if (provider is! EmbeddingCapability) {
+      throw UnsupportedCapabilityError(
+        'Provider "$_providerId" does not support embedding capabilities. '
+        'Supported providers: OpenAI, Google, DeepSeek',
+      );
+    }
+    return provider as EmbeddingCapability;
+  }
+
+  /// Builds a provider with FileManagementCapability
+  ///
+  /// Returns a provider that implements FileManagementCapability for
+  /// uploading, managing, and processing files.
+  ///
+  /// Throws [UnsupportedCapabilityError] if the provider doesn't support file management.
+  ///
+  /// Example:
+  /// ```dart
+  /// final fileProvider = await ai()
+  ///     .openai()
+  ///     .apiKey(apiKey)
+  ///     .buildFileManagement();
+  ///
+  /// // Direct usage without type casting
+  /// final file = await fileProvider.uploadFile('document.pdf');
+  /// ```
+  Future<FileManagementCapability> buildFileManagement() async {
+    final provider = await build();
+    if (provider is! FileManagementCapability) {
+      throw UnsupportedCapabilityError(
+        'Provider "$_providerId" does not support file management capabilities. '
+        'Supported providers: OpenAI, Anthropic',
+      );
+    }
+    return provider as FileManagementCapability;
+  }
+
+  /// Builds a provider with ModerationCapability
+  ///
+  /// Returns a provider that implements ModerationCapability for
+  /// content moderation and safety checks.
+  ///
+  /// Throws [UnsupportedCapabilityError] if the provider doesn't support moderation.
+  ///
+  /// Example:
+  /// ```dart
+  /// final moderationProvider = await ai()
+  ///     .openai()
+  ///     .apiKey(apiKey)
+  ///     .buildModeration();
+  ///
+  /// // Direct usage without type casting
+  /// final result = await moderationProvider.moderate('Some text to check');
+  /// ```
+  Future<ModerationCapability> buildModeration() async {
+    final provider = await build();
+    if (provider is! ModerationCapability) {
+      throw UnsupportedCapabilityError(
+        'Provider "$_providerId" does not support moderation capabilities. '
+        'Supported providers: OpenAI',
+      );
+    }
+    return provider as ModerationCapability;
+  }
+
+  /// Builds a provider with AssistantCapability
+  ///
+  /// Returns a provider that implements AssistantCapability for
+  /// creating and managing AI assistants.
+  ///
+  /// Throws [UnsupportedCapabilityError] if the provider doesn't support assistants.
+  ///
+  /// Example:
+  /// ```dart
+  /// final assistantProvider = await ai()
+  ///     .openai()
+  ///     .apiKey(apiKey)
+  ///     .buildAssistant();
+  ///
+  /// // Direct usage without type casting
+  /// final assistant = await assistantProvider.createAssistant(request);
+  /// ```
+  Future<AssistantCapability> buildAssistant() async {
+    final provider = await build();
+    if (provider is! AssistantCapability) {
+      throw UnsupportedCapabilityError(
+        'Provider "$_providerId" does not support assistant capabilities. '
+        'Supported providers: OpenAI',
+      );
+    }
+    return provider as AssistantCapability;
+  }
+
+  /// Builds a provider with ModelListingCapability
+  ///
+  /// Returns a provider that implements ModelListingCapability for
+  /// discovering available models.
+  ///
+  /// Throws [UnsupportedCapabilityError] if the provider doesn't support model listing.
+  ///
+  /// Example:
+  /// ```dart
+  /// final modelProvider = await ai()
+  ///     .openai()
+  ///     .apiKey(apiKey)
+  ///     .buildModelListing();
+  ///
+  /// // Direct usage without type casting
+  /// final models = await modelProvider.listModels();
+  /// ```
+  Future<ModelListingCapability> buildModelListing() async {
+    final provider = await build();
+    if (provider is! ModelListingCapability) {
+      throw UnsupportedCapabilityError(
+        'Provider "$_providerId" does not support model listing capabilities. '
+        'Supported providers: OpenAI, Anthropic, DeepSeek, Ollama',
+      );
+    }
+    return provider as ModelListingCapability;
   }
 }

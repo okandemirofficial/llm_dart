@@ -7,15 +7,97 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2025-6-11
+
 ### Added
+
+- **Unified Web Search API**: Provider-agnostic web search functionality across multiple LLM providers
+  - `WebSearchConfig` - Universal configuration class supporting all provider-specific parameters
+  - `WebSearchLocation` - Geographic location configuration for localized search results
+  - `WebSearchType` - Search type enumeration (web, news, academic, combined)
+  - `WebSearchStrategy` - Implementation strategy control (native, tool, plugin, parameter, auto)
+  - `WebSearchContextSize` - Context size control for providers that support it
+  - **Provider Support**:
+    - **xAI Grok**: Live Search with `search_parameters` (mode, sources, date filtering, result limits)
+    - **Anthropic Claude**: Web Search Tool with domain filtering and location-based search
+    - **OpenAI**: Web Search with context size control for `gpt-4o-search-preview` models
+    - **OpenRouter**: Plugin-based search with custom prompts and `:online` model shortcuts
+    - **Perplexity**: Native search capabilities with context size control
+  - **Ergonomic Builder Methods**:
+    - `enableWebSearch()` - Simple web search activation
+    - `quickWebSearch()` - Fast configuration with common settings
+    - `webSearch()` - Advanced configuration with full parameter control
+    - `newsSearch()` - News-specific search configuration
+    - `searchLocation()` - Geographic context configuration
+    - Provider-specific methods: `openaiWebSearch()`, `openRouterWebSearch()`, `perplexityWebSearch()`
+    - `advancedWebSearch()` - Full control over all search parameters
+  - **Automatic Provider Adaptation**: Same API automatically translates to provider-specific formats
+  - **Rich Configuration Options**: Domain filtering, result limits, date ranges, geographic context
+  - **Type Safety**: Strong typing with enums and configuration classes
+  - **Comprehensive Examples**: Complete demonstration in `02_core_features/web_search.dart`
+
+- **Enhanced LLM Capability System**: Extended capability detection for web search
+  - `LLMCapability.liveSearch` - New capability for real-time web search functionality
+  - Updated provider capability declarations to include search support
+  - Enhanced capability factory methods to support web search providers
+
+- **Capability Factory Methods**: Type-safe provider building with compile-time capability checking
+  - `buildAudio()` → `AudioCapability` - Build providers with audio capabilities
+  - `buildImageGeneration()` → `ImageGenerationCapability` - Build providers with image generation
+  - `buildEmbedding()` → `EmbeddingCapability` - Build providers with embedding capabilities
+  - `buildFileManagement()` → `FileManagementCapability` - Build providers with file management
+  - `buildModeration()` → `ModerationCapability` - Build providers with moderation capabilities
+  - `buildAssistant()` → `AssistantCapability` - Build providers with assistant capabilities
+  - `buildModelListing()` → `ModelListingCapability` - Build providers with model listing
+  - Eliminates runtime type casting and provides compile-time type safety
+  - Clear error messages with `UnsupportedCapabilityError` when capabilities are not supported
+  - Better IDE support and autocomplete for capability-specific methods
+
+- **Enhanced Error Handling**: New error types and improved error handling examples
+  - `UnsupportedCapabilityError` - Thrown when building providers with unsupported capabilities
+  - Updated `error_handling.dart` example to demonstrate capability factory method errors
+  - Clear error messages listing supported providers for each capability
 
 - **Core Features Examples**: New capability detection and model listing examples
   - `capability_detection.dart` - Demonstrates provider capability discovery and comparison
   - `model_listing.dart` - Shows how to explore and filter available models from providers
+  - `capability_factory_methods.dart` - Comprehensive demonstration of type-safe capability building
+
+### Changed
+
+- **xAI Provider**: Enhanced with comprehensive Live Search support
+  - Updated `XAIConfig` to include `liveSearch` boolean parameter for simple activation
+  - Enhanced `SearchParameters` class with factory methods and better documentation
+  - Improved `_buildSearchParameters()` method with automatic default configuration
+  - Added `isLiveSearchEnabled` getter for configuration validation
+  - Updated provider capabilities to include `LLMCapability.liveSearch`
+  - Enhanced factory methods and convenience functions to support Live Search
+
+- **LLM Builder**: Significantly improved web search ergonomics
+  - Replaced provider-specific search methods with unified, ergonomic API
+  - Added comprehensive web search configuration methods with clear documentation
+  - Improved method naming for better developer experience
+  - Enhanced parameter validation and type safety
+  - Better integration with provider-specific implementations
+
+- **Core Features Examples**: Enhanced with web search demonstration
+  - Added `web_search.dart` to core features examples
+  - Updated `02_core_features/README.md` with web search documentation
+  - Comprehensive examples showing unified API across all supported providers
+  - Step-by-step learning path including web search integration
+
+- **Provider Examples**: Updated to use new capability factory methods
+  - `elevenlabs/audio_capabilities.dart` - Now uses `buildAudio()` for type-safe audio provider building
+  - `openai/image_generation.dart` - Now uses `buildImageGeneration()` for type-safe image provider building
+  - Demonstrates migration from runtime type casting to compile-time type safety
 
 ### Fixed
 
 - **Provider Capabilities**: Standardized capability interface implementations across all providers
+- **Legacy Methods Cleanup**: Removed outdated capability checking methods
+  - Removed `supportedCapabilitiesLegacy` (string-based capability lists)
+  - Removed `supportsCapability(String)` methods across all providers
+  - Unified capability checking through `ProviderCapabilities` interface
 
 ## [0.3.0] - 2025-6-10
 

@@ -8,6 +8,14 @@ import '../models/assistant_models.dart';
 import 'llm_error.dart';
 
 /// Enumeration of LLM capabilities that providers can support
+///
+/// This enum provides a high-level categorization of AI provider capabilities
+/// for documentation, selection, and informational purposes. Note that:
+///
+/// - Actual feature support may vary by specific model within the same provider
+/// - OpenAI-compatible providers may have different capabilities than declared
+/// - Some features are detected at runtime rather than through capability checks
+/// - This is primarily for informational and selection purposes
 enum LLMCapability {
   /// Basic chat functionality
   chat,
@@ -40,6 +48,18 @@ enum LLMCapability {
   toolCalling,
 
   /// Reasoning/thinking capabilities
+  ///
+  /// This indicates the provider/model supports reasoning, but the actual
+  /// thinking process output varies significantly between providers:
+  ///
+  /// - **OpenAI o1/o3 series**: Internal reasoning, no thinking output visible
+  /// - **Anthropic Claude**: May output thinking process in responses
+  /// - **DeepSeek Reasoner**: Outputs detailed reasoning steps
+  /// - **Other providers**: Varies by implementation
+  ///
+  /// The actual reasoning content is detected at runtime through response
+  /// parsing (e.g., `<think>` tags, `thinking` fields) rather than through
+  /// this capability declaration.
   reasoning,
 
   /// Vision/image understanding capabilities
@@ -59,6 +79,19 @@ enum LLMCapability {
 
   /// Assistant capabilities
   assistants,
+
+  /// Live search capabilities (real-time web search)
+  ///
+  /// This indicates the provider supports real-time web search functionality,
+  /// allowing models to access current information from the internet.
+  ///
+  /// **Supported Providers:**
+  /// - **xAI Grok**: Native live search with web and news sources
+  /// - **Other providers**: May vary by implementation
+  ///
+  /// The actual search functionality is configured through provider-specific
+  /// search parameters rather than through this capability declaration.
+  liveSearch,
 }
 
 /// Audio features that providers can support
@@ -730,11 +763,53 @@ abstract class CompletionCapability {
 }
 
 /// Provider capability declaration interface
+///
+/// This interface provides a high-level overview of provider capabilities
+/// for documentation, selection, and informational purposes.
+///
+/// **Important Notes:**
+///
+/// 1. **Model Variations**: Actual feature support may vary by specific model
+///    within the same provider (e.g., GPT-4 vs GPT-3.5, Claude Sonnet vs Haiku)
+///
+/// 2. **OpenAI-Compatible Providers**: Providers using OpenAI-compatible APIs
+///    may have different capabilities than what's declared here, as they're
+///    accessed through baseUrl/apiKey configuration
+///
+/// 3. **Runtime Detection**: Some features (like reasoning output format) are
+///    detected at runtime through response parsing rather than capability checks
+///
+/// 4. **Informational Purpose**: This is primarily for provider selection and
+///    documentation, not strict runtime validation
+///
+/// **Usage Examples:**
+/// ```dart
+/// // Provider selection based on capabilities
+/// if (provider.supports(LLMCapability.vision)) {
+///   // This provider generally supports vision
+/// }
+///
+/// // But always handle runtime variations gracefully
+/// final response = await provider.chat(messagesWithImage);
+/// if (response.text != null) {
+///   // Process response regardless of capability declaration
+/// }
+/// ```
 abstract class ProviderCapabilities {
   /// Set of capabilities this provider supports
+  ///
+  /// This represents the general capabilities of the provider, but actual
+  /// support may vary by specific model or configuration.
   Set<LLMCapability> get supportedCapabilities;
 
   /// Check if this provider supports a specific capability
+  ///
+  /// **Note**: This is a general indication based on provider capabilities.
+  /// Actual support may vary by specific model, configuration, or runtime
+  /// conditions. Always implement graceful error handling.
+  ///
+  /// For critical features, consider testing with actual API calls rather
+  /// than relying solely on capability declarations.
   bool supports(LLMCapability capability) =>
       supportedCapabilities.contains(capability);
 }

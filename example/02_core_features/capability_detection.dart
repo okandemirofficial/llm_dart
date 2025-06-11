@@ -9,7 +9,27 @@ import 'package:llm_dart/llm_dart.dart';
 /// - Check what features a provider supports
 /// - Compare capabilities across multiple providers
 /// - Make informed provider selection decisions
-/// - Validate feature availability before use
+/// - Understand capability limitations and variations
+///
+/// **Important Notes:**
+///
+/// 1. **Informational Purpose**: Capability detection is primarily for provider
+///    selection and documentation, not strict runtime validation.
+///
+/// 2. **Model Variations**: Actual support may vary by specific model within
+///    the same provider (e.g., GPT-4 vs GPT-3.5, Claude Sonnet vs Haiku).
+///
+/// 3. **Runtime Detection**: Some features (like reasoning output) are detected
+///    at runtime through response parsing rather than capability declarations.
+///
+/// 4. **OpenAI-Compatible Providers**: Providers using OpenAI-compatible APIs
+///    may have different capabilities than declared.
+///
+/// **Best Practices:**
+/// - Use capability checks for provider selection
+/// - Always implement graceful error handling
+/// - Test critical features with actual API calls
+/// - Don't rely solely on capability declarations for runtime validation
 ///
 /// Before running, set your API keys:
 /// export OPENAI_API_KEY="your-key"
@@ -269,25 +289,31 @@ Future<void> demonstrateCapabilityValidation(
   }
 
   print('   💡 Best Practices:');
-  print('      • Always check capabilities before using features');
-  print('      • Provide fallbacks for unsupported capabilities');
-  print('      • Use capability checks for dynamic feature enabling');
-  print('      • Consider capability requirements in provider selection');
+  print(
+      '      • Use capability checks for provider selection and documentation');
+  print('      • Always implement graceful error handling for all features');
+  print('      • Test critical features with actual API calls when possible');
+  print('      • Remember that actual support may vary by specific model');
+  print(
+      '      • For reasoning: check response.thinking at runtime, not just capability');
+  print(
+      '      • For OpenAI-compatible providers: capabilities may differ from declarations');
   print('');
 }
 
 /// 🎯 Key Capability Concepts Summary:
 ///
-/// ProviderCapabilities Interface:
+/// **ProviderCapabilities Interface:**
 /// - supportedCapabilities: Set of all supported capabilities
 /// - supports(capability): Check if specific capability is supported
+/// - **Note**: Primarily for informational and selection purposes
 ///
-/// LLMCapability Enum Values:
+/// **LLMCapability Enum Values:**
 /// - chat: Basic chat functionality
 /// - streaming: Real-time response streaming
 /// - toolCalling: Function/tool calling
 /// - vision: Image understanding
-/// - reasoning: Thinking/reasoning processes
+/// - reasoning: Thinking/reasoning processes (varies by provider!)
 /// - embedding: Vector embeddings
 /// - textToSpeech: Text-to-speech conversion
 /// - speechToText: Speech-to-text conversion
@@ -297,14 +323,25 @@ Future<void> demonstrateCapabilityValidation(
 /// - moderation: Content moderation
 /// - assistants: Assistant management
 ///
-/// Best Practices:
-/// 1. Check capabilities before using features
-/// 2. Provide graceful fallbacks for unsupported features
-/// 3. Use capabilities for provider selection
-/// 4. Validate requirements match provider capabilities
-/// 5. Consider capability evolution over time
+/// **Important Limitations:**
+/// 1. **Model Variations**: Support varies by specific model within providers
+/// 2. **OpenAI-Compatible Providers**: May have different actual capabilities
+/// 3. **Runtime Detection**: Some features detected through response parsing
+/// 4. **Reasoning Differences**:
+///    - OpenAI o1: Internal reasoning, no visible thinking
+///    - Anthropic Claude: May output thinking process
+///    - DeepSeek Reasoner: Detailed reasoning steps
 ///
-/// Next Steps:
+/// **Best Practices:**
+/// 1. Use capability checks for provider selection and documentation
+/// 2. Always implement graceful error handling for all features
+/// 3. Test critical features with actual API calls when possible
+/// 4. For reasoning: check `response.thinking` at runtime
+/// 5. Don't rely solely on capability declarations for validation
+/// 6. Consider capability evolution and model updates over time
+///
+/// **Next Steps:**
 /// - model_listing.dart: Discover available models
 /// - error_handling.dart: Handle capability-related errors
+/// - reasoning_models.dart: See runtime reasoning detection in action
 /// - Provider-specific examples for advanced features

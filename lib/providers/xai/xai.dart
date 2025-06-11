@@ -59,6 +59,7 @@ XAIProvider createXAIProvider({
   int? maxTokens,
   String? systemPrompt,
   SearchParameters? searchParameters,
+  bool? liveSearch,
 }) {
   final config = XAIConfig(
     apiKey: apiKey,
@@ -68,6 +69,7 @@ XAIProvider createXAIProvider({
     maxTokens: maxTokens,
     systemPrompt: systemPrompt,
     searchParameters: searchParameters,
+    liveSearch: liveSearch,
   );
 
   return XAIProvider(config);
@@ -101,6 +103,49 @@ XAIProvider createXAISearchProvider({
     maxTokens: maxTokens,
     systemPrompt: systemPrompt,
     searchParameters: searchParams,
+    liveSearch: true, // Explicitly enable live search
+  );
+
+  return XAIProvider(config);
+}
+
+/// Create an xAI provider with Live Search enabled
+///
+/// This is a convenience function that enables Live Search with default web search settings.
+/// Live Search allows Grok models to access real-time information from the web.
+///
+/// Example:
+/// ```dart
+/// final provider = createXAILiveSearchProvider(
+///   apiKey: 'your-api-key',
+///   model: 'grok-2-latest',
+///   maxSearchResults: 5,
+/// );
+///
+/// final response = await provider.chat([
+///   ChatMessage.user('What are the latest developments in AI?')
+/// ]);
+/// ```
+XAIProvider createXAILiveSearchProvider({
+  required String apiKey,
+  String model = 'grok-2-latest',
+  double? temperature,
+  int? maxTokens,
+  String? systemPrompt,
+  int? maxSearchResults,
+  List<String>? excludedWebsites,
+}) {
+  final config = XAIConfig(
+    apiKey: apiKey,
+    model: model,
+    temperature: temperature,
+    maxTokens: maxTokens,
+    systemPrompt: systemPrompt,
+    liveSearch: true,
+    searchParameters: SearchParameters.webSearch(
+      maxResults: maxSearchResults,
+      excludedWebsites: excludedWebsites,
+    ),
   );
 
   return XAIProvider(config);

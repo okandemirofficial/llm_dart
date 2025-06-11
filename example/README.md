@@ -25,6 +25,7 @@ A comprehensive collection of examples for the LLM Dart library, reorganized by 
 ## 📁 Directory Structure
 
 ### 🟢 Getting Started
+
 **For: First-time users of LLM Dart**
 
 - **[quick_start.dart](01_getting_started/quick_start.dart)** - Quick start guide
@@ -32,6 +33,7 @@ A comprehensive collection of examples for the LLM Dart library, reorganized by 
 - **[basic_configuration.dart](01_getting_started/basic_configuration.dart)** - Basic configuration guide
 
 ### 🟡 Core Features
+
 **For: Users who need to understand main functionality**
 
 - **[chat_basics.dart](02_core_features/chat_basics.dart)** - Basic chat functionality
@@ -42,6 +44,7 @@ A comprehensive collection of examples for the LLM Dart library, reorganized by 
 - **[error_handling.dart](02_core_features/error_handling.dart)** - Error handling best practices
 
 ### 🔴 Advanced Features
+
 **For: Users who need deep customization**
 
 - **[reasoning_models.dart](03_advanced_features/reasoning_models.dart)** - 🧠 Reasoning models and thinking processes
@@ -50,6 +53,7 @@ A comprehensive collection of examples for the LLM Dart library, reorganized by 
 - **[performance_optimization.dart](03_advanced_features/performance_optimization.dart)** - Performance optimization techniques
 
 ### 🎯 Provider Specific
+
 **For: Users who need specific provider functionality**
 
 | Provider | Key Features | Example Files |
@@ -64,6 +68,7 @@ A comprehensive collection of examples for the LLM Dart library, reorganized by 
 | **Others** | XAI Grok and more | [others/](04_providers/others/) |
 
 ### 🎪 Real-world Use Cases
+
 **For: Users looking for specific application solutions**
 
 - **[chatbot.dart](05_use_cases/chatbot.dart)** - Complete chatbot implementation
@@ -71,11 +76,13 @@ A comprehensive collection of examples for the LLM Dart library, reorganized by 
 - **[web_service.dart](05_use_cases/web_service.dart)** - HTTP API with AI capabilities
 
 ### 🌟 Production Application
+
 **Real-world example built with LLM Dart**
 
 - **[Yumcha](https://github.com/Latias94/yumcha)** - Cross-platform AI chat application actively developed by the creator of LLM Dart, showcasing real-world integration with multiple providers, real-time streaming, and advanced features
 
 ### 🔗 MCP Integration ✅ **FULLY TESTED**
+
 **For: Users who want to connect LLMs with external tools via Model Context Protocol**
 
 - **[mcp_concept_demo.dart](06_mcp_integration/mcp_concept_demo.dart)** - 🎯 **START HERE** - Core MCP concepts
@@ -138,18 +145,21 @@ dart run 01_getting_started/quick_start.dart
 ## 💡 Learning Recommendations
 
 ### 🟢 Beginner Users
+
 1. Start with `quick_start.dart`
 2. Read `provider_comparison.dart` to choose the right provider
 3. Learn `chat_basics.dart` to master basic conversations
 4. Try `streaming_chat.dart` to experience real-time responses
 
 ### 🟡 Intermediate Users
+
 1. Master `tool_calling.dart` for tool calling
 2. Learn `structured_output.dart` for structured output
 3. Explore `reasoning_models.dart` for reasoning functionality
 4. Choose specific use case examples based on your needs
 
 ### 🔴 Advanced Users
+
 1. Study `custom_providers.dart` for custom development
 2. Optimize performance with `performance_optimization.dart`
 3. Deep dive into specific provider advanced features

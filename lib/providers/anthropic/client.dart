@@ -52,10 +52,7 @@ class AnthropicClient {
     // Add beta headers for new features
     final betaFeatures = <String>[];
 
-    // Add thinking/reasoning beta if enabled
-    if (config.reasoning) {
-      betaFeatures.add('extended-thinking-2025-02-19');
-    }
+    // Note: Extended thinking is now generally available and doesn't require a beta header
 
     // Add interleaved thinking if enabled (Claude 4 only)
     if (config.interleavedThinking && config.supportsInterleavedThinking) {

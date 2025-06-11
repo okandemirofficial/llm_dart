@@ -10,6 +10,7 @@ import 'package:llm_dart/llm_dart.dart';
 /// - Retry mechanisms and backoff strategies
 /// - Graceful degradation and fallbacks
 /// - Monitoring and logging best practices
+/// - Capability factory method error handling
 ///
 /// Before running, set your API key:
 /// export OPENAI_API_KEY="your-key"
@@ -52,6 +53,7 @@ Future<void> demonstrateErrorTypes() async {
     () => testInvalidRequestError(),
     () => testNetworkError(),
     () => testTimeoutError(),
+    () => testUnsupportedCapabilityError(),
   ];
 
   for (final test in errorTests) {
@@ -175,6 +177,50 @@ Future<void> testTimeoutError() async {
   }
 }
 
+/// Test unsupported capability error (new capability factory methods)
+Future<void> testUnsupportedCapabilityError() async {
+  print('   🚫 Testing Unsupported Capability Error:');
+
+  try {
+    // Try to build audio capability with a provider that doesn't support it
+    // Note: Using a fake API key to avoid actual API calls
+    await ai()
+        .groq() // Groq doesn't support audio capabilities
+        .apiKey('fake-key-for-testing')
+        .buildAudio(); // This should throw UnsupportedCapabilityError
+
+    print('      ❌ Expected UnsupportedCapabilityError but got success');
+  } on UnsupportedCapabilityError catch (e) {
+    print('      ✅ Caught UnsupportedCapabilityError: ${e.message}');
+    print(
+        '      💡 Action: Use a provider that supports the required capability');
+    print('      📋 Error details: $e');
+  } catch (e) {
+    print('      ⚠️  Unexpected error type: ${e.runtimeType}');
+    print('      📝 Error details: $e');
+  }
+
+  // Test another unsupported capability
+  try {
+    // Try to build image generation with a provider that doesn't support it
+    await ai()
+        .groq() // Groq doesn't support image generation
+        .apiKey('fake-key-for-testing')
+        .buildImageGeneration(); // This should throw UnsupportedCapabilityError
+
+    print('      ❌ Expected UnsupportedCapabilityError for image generation');
+  } on UnsupportedCapabilityError catch (e) {
+    print('      ✅ Image generation capability correctly rejected');
+    print('      📝 Provider limitation: ${e.message}');
+  } catch (e) {
+    print('      ⚠️  Unexpected error for image generation: ${e.runtimeType}');
+  }
+
+  print('      💡 Capability factory methods provide compile-time type safety');
+  print(
+      '      🎯 Use buildAudio(), buildImageGeneration(), etc. for type-safe building');
+}
+
 /// Demonstrate retry strategies
 Future<void> demonstrateRetryStrategies(ChatCapability ai) async {
   print('🔄 Retry Strategies:\n');
@@ -210,7 +256,9 @@ Future<void> testExponentialBackoff(ChatCapability ai) async {
       return await ai.chat([ChatMessage.user('Hello')]);
     });
 
-    print('      ✅ Success after retries: ${result.text?.substring(0, 50)}...');
+    final text = result.text ?? '';
+    final preview = text.length > 50 ? text.substring(0, 50) : text;
+    print('      ✅ Success after retries: $preview...');
   } catch (e) {
     print('      ❌ Failed after all retries: $e');
   }
@@ -251,7 +299,9 @@ Future<void> testImmediateRetry(ChatCapability ai) async {
       return await ai.chat([ChatMessage.user('Hello again!')]);
     });
 
-    print('      ✅ Success: ${result.text?.substring(0, 30)}...');
+    final text = result.text ?? '';
+    final preview = text.length > 30 ? text.substring(0, 30) : text;
+    print('      ✅ Success: $preview...');
   } catch (e) {
     print('      ❌ Failed: $e');
   }
@@ -297,7 +347,9 @@ Future<void> demonstrateCircuitBreaker(ChatCapability ai) async {
         return await ai.chat([ChatMessage.user('Hello $i')]);
       });
 
-      print('   Call $i: ✅ ${result.text?.substring(0, 30)}...');
+      final text = result.text ?? '';
+      final preview = text.length > 30 ? text.substring(0, 30) : text;
+      print('   Call $i: ✅ $preview...');
     } catch (e) {
       print('   Call $i: ❌ ${e.toString()}');
     }

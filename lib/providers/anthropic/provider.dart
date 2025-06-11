@@ -6,6 +6,7 @@ import 'client.dart';
 import 'config.dart';
 import 'chat.dart';
 import 'files.dart';
+import 'models.dart';
 
 /// Anthropic provider implementation
 ///
@@ -34,6 +35,7 @@ class AnthropicProvider
   // Capability modules
   late final AnthropicChat _chat;
   late final AnthropicFiles _files;
+  late final AnthropicModels _models;
 
   AnthropicProvider(this.config) : _client = AnthropicClient(config) {
     // Validate configuration on initialization
@@ -46,6 +48,7 @@ class AnthropicProvider
     // Initialize capability modules
     _chat = AnthropicChat(_client, config);
     _files = AnthropicFiles(_client, config);
+    _models = AnthropicModels(_client, config);
   }
 
   @override
@@ -100,40 +103,9 @@ class AnthropicProvider
     return supportedCapabilities.contains(capability);
   }
 
-  /// Get supported capabilities as string list (legacy method)
-  List<String> get supportedCapabilitiesLegacy => [
-        'chat',
-        'streaming',
-        'tools',
-        if (config.supportsVision) 'vision',
-        if (config.supportsReasoning) 'reasoning',
-        if (config.supportsPDF) 'pdf',
-      ];
-
-  /// Check if model supports a specific capability (legacy method)
-  bool supportsCapability(String capability) {
-    switch (capability.toLowerCase()) {
-      case 'chat':
-      case 'streaming':
-      case 'tools':
-        return true;
-      case 'vision':
-        return config.supportsVision;
-      case 'reasoning':
-      case 'thinking':
-        return config.supportsReasoning;
-      case 'pdf':
-        return config.supportsPDF;
-      case 'interleaved_thinking':
-        return config.supportsInterleavedThinking;
-      default:
-        return false;
-    }
-  }
-
   @override
   Future<List<AIModel>> models() async {
-    return listModels();
+    return _models.models();
   }
 
   /// List available models from Anthropic API
@@ -147,29 +119,11 @@ class AnthropicProvider
     String? afterId,
     int limit = 20,
   }) async {
-    try {
-      final queryParams = <String, dynamic>{};
-      if (beforeId != null) queryParams['before_id'] = beforeId;
-      if (afterId != null) queryParams['after_id'] = afterId;
-      if (limit != 20) queryParams['limit'] = limit;
-
-      final endpoint = queryParams.isEmpty
-          ? 'models'
-          : 'models?${queryParams.entries.map((e) => '${e.key}=${e.value}').join('&')}';
-
-      final responseData = await _client.getJson(endpoint);
-      final data = responseData['data'] as List?;
-
-      if (data == null) return [];
-
-      return data
-          .map((modelData) =>
-              AIModel.fromJson(modelData as Map<String, dynamic>))
-          .toList();
-    } catch (e) {
-      _client.logger.warning('Failed to list models: $e');
-      return [];
-    }
+    return _models.listModels(
+      beforeId: beforeId,
+      afterId: afterId,
+      limit: limit,
+    );
   }
 
   /// Get information about a specific model
@@ -179,13 +133,7 @@ class AnthropicProvider
   /// Returns detailed information about a specific model including its
   /// capabilities, creation date, and display name.
   Future<AIModel?> getModel(String modelId) async {
-    try {
-      final responseData = await _client.getJson('models/$modelId');
-      return AIModel.fromJson(responseData);
-    } catch (e) {
-      _client.logger.warning('Failed to get model $modelId: $e');
-      return null;
-    }
+    return _models.getModel(modelId);
   }
 
   /// Count tokens for messages using Anthropic's API

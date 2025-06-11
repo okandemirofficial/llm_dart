@@ -18,20 +18,42 @@ class SearchSource {
 }
 
 /// Search parameters for LLM providers that support search functionality
+///
+/// This class configures search behavior for providers like xAI Grok that support
+/// real-time web search capabilities. The parameters follow xAI's Live Search API specification.
+///
+/// **Reference:** https://docs.x.ai/docs/guides/live-search
 class SearchParameters {
   /// Search mode (e.g., "auto")
+  ///
+  /// Controls how the search is triggered:
+  /// - "auto": Automatically search when relevant
+  /// - "always": Always perform search
+  /// - "never": Never perform search
   final String? mode;
 
   /// List of search sources with exclusions
+  ///
+  /// Defines which sources to search and which websites to exclude.
+  /// Common source types: "web", "news"
   final List<SearchSource>? sources;
 
   /// Maximum number of search results to return
+  ///
+  /// Controls the number of search results to include in the context.
+  /// Higher values provide more information but use more tokens.
   final int? maxSearchResults;
 
   /// Start date for search results (format: "YYYY-MM-DD")
+  ///
+  /// Filters search results to only include content from this date onwards.
+  /// Useful for finding recent information.
   final String? fromDate;
 
   /// End date for search results (format: "YYYY-MM-DD")
+  ///
+  /// Filters search results to only include content up to this date.
+  /// Useful for historical searches.
   final String? toDate;
 
   const SearchParameters({
@@ -42,6 +64,72 @@ class SearchParameters {
     this.toDate,
   });
 
+  /// Creates search parameters with default web search configuration
+  factory SearchParameters.webSearch({
+    String mode = 'auto',
+    int? maxResults,
+    List<String>? excludedWebsites,
+  }) {
+    return SearchParameters(
+      mode: mode,
+      sources: [
+        SearchSource(
+          sourceType: 'web',
+          excludedWebsites: excludedWebsites,
+        ),
+      ],
+      maxSearchResults: maxResults,
+    );
+  }
+
+  /// Creates search parameters for news search
+  factory SearchParameters.newsSearch({
+    String mode = 'auto',
+    int? maxResults,
+    String? fromDate,
+    String? toDate,
+    List<String>? excludedWebsites,
+  }) {
+    return SearchParameters(
+      mode: mode,
+      sources: [
+        SearchSource(
+          sourceType: 'news',
+          excludedWebsites: excludedWebsites,
+        ),
+      ],
+      maxSearchResults: maxResults,
+      fromDate: fromDate,
+      toDate: toDate,
+    );
+  }
+
+  /// Creates search parameters for both web and news sources
+  factory SearchParameters.combined({
+    String mode = 'auto',
+    int? maxResults,
+    String? fromDate,
+    String? toDate,
+    List<String>? excludedWebsites,
+  }) {
+    return SearchParameters(
+      mode: mode,
+      sources: [
+        SearchSource(
+          sourceType: 'web',
+          excludedWebsites: excludedWebsites,
+        ),
+        SearchSource(
+          sourceType: 'news',
+          excludedWebsites: excludedWebsites,
+        ),
+      ],
+      maxSearchResults: maxResults,
+      fromDate: fromDate,
+      toDate: toDate,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         if (mode != null) 'mode': mode,
         if (sources != null)
@@ -50,6 +138,28 @@ class SearchParameters {
         if (fromDate != null) 'from_date': fromDate,
         if (toDate != null) 'to_date': toDate,
       };
+
+  SearchParameters copyWith({
+    String? mode,
+    List<SearchSource>? sources,
+    int? maxSearchResults,
+    String? fromDate,
+    String? toDate,
+  }) {
+    return SearchParameters(
+      mode: mode ?? this.mode,
+      sources: sources ?? this.sources,
+      maxSearchResults: maxSearchResults ?? this.maxSearchResults,
+      fromDate: fromDate ?? this.fromDate,
+      toDate: toDate ?? this.toDate,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'SearchParameters(mode: $mode, sources: ${sources?.length}, '
+        'maxResults: $maxSearchResults, fromDate: $fromDate, toDate: $toDate)';
+  }
 }
 
 /// xAI provider configuration
@@ -74,6 +184,16 @@ class XAIConfig {
   final int? embeddingDimensions;
   final SearchParameters? searchParameters;
 
+  /// Enable or disable live search functionality
+  ///
+  /// When enabled, the model can perform real-time web searches to provide
+  /// current information. This is particularly useful for Grok models.
+  ///
+  /// **Note:** Live search is only available for certain xAI models and
+  /// requires appropriate API access. Setting this to true will automatically
+  /// configure basic search parameters if none are provided.
+  final bool? liveSearch;
+
   /// Reference to original LLMConfig for accessing extensions
   final LLMConfig? _originalConfig;
 
@@ -93,6 +213,7 @@ class XAIConfig {
     this.embeddingEncodingFormat,
     this.embeddingDimensions,
     this.searchParameters,
+    this.liveSearch,
     LLMConfig? originalConfig,
   }) : _originalConfig = originalConfig;
 
@@ -118,6 +239,7 @@ class XAIConfig {
       embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
       searchParameters:
           config.getExtension<SearchParameters>('searchParameters'),
+      liveSearch: config.getExtension<bool>('liveSearch'),
       originalConfig: config,
     );
   }
@@ -150,6 +272,12 @@ class XAIConfig {
     return model.contains('grok');
   }
 
+  /// Check if live search is enabled
+  bool get isLiveSearchEnabled {
+    // Live search is enabled if explicitly set to true, or if search parameters are configured
+    return liveSearch == true || searchParameters != null;
+  }
+
   /// Check if this model supports embeddings
   bool get supportsEmbeddings {
     // xAI provides embedding models
@@ -179,6 +307,7 @@ class XAIConfig {
     String? embeddingEncodingFormat,
     int? embeddingDimensions,
     SearchParameters? searchParameters,
+    bool? liveSearch,
   }) =>
       XAIConfig(
         apiKey: apiKey ?? this.apiKey,
@@ -197,5 +326,6 @@ class XAIConfig {
             embeddingEncodingFormat ?? this.embeddingEncodingFormat,
         embeddingDimensions: embeddingDimensions ?? this.embeddingDimensions,
         searchParameters: searchParameters ?? this.searchParameters,
+        liveSearch: liveSearch ?? this.liveSearch,
       );
 }

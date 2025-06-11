@@ -10,7 +10,16 @@ import 'embedding.dart';
 ///
 /// This is the main provider class that implements capability interfaces
 /// and delegates to specialized modules for different functionalities.
-class XAIProvider implements ChatCapability, EmbeddingCapability {
+///
+/// **Supported Capabilities:**
+/// - Chat with Grok models
+/// - Real-time web search (Live Search)
+/// - Function/tool calling
+/// - Vector embeddings
+/// - Reasoning and thinking (Grok models)
+/// - Vision capabilities (Grok Vision models)
+class XAIProvider
+    implements ChatCapability, EmbeddingCapability, ProviderCapabilities {
   final XAIConfig config;
   final XAIClient client;
 
@@ -61,6 +70,38 @@ class XAIProvider implements ChatCapability, EmbeddingCapability {
     return _embedding.embed(input);
   }
 
+  @override
+  Set<LLMCapability> get supportedCapabilities {
+    final capabilities = <LLMCapability>{
+      LLMCapability.chat,
+      LLMCapability.streaming,
+      LLMCapability.embedding,
+    };
+
+    // Add capabilities based on model and configuration
+    if (config.supportsToolCalling) {
+      capabilities.add(LLMCapability.toolCalling);
+    }
+
+    if (config.supportsVision) {
+      capabilities.add(LLMCapability.vision);
+    }
+
+    if (config.supportsReasoning) {
+      capabilities.add(LLMCapability.reasoning);
+    }
+
+    if (config.supportsSearch || config.isLiveSearchEnabled) {
+      capabilities.add(LLMCapability.liveSearch);
+    }
+
+    return capabilities;
+  }
+
+  @override
+  bool supports(LLMCapability capability) =>
+      supportedCapabilities.contains(capability);
+
   /// Create a new provider with updated configuration
   XAIProvider copyWith({
     String? apiKey,
@@ -79,6 +120,7 @@ class XAIProvider implements ChatCapability, EmbeddingCapability {
     String? embeddingEncodingFormat,
     int? embeddingDimensions,
     SearchParameters? searchParameters,
+    bool? liveSearch,
   }) {
     final newConfig = config.copyWith(
       apiKey: apiKey,
@@ -96,6 +138,7 @@ class XAIProvider implements ChatCapability, EmbeddingCapability {
       embeddingEncodingFormat: embeddingEncodingFormat,
       embeddingDimensions: embeddingDimensions,
       searchParameters: searchParameters,
+      liveSearch: liveSearch,
     );
 
     return XAIProvider(newConfig);
@@ -119,8 +162,10 @@ class XAIProvider implements ChatCapability, EmbeddingCapability {
         'supportsVision': config.supportsVision,
         'supportsReasoning': config.supportsReasoning,
         'supportsSearch': config.supportsSearch,
+        'supportsLiveSearch': config.isLiveSearchEnabled,
         'supportsEmbeddings': config.supportsEmbeddings,
         'modelFamily': config.modelFamily,
+        'capabilities': supportedCapabilities.map((c) => c.name).toList(),
       };
 
   @override

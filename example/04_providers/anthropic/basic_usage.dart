@@ -38,11 +38,8 @@ Future<void> demonstrateModelSelection(String apiKey) async {
       'name': 'claude-3-5-haiku-20241022',
       'description': 'Fast and cost-effective'
     },
-    {
-      'name': 'claude-3-5-sonnet-20241022',
-      'description': 'Balanced performance'
-    },
-    {'name': 'claude-3-opus-20240229', 'description': 'Highest quality'},
+    {'name': 'claude-sonnet-4-20250514', 'description': 'Balanced performance'},
+    {'name': 'claude-opus-4-20250514', 'description': 'Highest quality'},
   ];
 
   final question = 'Explain the concept of machine learning in simple terms.';
@@ -186,7 +183,7 @@ Future<void> demonstrateReasoningCapabilities(String apiKey) async {
     final provider = await ai()
         .anthropic()
         .apiKey(apiKey)
-        .model('claude-3-5-sonnet-20241022') // Better for reasoning
+        .model('claude-sonnet-4-20250514') // Better for reasoning
         .temperature(0.3) // Lower temperature for more focused reasoning
         .maxTokens(800)
         .build();

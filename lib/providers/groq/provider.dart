@@ -10,7 +10,7 @@ import 'chat.dart';
 /// This provider implements the ChatCapability interface and delegates
 /// to specialized capability modules for different functionalities.
 /// Groq is optimized for fast inference.
-class GroqProvider implements ChatCapability {
+class GroqProvider implements ChatCapability, ProviderCapabilities {
   final GroqClient _client;
   final GroqConfig config;
 
@@ -56,31 +56,20 @@ class GroqProvider implements ChatCapability {
   /// Get provider name
   String get providerName => 'Groq';
 
-  /// Get supported capabilities
-  List<String> get supportedCapabilities => [
-        'chat',
-        'streaming',
-        'tools',
-        'speed_optimized',
-        if (config.supportsVision) 'vision',
-      ];
+  // ========== ProviderCapabilities ==========
 
-  /// Check if model supports a specific capability
-  bool supportsCapability(String capability) {
-    switch (capability.toLowerCase()) {
-      case 'chat':
-      case 'streaming':
-      case 'tools':
-      case 'speed_optimized':
-        return true;
-      case 'vision':
-        return config.supportsVision;
-      case 'reasoning':
-      case 'thinking':
-        return config.supportsReasoning; // Currently false for Groq
-      default:
-        return false;
-    }
+  @override
+  Set<LLMCapability> get supportedCapabilities => {
+        LLMCapability.chat,
+        LLMCapability.streaming,
+        LLMCapability.toolCalling,
+        if (config.supportsVision) LLMCapability.vision,
+        if (config.supportsReasoning) LLMCapability.reasoning,
+      };
+
+  @override
+  bool supports(LLMCapability capability) {
+    return supportedCapabilities.contains(capability);
   }
 
   /// Get model family information

@@ -109,45 +109,6 @@ class OllamaProvider
     return supportedCapabilities.contains(capability);
   }
 
-  /// Get supported capabilities as string list (legacy method)
-  List<String> get supportedCapabilitiesLegacy => [
-        'chat',
-        'streaming',
-        'completion',
-        'embeddings',
-        'models',
-        'local_deployment',
-        if (config.supportsToolCalling) 'tools',
-        if (config.supportsVision) 'vision',
-        if (config.supportsReasoning) 'reasoning',
-        if (config.supportsCodeGeneration) 'code_generation',
-      ];
-
-  /// Check if model supports a specific capability (legacy method)
-  bool supportsCapability(String capability) {
-    switch (capability.toLowerCase()) {
-      case 'chat':
-      case 'streaming':
-      case 'completion':
-      case 'embeddings':
-      case 'models':
-      case 'local_deployment':
-        return true;
-      case 'tools':
-        return config.supportsToolCalling;
-      case 'vision':
-        return config.supportsVision;
-      case 'reasoning':
-      case 'thinking':
-        return config.supportsReasoning;
-      case 'code_generation':
-      case 'coding':
-        return config.supportsCodeGeneration;
-      default:
-        return false;
-    }
-  }
-
   /// Get model family information
   String get modelFamily => config.modelFamily;
 

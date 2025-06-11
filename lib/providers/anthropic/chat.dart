@@ -38,6 +38,7 @@ class AnthropicChat implements ChatCapability {
     List<Tool>? tools,
   ) async {
     final requestBody = _buildRequestBody(messages, tools, false);
+    // Headers including interleaved thinking beta are automatically handled by AnthropicClient
     final responseData = await client.postJson(chatEndpoint, requestBody);
     return _parseResponse(responseData);
   }
@@ -57,7 +58,8 @@ class AnthropicChat implements ChatCapability {
     final effectiveTools = tools ?? config.tools;
     final requestBody = _buildRequestBody(messages, effectiveTools, true);
 
-    // Create SSE stream
+    // Create SSE stream - headers are automatically handled by AnthropicClient
+    // including interleaved thinking beta header if enabled
     final stream = client.postStreamRaw(chatEndpoint, requestBody);
 
     await for (final chunk in stream) {
@@ -242,6 +244,9 @@ class AnthropicChat implements ChatCapability {
           } else if (blockType == 'thinking') {
             // Thinking block started
             client.logger.info('Thinking block started');
+          } else if (blockType == 'redacted_thinking') {
+            // Redacted thinking block started
+            client.logger.info('Redacted thinking block started');
           }
         }
         break;
@@ -306,6 +311,8 @@ class AnthropicChat implements ChatCapability {
             }
           } else if (blockType == 'thinking') {
             client.logger.info('Thinking block completed');
+          } else if (blockType == 'redacted_thinking') {
+            client.logger.info('Redacted thinking block completed');
           }
         }
         break;
@@ -468,6 +475,13 @@ class AnthropicChat implements ChatCapability {
       // Add tool_choice if specified
       final effectiveToolChoice = config.toolChoice;
       if (effectiveToolChoice != null) {
+        // Validate tool choice compatibility with thinking
+        if (config.reasoning &&
+            effectiveToolChoice is! AutoToolChoice &&
+            effectiveToolChoice is! NoneToolChoice) {
+          client.logger.warning(
+              'Extended thinking only supports tool_choice "auto" or "none". Other tool choices may cause errors.');
+        }
         body['tool_choice'] = _convertToolChoice(effectiveToolChoice);
       }
     }
@@ -824,6 +838,7 @@ class AnthropicChatResponse implements ChatResponse {
         }
       } else if (blockType == 'redacted_thinking') {
         // For redacted thinking, we can't show the content but we can indicate it exists
+        // The actual encrypted data is in the 'data' field but should not be displayed
         thinkingBlocks
             .add('[Redacted thinking content - encrypted for safety]');
       }

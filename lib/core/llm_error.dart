@@ -221,6 +221,35 @@ class ServerError extends LLMError {
       'Server error: $message${statusCode != null ? ' (HTTP $statusCode)' : ''}';
 }
 
+/// Unsupported capability error
+///
+/// Thrown when trying to build a provider with a capability it doesn't support.
+/// This is used by the capability factory methods in LLMBuilder.
+class UnsupportedCapabilityError extends LLMError {
+  final String? providerId;
+  final String? capabilityName;
+  final List<String>? supportedProviders;
+
+  const UnsupportedCapabilityError(
+    super.message, {
+    this.providerId,
+    this.capabilityName,
+    this.supportedProviders,
+  });
+
+  @override
+  String toString() {
+    final parts = ['Unsupported capability: $message'];
+    if (providerId != null && capabilityName != null) {
+      parts.add('Provider "$providerId" does not support $capabilityName');
+    }
+    if (supportedProviders != null && supportedProviders!.isNotEmpty) {
+      parts.add('Supported providers: ${supportedProviders!.join(', ')}');
+    }
+    return parts.join('. ');
+  }
+}
+
 /// Dio error handler utility for consistent error handling across providers
 class DioErrorHandler {
   /// Handle Dio errors and convert to appropriate LLM errors

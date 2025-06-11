@@ -9,7 +9,7 @@ import 'chat.dart';
 ///
 /// This provider implements the ChatCapability interface and delegates
 /// to specialized capability modules for different functionalities.
-class GoogleProvider implements ChatCapability {
+class GoogleProvider implements ChatCapability, ProviderCapabilities {
   final GoogleClient _client;
   final GoogleConfig config;
 
@@ -55,32 +55,20 @@ class GoogleProvider implements ChatCapability {
   /// Get provider name
   String get providerName => 'Google';
 
-  /// Get supported capabilities
-  List<String> get supportedCapabilities => [
-        'chat',
-        'streaming',
-        'tools',
-        if (config.supportsVision) 'vision',
-        if (config.supportsReasoning) 'reasoning',
-        if (config.supportsImageGeneration) 'image_generation',
-      ];
+  // ========== ProviderCapabilities ==========
 
-  /// Check if model supports a specific capability
-  bool supportsCapability(String capability) {
-    switch (capability.toLowerCase()) {
-      case 'chat':
-      case 'streaming':
-      case 'tools':
-        return true;
-      case 'vision':
-        return config.supportsVision;
-      case 'reasoning':
-      case 'thinking':
-        return config.supportsReasoning;
-      case 'image_generation':
-        return config.supportsImageGeneration;
-      default:
-        return false;
-    }
+  @override
+  Set<LLMCapability> get supportedCapabilities => {
+        LLMCapability.chat,
+        LLMCapability.streaming,
+        LLMCapability.toolCalling,
+        if (config.supportsVision) LLMCapability.vision,
+        if (config.supportsReasoning) LLMCapability.reasoning,
+        if (config.supportsImageGeneration) LLMCapability.imageGeneration,
+      };
+
+  @override
+  bool supports(LLMCapability capability) {
+    return supportedCapabilities.contains(capability);
   }
 }

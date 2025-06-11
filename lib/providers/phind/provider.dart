@@ -86,13 +86,6 @@ class PhindProvider implements ChatCapability {
     return PhindProvider(newConfig);
   }
 
-  /// Check if the provider supports a specific capability
-  bool supportsCapability(Type capability) {
-    if (capability == ChatCapability) return true;
-    // Add other capabilities as they are implemented
-    return false;
-  }
-
   /// Get provider information
   Map<String, dynamic> get info => {
         'provider': providerName,

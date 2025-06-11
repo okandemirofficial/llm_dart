@@ -193,12 +193,10 @@ class XAIChat implements ChatCapability {
       };
     }
 
-    // Add search parameters if configured
-    if (config.searchParameters != null) {
-      final searchParams = _buildSearchParameters();
-      if (searchParams != null) {
-        body['search_parameters'] = searchParams.toJson();
-      }
+    // Add search parameters if configured or live search is enabled
+    final searchParams = _buildSearchParameters();
+    if (searchParams != null) {
+      body['search_parameters'] = searchParams.toJson();
     }
 
     return body;
@@ -239,16 +237,30 @@ class XAIChat implements ChatCapability {
   }
 
   /// Build search parameters dynamically following xAI specification
+  ///
+  /// This method constructs search parameters based on the configuration.
+  /// If live search is enabled but no explicit search parameters are provided,
+  /// it creates default web search parameters.
   SearchParameters? _buildSearchParameters() {
     final configParams = config.searchParameters;
+    final liveSearchEnabled = config.liveSearch == true;
+
+    // If live search is explicitly enabled but no search parameters are configured,
+    // create default web search parameters
+    if (liveSearchEnabled && configParams == null) {
+      return SearchParameters.webSearch();
+    }
+
+    // If no search parameters and live search is not enabled, return null
     if (configParams == null) return null;
 
+    // Use configured search parameters, ensuring we have at least one source
     final sources = configParams.sources?.isNotEmpty == true
         ? configParams.sources
         : [const SearchSource(sourceType: 'web')];
 
     return SearchParameters(
-      mode: configParams.mode,
+      mode: configParams.mode ?? 'auto',
       sources: sources,
       maxSearchResults: configParams.maxSearchResults,
       fromDate: configParams.fromDate,

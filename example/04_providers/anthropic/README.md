@@ -64,9 +64,9 @@ dart run file_handling.dart
 ## 💡 Best Practices
 
 ### Model Selection
-- **claude-3-5-haiku**: Fast responses, cost-effective
-- **claude-3-5-sonnet**: Balanced performance and quality
-- **claude-3-opus**: Highest quality for complex tasks
+- **claude-3-5-haiku-20241022**: Fast responses, cost-effective
+- **claude-sonnet-4-20250514**: Balanced performance and quality
+- **claude-opus-4-20250514**: Highest quality for complex tasks
 
 ### Prompt Engineering
 - Be specific and detailed in requests
@@ -104,7 +104,7 @@ final provider = await ai()
 final provider = await ai()
     .anthropic()
     .apiKey(apiKey)
-    .model('claude-3-5-sonnet-20241022')
+    .model('claude-sonnet-4-20250514')
     .temperature(0.3)
     .maxTokens(4000)
     .systemPrompt('You are an expert analyst.')
