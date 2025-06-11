@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 import 'package:test/test.dart';
 import 'package:llm_dart/llm_dart.dart';
@@ -219,6 +218,111 @@ void main() {
         expect(result.toString(), equals(emojiText),
             reason: 'Failed for emoji: $emojiText');
       }
+    });
+
+    test('UTF-8 stream decoder handles thinking tags correctly', () {
+      final decoder = Utf8StreamDecoder();
+
+      // Test thinking content that might be split across chunks
+      final thinkingTests = [
+        '<think>这是思考内容</think>',
+        '<think>Hello world thinking</think>',
+        '<think>🤔 Complex thinking with emoji 💭</think>',
+        '<think>\n多行思考内容\n包含换行符\n</think>',
+        'Normal content <think>embedded thinking</think> more content',
+        '<think>Nested <inner>tags</inner> in thinking</think>',
+        '<think>Very long thinking content that spans multiple lines and contains various characters including 中文, emojis 🌍, and special symbols</think>',
+      ];
+
+      for (final testCase in thinkingTests) {
+        decoder.reset();
+        final bytes = utf8.encode(testCase);
+
+        // Test various problematic split positions
+        final splitPositions = [
+          1, 2, 3, 5, 7, // Very small chunks
+          bytes.length ~/ 4, // Quarter splits
+          bytes.length ~/ 2, // Half splits
+        ];
+
+        for (final chunkSize in splitPositions) {
+          if (chunkSize >= bytes.length) continue;
+
+          decoder.reset();
+          final result = StringBuffer();
+
+          // Split into chunks of specified size
+          for (int i = 0; i < bytes.length; i += chunkSize) {
+            final end =
+                (i + chunkSize < bytes.length) ? i + chunkSize : bytes.length;
+            final chunk = bytes.sublist(i, end);
+            result.write(decoder.decode(chunk));
+          }
+          result.write(decoder.flush());
+
+          expect(result.toString(), equals(testCase),
+              reason:
+                  'Failed for test case: "$testCase" with chunk size: $chunkSize');
+        }
+      }
+    });
+
+    test('UTF-8 stream decoder handles thinking tag boundaries', () {
+      final decoder = Utf8StreamDecoder();
+
+      // Test cases where tags are split at critical boundaries
+      final testText = '<think>思考内容</think>正常内容';
+      final bytes = utf8.encode(testText);
+
+      // Find positions where tags might be split
+      final tagPositions = <int>[];
+      final textStr = testText;
+
+      // Find all positions of '<', '>', and other critical characters
+      for (int i = 0; i < textStr.length; i++) {
+        if ('<>'.contains(textStr[i])) {
+          // Convert string position to byte position
+          final bytePos = utf8.encode(textStr.substring(0, i)).length;
+          if (bytePos < bytes.length) {
+            tagPositions.add(bytePos);
+          }
+        }
+      }
+
+      // Test splitting at each critical position
+      for (final splitPos in tagPositions) {
+        decoder.reset();
+        final result = StringBuffer();
+
+        // Split at the critical position
+        final part1 = bytes.sublist(0, splitPos);
+        final part2 = bytes.sublist(splitPos);
+
+        result.write(decoder.decode(part1));
+        result.write(decoder.decode(part2));
+        result.write(decoder.flush());
+
+        expect(result.toString(), equals(testText),
+            reason: 'Failed when splitting at position: $splitPos');
+      }
+    });
+
+    test('UTF-8 stream decoder handles extreme fragmentation', () {
+      final decoder = Utf8StreamDecoder();
+
+      // Test with extremely fragmented thinking content
+      final testText = '<think>复杂的思考内容包含🤔emoji和\n换行符</think>然后是正常内容';
+      final bytes = utf8.encode(testText);
+
+      // Split into single bytes (worst case scenario)
+      final result = StringBuffer();
+      for (final byte in bytes) {
+        result.write(decoder.decode([byte]));
+      }
+      result.write(decoder.flush());
+
+      expect(result.toString(), equals(testText),
+          reason: 'Failed with single-byte fragmentation');
     });
   });
 }
