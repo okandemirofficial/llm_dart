@@ -1,0 +1,34 @@
+name: Release
+
+# Trigger the workflow only when a version tag (prefixed with "v") is pushed.
+on:
+  push:
+    tags:
+      - 'v*.*.*'   # e.g. v0.3.0, v1.2.3
+
+jobs:
+  publish:
+    name: Publish GitHub release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # required for creating a release
+    steps:
+      # Checkout the code so the action can read CHANGELOG.md.
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      # Extract the release notes for the current version from CHANGELOG.md.
+      - name: Extract release notes
+        id: notes
+        uses: ffurrer2/extract-release-notes@v2
+        # No inputs needed: the action looks for the section that follows
+        # "## [Unreleased]" (Keep a Changelog convention).
+
+      # Create the GitHub release with the extracted notes.
+      - name: Create GitHub release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes '${{ steps.notes.outputs.release_notes }}'
