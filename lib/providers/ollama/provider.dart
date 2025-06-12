@@ -29,7 +29,8 @@ class OllamaProvider
   late final OllamaEmbeddings _embeddings;
   late final OllamaModels _models;
 
-  OllamaProvider(this.config) : _client = OllamaClient(config) {
+  OllamaProvider(this.config)
+      : _client = OllamaClient(config, customDio: config.dioClient) {
     // Initialize capability modules
     _chat = OllamaChat(_client, config);
     _completion = OllamaCompletion(_client, config);

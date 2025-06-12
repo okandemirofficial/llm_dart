@@ -19,14 +19,26 @@ class OllamaClient {
   final Logger logger = Logger('OllamaClient');
   late final Dio dio;
 
-  OllamaClient(this.config) {
-    dio = Dio(BaseOptions(
-      baseUrl: config.baseUrl,
-      headers: _buildHeaders(),
-      connectTimeout: config.timeout,
-      receiveTimeout: config.timeout,
-      sendTimeout: config.timeout,
-    ));
+  OllamaClient(this.config, {Dio? customDio}) {
+    if (customDio != null) {
+      dio = customDio;
+      // Update base configuration if needed
+      dio.options.baseUrl = config.baseUrl;
+      dio.options.headers.addAll(_buildHeaders());
+      if (config.timeout != null) {
+        dio.options.connectTimeout = config.timeout;
+        dio.options.receiveTimeout = config.timeout;
+        dio.options.sendTimeout = config.timeout;
+      }
+    } else {
+      dio = Dio(BaseOptions(
+        baseUrl: config.baseUrl,
+        headers: _buildHeaders(),
+        connectTimeout: config.timeout,
+        receiveTimeout: config.timeout,
+        sendTimeout: config.timeout,
+      ));
+    }
   }
 
   /// Build headers for Ollama API requests

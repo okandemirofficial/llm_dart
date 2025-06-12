@@ -17,7 +17,8 @@ class GroqProvider implements ChatCapability, ProviderCapabilities {
   // Capability modules
   late final GroqChat _chat;
 
-  GroqProvider(this.config) : _client = GroqClient(config) {
+  GroqProvider(this.config)
+      : _client = GroqClient(config, customDio: config.dioClient) {
     // Initialize capability modules
     _chat = GroqChat(_client, config);
   }

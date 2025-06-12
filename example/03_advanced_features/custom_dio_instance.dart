@@ -59,6 +59,43 @@ void main() async {
     print('Error: $e');
   }
 
+  // Example 2.5: Using custom Dio with Groq
+  print('\n=== Groq with Custom Dio ===');
+  try {
+    final groqProvider = await ai()
+        .groq()
+        .apiKey("your-groq-api-key-here")
+        .model("llama-3.3-70b-versatile")
+        .dioClient(customDio) // Pass your custom Dio instance
+        .build();
+
+    final response = await groqProvider.chat([
+      ChatMessage.user("Explain ultra-fast inference and Groq's approach.")
+    ]);
+
+    print('Response: ${response.text}');
+  } catch (e) {
+    print('Error: $e');
+  }
+
+  // Example 2.6: Using custom Dio with Ollama
+  print('\n=== Ollama with Custom Dio ===');
+  try {
+    final ollamaProvider = await ai()
+        .ollama()
+        .baseUrl("http://localhost:11434")
+        .model("llama3.2")
+        .dioClient(customDio) // Pass your custom Dio instance
+        .build();
+
+    final response = await ollamaProvider.chat(
+        [ChatMessage.user("Explain the benefits of local LLM deployment.")]);
+
+    print('Response: ${response.text}');
+  } catch (e) {
+    print('Error: $e');
+  }
+
   // Example 3: Custom Dio with specific proxy settings
   print('\n=== Custom Dio with Proxy Settings ===');
   final proxyDio = Dio();
@@ -104,6 +141,26 @@ void main() async {
   // - Shared proxy settings
   // - Common authentication headers
   // - Request/response caching
+
+  // Example using shared Dio with multiple providers
+  try {
+    final groqProvider =
+        await ai().groq().apiKey("your-groq-key").dioClient(sharedDio).build();
+
+    print('Groq provider created successfully with shared Dio instance');
+
+    // Create Ollama provider with shared Dio
+    final ollamaProvider = await ai()
+        .ollama()
+        .baseUrl("http://localhost:11434")
+        .model("llama3.2")
+        .dioClient(sharedDio)
+        .build();
+
+    print('Ollama provider created successfully with shared Dio instance');
+  } catch (e) {
+    print('Error with shared Dio providers: $e');
+  }
 
   print('Setup completed. Custom Dio instances are ready for use!');
 }

@@ -20,14 +20,29 @@ class GroqClient {
   final Logger logger = Logger('GroqClient');
   late final Dio dio;
 
-  GroqClient(this.config) {
-    dio = Dio(BaseOptions(
-      baseUrl: config.baseUrl,
-      headers: ConfigUtils.buildOpenAIHeaders(config.apiKey),
-      connectTimeout: config.timeout,
-      receiveTimeout: config.timeout,
-      sendTimeout: config.timeout,
-    ));
+  GroqClient(this.config, {Dio? customDio}) {
+    if (customDio != null) {
+      dio = customDio;
+      // Update the base options if they're not already set
+      if (dio.options.baseUrl.isEmpty) {
+        dio.options.baseUrl = config.baseUrl;
+      }
+      // Merge headers instead of replacing them
+      final headers = ConfigUtils.buildOpenAIHeaders(config.apiKey);
+      dio.options.headers.addAll(headers);
+      // Set timeouts if not already configured
+      dio.options.connectTimeout ??= config.timeout;
+      dio.options.receiveTimeout ??= config.timeout;
+      dio.options.sendTimeout ??= config.timeout;
+    } else {
+      dio = Dio(BaseOptions(
+        baseUrl: config.baseUrl,
+        headers: ConfigUtils.buildOpenAIHeaders(config.apiKey),
+        connectTimeout: config.timeout,
+        receiveTimeout: config.timeout,
+        sendTimeout: config.timeout,
+      ));
+    }
   }
 
   /// Make a POST request and return JSON response

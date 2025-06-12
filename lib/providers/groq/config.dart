@@ -1,6 +1,7 @@
 import '../../models/tool_models.dart';
 import '../../core/config.dart';
 import '../../core/provider_defaults.dart';
+import 'package:dio/dio.dart';
 
 /// Groq provider configuration
 ///
@@ -20,6 +21,13 @@ class GroqConfig {
   final List<Tool>? tools;
   final ToolChoice? toolChoice;
 
+  /// Custom Dio instance for HTTP requests
+  ///
+  /// If provided, this Dio instance will be used for all HTTP requests
+  /// instead of creating a default one. This allows for custom interceptors,
+  /// proxy settings, certificates, and other advanced HTTP configurations.
+  final Dio? dioClient;
+
   /// Reference to original LLMConfig for accessing extensions
   final LLMConfig? _originalConfig;
 
@@ -35,6 +43,7 @@ class GroqConfig {
     this.topK,
     this.tools,
     this.toolChoice,
+    this.dioClient,
     LLMConfig? originalConfig,
   }) : _originalConfig = originalConfig;
 
@@ -52,6 +61,7 @@ class GroqConfig {
       topK: config.topK,
       tools: config.tools,
       toolChoice: config.toolChoice,
+      dioClient: config.dioClient,
       originalConfig: config,
     );
   }
@@ -137,6 +147,7 @@ class GroqConfig {
     int? topK,
     List<Tool>? tools,
     ToolChoice? toolChoice,
+    Dio? dioClient,
   }) =>
       GroqConfig(
         apiKey: apiKey ?? this.apiKey,
@@ -150,5 +161,6 @@ class GroqConfig {
         topK: topK ?? this.topK,
         tools: tools ?? this.tools,
         toolChoice: toolChoice ?? this.toolChoice,
+        dioClient: dioClient ?? this.dioClient,
       );
 }

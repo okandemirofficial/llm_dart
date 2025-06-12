@@ -1,6 +1,7 @@
 import '../../models/tool_models.dart';
 import '../../core/config.dart';
 import '../../core/provider_defaults.dart';
+import 'package:dio/dio.dart';
 
 /// Ollama provider configuration
 ///
@@ -29,6 +30,9 @@ class OllamaConfig {
   final String? keepAlive; // How long to keep model in memory
   final bool? raw; // Raw mode (no templating)
 
+  /// Custom Dio client for HTTP requests
+  final Dio? dioClient;
+
   /// Reference to original LLMConfig for accessing extensions
   final LLMConfig? _originalConfig;
 
@@ -52,6 +56,7 @@ class OllamaConfig {
     this.numBatch,
     this.keepAlive,
     this.raw,
+    this.dioClient,
     LLMConfig? originalConfig,
   }) : _originalConfig = originalConfig;
 
@@ -78,6 +83,7 @@ class OllamaConfig {
       numBatch: config.getExtension<int>('numBatch'),
       keepAlive: config.getExtension<String>('keepAlive'),
       raw: config.getExtension<bool>('raw'),
+      dioClient: config.dioClient,
       originalConfig: config,
     );
   }
@@ -169,6 +175,7 @@ class OllamaConfig {
     int? numBatch,
     String? keepAlive,
     bool? raw,
+    Dio? dioClient,
   }) =>
       OllamaConfig(
         baseUrl: baseUrl ?? this.baseUrl,
@@ -189,5 +196,6 @@ class OllamaConfig {
         numBatch: numBatch ?? this.numBatch,
         keepAlive: keepAlive ?? this.keepAlive,
         raw: raw ?? this.raw,
+        dioClient: dioClient ?? this.dioClient,
       );
 }
