@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Google Embeddings Support**: Full embedding capability for Google provider
+  - `GoogleLLMBuilder` class for Google-specific embedding parameters
+  - Support for task types (`SEMANTIC_SIMILARITY`, `RETRIEVAL_QUERY`, `RETRIEVAL_DOCUMENT`, etc.)
+  - Embedding dimensions configuration and document title support
+  - Convenience methods for common embedding tasks (`forSemanticSimilarity()`, `forDocumentRetrieval()`)
+  - Integrated callback configuration in `LLMBuilder.google()` method
+
+- **Provider-Specific Builder Pattern**: Architectural shift towards modular configuration
+  - Moved provider-specific parameters from main `LLMBuilder` to dedicated provider builders
+  - Cleaner separation of concerns between generic and provider-specific configurations
+  - Foundation for future provider-specific builder implementations
+
+- **Layered HTTP Configuration**: New organized approach to HTTP settings configuration
+  - `HttpConfig` class for clean, organized HTTP settings management
+  - Unified HTTP configuration across all providers with consistent API
+  - Support for proxy configuration, custom headers, SSL settings, and timeouts
+  - HTTP request/response logging for debugging and development
+  - `LLMBuilder.http()` method for layered configuration instead of flat methods
+
+- **HTTP Configuration Utils**: Centralized HTTP configuration management
+  - `HttpConfigUtils` class for unified Dio instance creation with advanced settings
+  - Support for corporate proxy environments and custom SSL certificates
+
+### Changed
+
+- **Google Provider Configuration**: Consolidated callback configuration methods
+  - Removed redundant `googleConfig()` method in favor of unified `google()` callback approach
+  - `LLMBuilder.google()` now accepts optional configuration callback for provider-specific parameters
+  - Maintains backward compatibility while providing cleaner API surface
+
+- **BaseHttpProvider**: Cleaned up unused code and modernized implementation
+  - Removed unused `createDio()` method that was not used by any provider
+  - Enhanced `createConfiguredDio()` method to use new `HttpConfigUtils`
+  - Updated to use modern Dio API patterns and best practices
+
+### Examples
+
+- **HTTP Configuration Examples**: Comprehensive demonstration of new layered approach
+  - `http_configuration.dart` - Complete HTTP configuration examples with all features
+  - `layered_http_config.dart` - New layered configuration approach demonstration
+
 ## [0.5.0] - 2025-6-11
 
 ### Added

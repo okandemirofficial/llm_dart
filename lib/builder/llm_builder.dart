@@ -5,6 +5,8 @@ import '../core/llm_error.dart';
 import '../core/web_search.dart';
 import '../models/tool_models.dart';
 import '../models/chat_models.dart';
+import '../providers/google/builder.dart';
+import 'http_config.dart';
 
 /// Builder for configuring and instantiating LLM providers
 ///
@@ -41,7 +43,16 @@ class LLMBuilder {
   /// Convenience methods for built-in providers
   LLMBuilder openai() => provider('openai');
   LLMBuilder anthropic() => provider('anthropic');
-  LLMBuilder google() => provider('google');
+  LLMBuilder google([GoogleLLMBuilder Function(GoogleLLMBuilder)? configure]) {
+    provider('google');
+    if (configure != null) {
+      // Import the GoogleLLMBuilder when needed
+      final googleBuilder = GoogleLLMBuilder(this);
+      configure(googleBuilder);
+    }
+    return this;
+  }
+
   LLMBuilder deepseek() => provider('deepseek');
   LLMBuilder ollama() => provider('ollama');
   LLMBuilder xai() => provider('xai');
@@ -98,7 +109,36 @@ class LLMBuilder {
     return this;
   }
 
-  /// Sets the request timeout
+  /// Sets the global timeout for all HTTP operations
+  ///
+  /// This method sets a global timeout that serves as the default for all
+  /// HTTP timeout types (connection, receive, send). Individual HTTP timeout
+  /// configurations will override this global setting.
+  ///
+  /// **Priority order:**
+  /// 1. HTTP-specific timeouts (highest priority)
+  /// 2. Global timeout set by this method (medium priority)
+  /// 3. Provider defaults (lowest priority)
+  ///
+  /// Example:
+  /// ```dart
+  /// final provider = await ai()
+  ///     .openai()
+  ///     .apiKey(apiKey)
+  ///     .timeout(Duration(minutes: 2))     // Global default: 2 minutes
+  ///     .http((http) => http
+  ///         .receiveTimeout(Duration(minutes: 5))) // Override receive: 5 minutes
+  ///     .build();
+  /// // Result: connection=2min, receive=5min, send=2min
+  /// ```
+  ///
+  /// For setting all HTTP timeouts to the same value, use:
+  /// ```dart
+  /// .http((http) => http
+  ///     .connectionTimeout(Duration(seconds: 30))
+  ///     .receiveTimeout(Duration(minutes: 5))
+  ///     .sendTimeout(Duration(seconds: 60)))
+  /// ```
   LLMBuilder timeout(Duration timeout) {
     _config = _config.copyWith(timeout: timeout);
     return this;
@@ -216,6 +256,36 @@ class LLMBuilder {
   /// Sets provider-specific extension
   LLMBuilder extension(String key, dynamic value) {
     _config = _config.withExtension(key, value);
+    return this;
+  }
+
+  /// Configure HTTP settings using a fluent builder
+  ///
+  /// This method provides a clean, organized way to configure HTTP settings
+  /// without cluttering the main LLMBuilder interface.
+  ///
+  /// Example:
+  /// ```dart
+  /// final provider = await ai()
+  ///     .openai()
+  ///     .apiKey(apiKey)
+  ///     .http((http) => http
+  ///         .proxy('http://proxy.company.com:8080')
+  ///         .headers({'X-Custom-Header': 'value'})
+  ///         .connectionTimeout(Duration(seconds: 30))
+  ///         .enableLogging(true))
+  ///     .build();
+  /// ```
+  LLMBuilder http(HttpConfig Function(HttpConfig) configure) {
+    final httpConfig = HttpConfig();
+    final configuredHttp = configure(httpConfig);
+    final httpSettings = configuredHttp.build();
+
+    // Apply all HTTP settings as extensions
+    for (final entry in httpSettings.entries) {
+      _config = _config.withExtension(entry.key, entry.value);
+    }
+
     return this;
   }
 

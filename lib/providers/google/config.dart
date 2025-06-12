@@ -76,6 +76,11 @@ class GoogleConfig {
   final int? candidateCount;
   final List<String>? stopSequences;
 
+  // Embedding-specific parameters
+  final String? embeddingTaskType;
+  final String? embeddingTitle;
+  final int? embeddingDimensions;
+
   /// Reference to original LLMConfig for accessing extensions
   final LLMConfig? _originalConfig;
 
@@ -101,6 +106,9 @@ class GoogleConfig {
     this.maxInlineDataSize = 20 * 1024 * 1024, // 20MB default
     this.candidateCount,
     this.stopSequences,
+    this.embeddingTaskType,
+    this.embeddingTitle,
+    this.embeddingDimensions,
     LLMConfig? originalConfig,
   }) : _originalConfig = originalConfig;
 
@@ -131,6 +139,10 @@ class GoogleConfig {
           config.getExtension<int>('maxInlineDataSize') ?? 20 * 1024 * 1024,
       candidateCount: config.getExtension<int>('candidateCount'),
       stopSequences: config.getExtension<List<String>>('stopSequences'),
+      // Embedding-specific extensions
+      embeddingTaskType: config.getExtension<String>('embeddingTaskType'),
+      embeddingTitle: config.getExtension<String>('embeddingTitle'),
+      embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
       originalConfig: config,
     );
   }
@@ -162,6 +174,12 @@ class GoogleConfig {
   bool get supportsImageGeneration {
     // Imagen models and some Gemini models support image generation
     return model.contains('imagen') || enableImageGeneration == true;
+  }
+
+  /// Check if this model supports embeddings
+  bool get supportsEmbeddings {
+    // Google embedding models
+    return model.contains('embedding') || model.contains('text-embedding');
   }
 
   /// Get default safety settings (permissive for development)
@@ -206,6 +224,9 @@ class GoogleConfig {
     int? maxInlineDataSize,
     int? candidateCount,
     List<String>? stopSequences,
+    String? embeddingTaskType,
+    String? embeddingTitle,
+    int? embeddingDimensions,
   }) =>
       GoogleConfig(
         apiKey: apiKey ?? this.apiKey,
@@ -230,5 +251,8 @@ class GoogleConfig {
         maxInlineDataSize: maxInlineDataSize ?? this.maxInlineDataSize,
         candidateCount: candidateCount ?? this.candidateCount,
         stopSequences: stopSequences ?? this.stopSequences,
+        embeddingTaskType: embeddingTaskType ?? this.embeddingTaskType,
+        embeddingTitle: embeddingTitle ?? this.embeddingTitle,
+        embeddingDimensions: embeddingDimensions ?? this.embeddingDimensions,
       );
 }

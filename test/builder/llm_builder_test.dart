@@ -314,6 +314,96 @@ void main() {
       });
     });
 
+    group('HTTP Configuration', () {
+      test('should configure HTTP settings with layered approach', () {
+        final builder = LLMBuilder().http((http) => http
+            .proxy('http://proxy.example.com:8080')
+            .headers({'X-Custom': 'value'})
+            .connectionTimeout(Duration(seconds: 30))
+            .enableLogging(true));
+
+        expect(builder, isNotNull);
+      });
+
+      test('should configure proxy only', () {
+        final builder = LLMBuilder()
+            .http((http) => http.proxy('http://proxy.example.com:8080'));
+
+        expect(builder, isNotNull);
+      });
+
+      test('should configure headers only', () {
+        final builder = LLMBuilder().http((http) => http.headers({
+              'X-Request-ID': 'test-123',
+              'User-Agent': 'TestApp/1.0',
+            }));
+
+        expect(builder, isNotNull);
+      });
+
+      test('should configure timeouts only', () {
+        final builder = LLMBuilder().http((http) => http
+            .connectionTimeout(Duration(seconds: 30))
+            .receiveTimeout(Duration(minutes: 5))
+            .sendTimeout(Duration(seconds: 120)));
+
+        expect(builder, isNotNull);
+      });
+
+      test('should configure SSL settings only', () {
+        final builder = LLMBuilder().http((http) => http
+            .bypassSSLVerification(true)
+            .sslCertificate('/path/to/cert.pem'));
+
+        expect(builder, isNotNull);
+      });
+
+      test('should configure logging only', () {
+        final builder = LLMBuilder().http((http) => http.enableLogging(true));
+
+        expect(builder, isNotNull);
+      });
+
+      test('should support comprehensive HTTP configuration', () {
+        final builder = LLMBuilder().http((http) => http
+            .proxy('http://proxy.example.com:8080')
+            .headers({
+              'X-Request-ID': 'comprehensive-test',
+              'X-Client-Version': '1.0.0',
+            })
+            .header('X-Additional', 'value')
+            .connectionTimeout(Duration(seconds: 20))
+            .receiveTimeout(Duration(minutes: 3))
+            .sendTimeout(Duration(seconds: 90))
+            .bypassSSLVerification(false)
+            .sslCertificate('/path/to/cert.pem')
+            .enableLogging(true));
+
+        expect(builder, isNotNull);
+      });
+
+      test('should support multiple HTTP configurations', () {
+        final builder = LLMBuilder()
+            .http((http) => http.proxy('http://proxy:8080'))
+            .http((http) => http.enableLogging(true));
+
+        expect(builder, isNotNull);
+      });
+
+      test('should chain HTTP configuration with other methods', () {
+        final builder = LLMBuilder()
+            .openai()
+            .apiKey('test-key')
+            .model('gpt-4')
+            .http((http) => http.headers(
+                {'X-Custom': 'value'}).connectionTimeout(Duration(seconds: 30)))
+            .temperature(0.7)
+            .maxTokens(1000);
+
+        expect(builder, isNotNull);
+      });
+    });
+
     group('Error Handling', () {
       test('should throw error when building without provider', () {
         final builder = LLMBuilder().apiKey('test-key').model('test-model');

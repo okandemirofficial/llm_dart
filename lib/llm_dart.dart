@@ -41,12 +41,14 @@ export 'providers/factories/base_factory.dart';
 
 // Builder exports
 export 'builder/llm_builder.dart';
+export 'builder/http_config.dart';
 
 // Utility exports
 export 'utils/config_utils.dart';
 export 'utils/capability_utils.dart';
 export 'utils/provider_registry.dart';
 export 'utils/utf8_stream_decoder.dart';
+export 'utils/http_config_utils.dart';
 
 // Convenience functions for creating providers
 import 'builder/llm_builder.dart';
