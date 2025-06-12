@@ -5,6 +5,7 @@
 /// separate MCP client. This is distinct from general MCP protocol implementations.
 ///
 /// Reference: https://docs.anthropic.com/en/docs/agents-and-tools/mcp-connector
+library;
 
 /// Anthropic MCP server configuration for the MCP connector feature
 class AnthropicMCPServer {

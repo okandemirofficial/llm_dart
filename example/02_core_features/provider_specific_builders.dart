@@ -233,6 +233,7 @@ Future<void> demoMixedConfigurations() async {
   final simpleBuilder =
       ai().openai().anthropic().ollama().elevenlabs().openRouter();
   print('      Builder created successfully without provider-specific config');
+  print('      Builder type: ${simpleBuilder.runtimeType}');
 
   // Show mixed configuration with both generic and provider-specific parameters
   print('   ✅ Mixed configuration:');
@@ -245,6 +246,8 @@ Future<void> demoMixedConfigurations() async {
       .systemPrompt('You are a helpful assistant')
       .timeout(Duration(seconds: 30));
   print('      Mixed generic + provider-specific config successful');
+  print('      Builder configured with model: gpt-4, temperature: 0.8');
+  print('      Builder type: ${mixedBuilder.runtimeType}');
 
   print('');
 }
