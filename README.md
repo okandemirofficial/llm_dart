@@ -6,7 +6,6 @@
 [![likes](https://img.shields.io/pub/likes/llm_dart?logo=dart)](https://pub.dev/packages/llm_dart/score)
 [![CI](https://github.com/Latias94/llm_dart/actions/workflows/ci.yml/badge.svg)](https://github.com/Latias94/llm_dart/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/Latias94/llm_dart/branch/main/graph/badge.svg)](https://codecov.io/gh/Latias94/llm_dart)
-[![Platform Tests](https://github.com/Latias94/llm_dart/actions/workflows/platform-test.yml/badge.svg)](https://github.com/Latias94/llm_dart/actions/workflows/platform-test.yml)
 
 A modular Dart library for AI provider interactions. This library provides a unified interface for interacting with different AI providers using Dio for HTTP requests.
 

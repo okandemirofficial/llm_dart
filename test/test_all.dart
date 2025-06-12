@@ -39,6 +39,19 @@ import 'integration/http_configuration_integration_test.dart'
 // Provider tests
 import 'providers/factories/base_factory_test.dart' as factory_tests;
 
+// Provider-specific tests
+import 'providers/anthropic/anthropic_provider_test.dart'
+    as anthropic_provider_tests;
+import 'providers/anthropic/anthropic_config_test.dart'
+    as anthropic_config_tests;
+import 'providers/anthropic/anthropic_factory_test.dart'
+    as anthropic_factory_tests;
+import 'providers/deepseek/deepseek_provider_test.dart'
+    as deepseek_provider_tests;
+import 'providers/deepseek/deepseek_config_test.dart' as deepseek_config_tests;
+import 'providers/deepseek/deepseek_factory_test.dart'
+    as deepseek_factory_tests;
+
 // Existing tests
 import 'providers/openai/openai_advanced_test.dart' as openai_advanced_tests;
 
@@ -79,6 +92,16 @@ void main() {
     group('Provider Tests', () {
       factory_tests.main();
       openai_advanced_tests.main();
+
+      // Anthropic provider tests
+      anthropic_provider_tests.main();
+      anthropic_config_tests.main();
+      anthropic_factory_tests.main();
+
+      // DeepSeek provider tests
+      deepseek_provider_tests.main();
+      deepseek_config_tests.main();
+      deepseek_factory_tests.main();
     });
   });
 }

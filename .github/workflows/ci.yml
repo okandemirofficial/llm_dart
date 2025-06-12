@@ -65,7 +65,7 @@ jobs:
         run: dart pub global activate coverage
 
       - name: Run tests with coverage
-        run: dart test --coverage=coverage
+        run: dart test --coverage=coverage --concurrency=1
 
       - name: Convert coverage to LCOV
         run: dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
