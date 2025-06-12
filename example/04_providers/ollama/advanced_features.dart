@@ -34,7 +34,6 @@ void main() async {
   await demonstrateToolCalling(baseUrl);
 
   print('\n✅ Ollama advanced features completed!');
-  print('📖 Next: Try multimodal.dart for vision capabilities');
 }
 
 /// Demonstrate performance optimization with GPU acceleration

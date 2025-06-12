@@ -39,7 +39,6 @@ void main() async {
   await demonstrateComplexWorkflow(provider);
 
   print('\n✅ Tool calling completed!');
-  print('📖 Next: Try structured_output.dart for JSON schema responses');
 }
 
 /// Demonstrate basic tool calling functionality

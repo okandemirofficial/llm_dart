@@ -195,4 +195,4 @@ Future<void> demonstrateParallelProcessing(String apiKey) async {
 /// Best for: Real-time apps, interactive assistants, gaming
 /// Models: llama-3.1-8b-instant (fastest), llama-3.1-70b-versatile (quality)
 ///
-/// Next: See ../../02_core_features/ for basic chat functionality
+/// See ../../02_core_features/ for basic chat functionality

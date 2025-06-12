@@ -32,7 +32,6 @@ void main() async {
   await demonstrateMultiModalConversation(openaiKey);
 
   print('\n✅ Multi-modal processing completed!');
-  print('📖 Next: Try custom_providers.dart for building custom AI providers');
 }
 
 /// Demonstrate image analysis with vision models

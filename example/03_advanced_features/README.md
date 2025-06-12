@@ -25,6 +25,15 @@ Embedding-based search engine with hybrid ranking.
 ### [realtime_audio.dart](realtime_audio.dart)
 Real-time audio streaming and voice activity detection.
 
+### [http_configuration.dart](http_configuration.dart)
+Comprehensive HTTP configuration with proxy, SSL, and custom headers.
+
+### [layered_http_config.dart](layered_http_config.dart)
+New layered HTTP configuration approach for cleaner code organization.
+
+### [timeout_configuration.dart](timeout_configuration.dart)
+Comprehensive timeout configuration with priority hierarchy and best practices.
+
 ## Setup
 
 ```bash
@@ -60,6 +69,13 @@ dart run performance_optimization.dart
 - **Semantic Search**: Vector-based search with embeddings
 - **Real-time Audio**: Low-latency streaming and voice detection
 - **Custom Providers**: Specialized implementations for specific needs
+
+### HTTP Configuration
+- **Layered Configuration**: Clean, organized HTTP settings
+- **Proxy Support**: Corporate proxy and network configuration
+- **SSL Configuration**: Custom certificates and security settings
+- **Request Customization**: Headers, timeouts, and logging
+- **Timeout Hierarchy**: Global and HTTP-specific timeout configuration
 
 ## Usage Examples
 
@@ -116,6 +132,36 @@ for (final result in results) {
 }
 ```
 
+### HTTP Configuration (Layered Approach)
+```dart
+// Clean, organized HTTP configuration
+final provider = await ai()
+    .openai()
+    .apiKey('your-key')
+    .http((http) => http
+        .proxy('http://proxy.company.com:8080')
+        .headers({'X-Custom-Header': 'value'})
+        .connectionTimeout(Duration(seconds: 30))
+        .enableLogging(true))
+    .build();
+```
+
+### Timeout Configuration (Priority Hierarchy)
+```dart
+// Global timeout with HTTP-specific overrides
+final provider = await ai()
+    .openai()
+    .apiKey('your-key')
+    .timeout(Duration(minutes: 2))     // Global default: 2 minutes
+    .http((http) => http
+        .connectionTimeout(Duration(seconds: 30))  // Override connection: 30s
+        .receiveTimeout(Duration(minutes: 5)))     // Override receive: 5min
+        // sendTimeout will use global timeout (2 minutes)
+    .build();
+
+// Priority: HTTP-specific > Global > Provider defaults > System defaults
+```
+
 ## Best Practices
 
 ### Reasoning Models
@@ -135,6 +181,21 @@ for (final result in results) {
 - Handle different modalities gracefully
 - Optimize image sizes for faster processing
 - Use appropriate models for each modality
+
+### HTTP Configuration
+- Use layered configuration for better organization
+- Disable SSL bypass in production environments
+- Configure appropriate timeouts for your use case
+- Enable logging only in development/debugging
+- Validate proxy and certificate configurations
+
+### Timeout Configuration
+- Use global timeout for simple scenarios
+- Use HTTP-specific timeouts for fine-grained control
+- Set longer receive timeouts for complex LLM tasks
+- Set shorter connection timeouts for quick failure detection
+- Consider network conditions (enterprise vs. direct connection)
+- Test timeout values under realistic conditions
 
 ## Next Steps
 

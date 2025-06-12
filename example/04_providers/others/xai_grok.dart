@@ -26,7 +26,6 @@ void main() async {
   await demonstrateBestPractices(apiKey);
 
   print('\n✅ X.AI Grok integration completed!');
-  print('📖 Next: Try openrouter.dart for multi-provider access');
 }
 
 /// Demonstrate basic Grok functionality

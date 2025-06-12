@@ -36,7 +36,6 @@ void main() async {
   await demonstrateStreamPerformance(provider);
 
   print('\n✅ Streaming chat completed!');
-  print('📖 Next: Try tool_calling.dart for function integration');
 }
 
 /// Demonstrate basic streaming functionality

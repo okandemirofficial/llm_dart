@@ -14,7 +14,7 @@ void main() async {
   await quickStartWithGroq();
   await quickStartWithOllama();
 
-  print('\nCompleted! Next: provider_comparison.dart');
+  print('\n✅ Quick start completed!');
 }
 
 Future<void> quickStartWithOpenAI() async {
@@ -112,5 +112,3 @@ Future<void> quickStartWithOllama() async {
 ///
 /// Response:
 /// - response.text, response.usage, response.thinking
-///
-/// Next: provider_comparison.dart, basic_configuration.dart

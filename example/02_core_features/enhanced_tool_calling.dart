@@ -36,7 +36,6 @@ void main() async {
   await demonstrateProviderSpecificFeatures();
 
   print('\n✅ Enhanced tool calling completed!');
-  print('📖 Next: Explore provider-specific examples');
 }
 
 /// Demonstrate tool validation and error handling

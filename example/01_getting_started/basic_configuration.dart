@@ -26,7 +26,6 @@ void main() async {
   await demonstrateTimeoutSettings(apiKey);
 
   print('\n✅ Configuration guide completed!');
-  print('📖 Next: Explore ../02_core_features/ for advanced functionality');
 }
 
 /// Demonstrate temperature settings and their effects
