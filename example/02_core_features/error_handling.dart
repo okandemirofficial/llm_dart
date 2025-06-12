@@ -38,8 +38,6 @@ void main() async {
   await demonstrateMonitoringAndLogging(provider);
 
   print('\n✅ Error handling completed!');
-  print(
-      '📖 Next: Explore ../03_advanced_features/ for advanced AI capabilities');
 }
 
 /// Demonstrate different error types

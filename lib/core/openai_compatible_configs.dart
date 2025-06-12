@@ -192,6 +192,44 @@ class OpenAICompatibleConfigs {
     },
   );
 
+  /// OpenRouter configuration using OpenAI-compatible interface
+  static const OpenAICompatibleProviderConfig openRouter =
+      OpenAICompatibleProviderConfig(
+    providerId: 'openrouter',
+    displayName: 'OpenRouter',
+    description: 'OpenRouter unified API for multiple AI models',
+    defaultBaseUrl: ProviderDefaults.openRouterBaseUrl,
+    defaultModel: ProviderDefaults.openRouterDefaultModel,
+    supportedCapabilities: {
+      LLMCapability.chat,
+      LLMCapability.streaming,
+      LLMCapability.toolCalling,
+      LLMCapability.vision,
+      LLMCapability.liveSearch,
+    },
+    supportsReasoningEffort: false,
+    supportsStructuredOutput: true,
+    // OpenRouter supports web search through plugin system
+    parameterMappings: {
+      'search_prompt': 'search_prompt',
+      'use_online_shortcut': 'use_online_shortcut',
+    },
+    modelConfigs: {
+      'openai/gpt-4': ModelCapabilityConfig(
+        supportsReasoning: false,
+        supportsVision: true,
+        supportsToolCalling: true,
+        maxContextLength: 8192,
+      ),
+      'anthropic/claude-3.5-sonnet': ModelCapabilityConfig(
+        supportsReasoning: false,
+        supportsVision: true,
+        supportsToolCalling: true,
+        maxContextLength: 200000,
+      ),
+    },
+  );
+
   /// Get all available OpenAI-compatible configurations
   static List<OpenAICompatibleProviderConfig> getAllConfigs() {
     return [
@@ -200,6 +238,7 @@ class OpenAICompatibleConfigs {
       xai,
       groq,
       phind,
+      openRouter,
     ];
   }
 
@@ -216,6 +255,8 @@ class OpenAICompatibleConfigs {
         return groq;
       case 'phind-openai':
         return phind;
+      case 'openrouter':
+        return openRouter;
       default:
         return null;
     }

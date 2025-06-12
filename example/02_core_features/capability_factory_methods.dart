@@ -152,9 +152,9 @@ Future<void> demonstrateTypeSafeBuilding() async {
       // Audio capability (ElevenLabs specializes in audio)
       print('      🎵 Building audio capability...');
       final audioProvider = await ai()
-          .elevenlabs()
+          .elevenlabs(
+              (elevenlabs) => elevenlabs.voiceId('JBFqnCBsd6RMkjVDRZzb'))
           .apiKey(elevenlabsKey)
-          .voiceId('JBFqnCBsd6RMkjVDRZzb')
           .buildAudio();
 
       print('         ✅ Audio provider built successfully');

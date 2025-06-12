@@ -26,7 +26,6 @@ void main() async {
   await demonstrateComparativeAnalysis(apiKey);
 
   print('\n✅ Anthropic extended thinking completed!');
-  print('📖 Next: Try file_handling.dart for document processing');
 }
 
 /// Demonstrate basic thinking process

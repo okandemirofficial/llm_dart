@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:logging/logging.dart';
 
 import '../../utils/config_utils.dart';
+import '../../utils/utf8_stream_decoder.dart';
 import 'config.dart';
 
 /// Core Anthropic HTTP client shared across all capability modules
@@ -62,6 +63,12 @@ class AnthropicClient {
     // Add files API beta for file-related endpoints
     if (endpoint != null && endpoint.startsWith('files')) {
       betaFeatures.add('files-api-2025-04-14');
+    }
+
+    // Add MCP connector beta if MCP servers are configured
+    final mcpServers = config.getExtension<List>('mcpServers');
+    if (mcpServers != null && mcpServers.isNotEmpty) {
+      betaFeatures.add('mcp-client-2025-04-04');
     }
 
     if (betaFeatures.isNotEmpty) {
@@ -160,9 +167,20 @@ class AnthropicClient {
             'Unexpected response type: ${responseBody.runtimeType}');
       }
 
+      // Use UTF-8 stream decoder to handle incomplete byte sequences
+      final decoder = Utf8StreamDecoder();
+
       await for (final chunk in stream) {
-        final chunkString = String.fromCharCodes(chunk);
-        yield chunkString;
+        final decoded = decoder.decode(chunk);
+        if (decoded.isNotEmpty) {
+          yield decoded;
+        }
+      }
+
+      // Flush any remaining bytes
+      final remaining = decoder.flush();
+      if (remaining.isNotEmpty) {
+        yield remaining;
       }
     } on DioException catch (e) {
       logger.severe('Stream request failed: ${e.message}');

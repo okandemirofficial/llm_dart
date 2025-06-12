@@ -31,7 +31,6 @@ void main() async {
   await demonstrateThinkingProcessAnalysis(deepseekKey);
 
   print('\n✅ Reasoning models completed!');
-  print('📖 Next: Try multi_modal.dart for image and audio processing');
 }
 
 /// Demonstrate basic reasoning capabilities with DeepSeek R1

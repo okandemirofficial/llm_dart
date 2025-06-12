@@ -29,11 +29,6 @@ void main() async {
   await demonstrateLlmIntegration(apiKey);
 
   print('\n✅ Simple MCP demo completed!');
-  print('📖 Next steps:');
-  print(
-      '   • Explore real MCP servers: https://modelcontextprotocol.io/examples');
-  print('   • Build custom MCP tools for your domain');
-  print('   • Integrate with production LLM applications');
 }
 
 /// Demonstrate creating and using an MCP server

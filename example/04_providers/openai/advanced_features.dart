@@ -26,7 +26,6 @@ void main() async {
   await demonstrateStreamingFeatures(apiKey);
 
   print('\n✅ OpenAI advanced features completed!');
-  print('📖 Next: Try image_generation.dart for DALL-E capabilities');
 }
 
 /// Demonstrate reasoning models (o1 series)

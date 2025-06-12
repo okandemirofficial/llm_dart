@@ -1,10 +1,11 @@
 import '../../core/capability.dart';
 import '../../core/config.dart';
-import '../../core/registry.dart';
+import '../../core/provider_defaults.dart';
 import '../phind/phind.dart';
+import 'base_factory.dart';
 
 /// Factory for creating Phind provider instances using native Phind interface
-class PhindProviderFactory implements LLMProviderFactory<ChatCapability> {
+class PhindProviderFactory extends BaseProviderFactory<ChatCapability> {
   @override
   String get providerId => 'phind';
 
@@ -24,39 +25,20 @@ class PhindProviderFactory implements LLMProviderFactory<ChatCapability> {
 
   @override
   ChatCapability create(LLMConfig config) {
-    final phindConfig = _transformConfig(config);
-    return PhindProvider(phindConfig);
+    return createProviderSafely<PhindConfig>(
+      config,
+      () => _transformConfig(config),
+      (phindConfig) => PhindProvider(phindConfig),
+    );
+  }
+
+  @override
+  Map<String, dynamic> getProviderDefaults() {
+    return ProviderDefaults.getDefaults('phind');
   }
 
   /// Transform unified config to Phind-specific config
   PhindConfig _transformConfig(LLMConfig config) {
-    return PhindConfig(
-      apiKey: config.apiKey!,
-      baseUrl: config.baseUrl,
-      model: config.model,
-      maxTokens: config.maxTokens,
-      temperature: config.temperature,
-      systemPrompt: config.systemPrompt,
-      timeout: config.timeout,
-      topP: config.topP,
-      topK: config.topK,
-      tools: config.tools,
-      toolChoice: config.toolChoice,
-      originalConfig: config,
-    );
-  }
-
-  @override
-  bool validateConfig(LLMConfig config) {
-    // Phind requires an API key
-    return config.apiKey != null && config.apiKey!.isNotEmpty;
-  }
-
-  @override
-  LLMConfig getDefaultConfig() {
-    return LLMConfig(
-      baseUrl: 'https://https.extension.phind.com/agent/',
-      model: 'Phind-70B',
-    );
+    return PhindConfig.fromLLMConfig(config);
   }
 }

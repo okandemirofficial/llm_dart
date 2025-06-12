@@ -1,11 +1,11 @@
 import '../../core/capability.dart';
 import '../../core/config.dart';
-import '../../core/registry.dart';
-import '../../models/tool_models.dart';
+import '../../core/provider_defaults.dart';
 import '../xai/xai.dart';
+import 'base_factory.dart';
 
 /// Factory for creating XAI provider instances using native XAI interface
-class XAIProviderFactory implements LLMProviderFactory<ChatCapability> {
+class XAIProviderFactory extends BaseProviderFactory<ChatCapability> {
   @override
   String get providerId => 'xai';
 
@@ -29,48 +29,20 @@ class XAIProviderFactory implements LLMProviderFactory<ChatCapability> {
 
   @override
   ChatCapability create(LLMConfig config) {
-    final xaiConfig = _transformConfig(config);
-    return XAIProvider(xaiConfig);
+    return createProviderSafely<XAIConfig>(
+      config,
+      () => _transformConfig(config),
+      (xaiConfig) => XAIProvider(xaiConfig),
+    );
+  }
+
+  @override
+  Map<String, dynamic> getProviderDefaults() {
+    return ProviderDefaults.getDefaults('xai');
   }
 
   /// Transform unified config to XAI-specific config
   XAIConfig _transformConfig(LLMConfig config) {
-    return XAIConfig(
-      apiKey: config.apiKey!,
-      baseUrl: config.baseUrl,
-      model: config.model,
-      maxTokens: config.maxTokens,
-      temperature: config.temperature,
-      systemPrompt: config.systemPrompt,
-      timeout: config.timeout,
-
-      topP: config.topP,
-      topK: config.topK,
-      tools: config.tools,
-      toolChoice: config.toolChoice,
-      // XAI-specific extensions
-      jsonSchema: config.getExtension<StructuredOutputFormat>('jsonSchema'),
-      embeddingEncodingFormat:
-          config.getExtension<String>('embeddingEncodingFormat'),
-      embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
-      searchParameters:
-          config.getExtension<SearchParameters>('searchParameters'),
-      liveSearch: config.getExtension<bool>('liveSearch'),
-      originalConfig: config,
-    );
-  }
-
-  @override
-  bool validateConfig(LLMConfig config) {
-    // XAI requires an API key
-    return config.apiKey != null && config.apiKey!.isNotEmpty;
-  }
-
-  @override
-  LLMConfig getDefaultConfig() {
-    return LLMConfig(
-      baseUrl: 'https://api.x.ai/v1/',
-      model: 'grok-2-latest',
-    );
+    return XAIConfig.fromLLMConfig(config);
   }
 }

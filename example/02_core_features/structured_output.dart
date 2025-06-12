@@ -36,8 +36,6 @@ void main() async {
   await demonstrateErrorHandling(provider);
 
   print('\n✅ Structured output completed!');
-  print(
-      '📖 Next: Try error_handling.dart for production-ready error management');
 }
 
 /// Demonstrate basic structured output

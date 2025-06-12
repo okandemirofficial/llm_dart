@@ -32,7 +32,6 @@ void main() async {
   await demonstrateMultiModalConversation(openaiKey);
 
   print('\n✅ Multi-modal processing completed!');
-  print('📖 Next: Try custom_providers.dart for building custom AI providers');
 }
 
 /// Demonstrate image analysis with vision models
@@ -316,9 +315,9 @@ Future<void> demonstrateTextToSpeech(String apiKey) async {
   try {
     // Create ElevenLabs provider with audio capabilities
     final provider = await ai()
-        .elevenlabs()
+        .elevenlabs((elevenlabs) =>
+            elevenlabs.voiceId('JBFqnCBsd6RMkjVDRZzb')) // Default voice
         .apiKey(apiKey)
-        .voiceId('JBFqnCBsd6RMkjVDRZzb') // Default voice
         .build();
 
     // Check if provider supports audio capabilities

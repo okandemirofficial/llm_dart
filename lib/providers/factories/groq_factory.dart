@@ -1,10 +1,11 @@
 import '../../core/capability.dart';
 import '../../core/config.dart';
-import '../../core/registry.dart';
+import '../../core/provider_defaults.dart';
 import '../groq/groq.dart';
+import 'base_factory.dart';
 
 /// Factory for creating Groq provider instances
-class GroqProviderFactory implements LLMProviderFactory<ChatCapability> {
+class GroqProviderFactory extends BaseProviderFactory<ChatCapability> {
   @override
   String get providerId => 'groq';
 
@@ -23,39 +24,20 @@ class GroqProviderFactory implements LLMProviderFactory<ChatCapability> {
 
   @override
   ChatCapability create(LLMConfig config) {
-    final groqConfig = _transformConfig(config);
-    return GroqProvider(groqConfig);
+    return createProviderSafely<GroqConfig>(
+      config,
+      () => _transformConfig(config),
+      (groqConfig) => GroqProvider(groqConfig),
+    );
+  }
+
+  @override
+  Map<String, dynamic> getProviderDefaults() {
+    return ProviderDefaults.getDefaults('groq');
   }
 
   /// Transform unified config to Groq-specific config
   GroqConfig _transformConfig(LLMConfig config) {
-    return GroqConfig(
-      apiKey: config.apiKey!,
-      baseUrl: config.baseUrl,
-      model: config.model,
-      maxTokens: config.maxTokens,
-      temperature: config.temperature,
-      systemPrompt: config.systemPrompt,
-      timeout: config.timeout,
-      topP: config.topP,
-      topK: config.topK,
-      tools: config.tools,
-      toolChoice: config.toolChoice,
-      originalConfig: config,
-    );
-  }
-
-  @override
-  bool validateConfig(LLMConfig config) {
-    // Groq requires an API key
-    return config.apiKey != null && config.apiKey!.isNotEmpty;
-  }
-
-  @override
-  LLMConfig getDefaultConfig() {
-    return LLMConfig(
-      baseUrl: 'https://api.groq.com/openai/v1/',
-      model: 'llama-3.1-70b-versatile',
-    );
+    return GroqConfig.fromLLMConfig(config);
   }
 }

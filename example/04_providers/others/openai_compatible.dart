@@ -39,7 +39,6 @@ void main() async {
   await demonstrateBestPractices(apiKeys);
 
   print('\n✅ OpenAI-compatible providers demo completed!');
-  print('📖 Next: Try specific provider examples for advanced features');
 }
 
 /// Demonstrate all OpenAI-compatible providers

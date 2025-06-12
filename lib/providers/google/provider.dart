@@ -4,21 +4,25 @@ import '../../models/tool_models.dart';
 import 'client.dart';
 import 'config.dart';
 import 'chat.dart';
+import 'embeddings.dart';
 
 /// Google provider implementation
 ///
-/// This provider implements the ChatCapability interface and delegates
-/// to specialized capability modules for different functionalities.
-class GoogleProvider implements ChatCapability, ProviderCapabilities {
+/// This provider implements the ChatCapability and EmbeddingCapability interfaces
+/// and delegates to specialized capability modules for different functionalities.
+class GoogleProvider
+    implements ChatCapability, EmbeddingCapability, ProviderCapabilities {
   final GoogleClient _client;
   final GoogleConfig config;
 
   // Capability modules
   late final GoogleChat _chat;
+  late final GoogleEmbeddings _embeddings;
 
   GoogleProvider(this.config) : _client = GoogleClient(config) {
     // Initialize capability modules
     _chat = GoogleChat(_client, config);
+    _embeddings = GoogleEmbeddings(_client, config);
   }
 
   @override
@@ -52,6 +56,13 @@ class GoogleProvider implements ChatCapability, ProviderCapabilities {
     return _chat.summarizeHistory(messages);
   }
 
+  // ========== EmbeddingCapability ==========
+
+  @override
+  Future<List<List<double>>> embed(List<String> input) async {
+    return _embeddings.embed(input);
+  }
+
   /// Get provider name
   String get providerName => 'Google';
 
@@ -65,6 +76,7 @@ class GoogleProvider implements ChatCapability, ProviderCapabilities {
         if (config.supportsVision) LLMCapability.vision,
         if (config.supportsReasoning) LLMCapability.reasoning,
         if (config.supportsImageGeneration) LLMCapability.imageGeneration,
+        if (config.supportsEmbeddings) LLMCapability.embedding,
       };
 
   @override

@@ -20,7 +20,7 @@ class ElevenLabsProviderFactory extends BaseProviderFactory<ChatCapability> {
 
   @override
   String get description =>
-      'ElevenLabs voice synthesis and speech recognition services';
+      'ElevenLabs text-to-speech and speech recognition services';
 
   @override
   Set<LLMCapability> get supportedCapabilities => {

@@ -73,8 +73,41 @@ class GroqConfig {
 
   /// Check if this model supports tool calling
   bool get supportsToolCalling {
-    // Most Groq models support tool calling
-    return !model.contains('base');
+    // Based on Groq documentation, these models support tool calling:
+    // - meta-llama/llama-4-scout-17b-16e-instruct
+    // - meta-llama/llama-4-maverick-17b-128e-instruct
+    // - qwen-qwq-32b
+    // - deepseek-r1-distill-qwen-32b
+    // - deepseek-r1-distill-llama-70b
+    // - llama-3.3-70b-versatile
+    // - llama-3.1-8b-instant
+    // - gemma2-9b-it
+
+    // Base models don't support tool calling
+    if (model.contains('-base')) {
+      return false;
+    }
+
+    // Models that support tool calling
+    final supportedModels = [
+      'llama-4-scout',
+      'llama-4-maverick',
+      'qwen-qwq',
+      'deepseek-r1-distill',
+      'llama-3.3',
+      'llama-3.1',
+      'gemma2-9b-it',
+    ];
+
+    return supportedModels
+        .any((supportedModel) => model.contains(supportedModel));
+  }
+
+  /// Check if this model supports parallel tool calling
+  bool get supportsParallelToolCalling {
+    // Based on Groq documentation, these models support parallel tool calling:
+    // All tool-calling models except gemma2-9b-it support parallel tool use
+    return supportsToolCalling && !model.contains('gemma2-9b-it');
   }
 
   /// Check if this model is optimized for speed

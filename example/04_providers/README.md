@@ -1,63 +1,156 @@
-# 🎯 Provider Specific Examples
+# Provider-Specific Features
 
-Examples for specific AI providers, organized by provider type.
+Unique capabilities and specialized features for each AI provider.
 
-## 📚 Available Examples
+## Examples
 
-### 🔵 OpenAI
-**[openai/](openai/)**
-- **basic_usage.dart** - Model selection, configuration, best practices
-- **advanced_features.dart** - Reasoning models (o1), function calling, assistants
-- **image_generation.dart** - DALL-E image creation and editing
-- **audio_capabilities.dart** - Whisper STT and TTS capabilities
+### [openai/](openai/)
+DALL-E image generation and Whisper audio processing.
 
-### 🟣 Anthropic
-**[anthropic/](anthropic/)**
-- **basic_usage.dart** - Claude models, safety features, reasoning
-- **extended_thinking.dart** - Access to Claude's thinking process
-- **file_handling.dart** - Document processing and analysis
+### [anthropic/](anthropic/)
+Extended thinking capabilities and advanced file processing.
 
-### 🔴 Google
-**[google/](google/)**
-- **basic_usage.dart** - Gemini models, reasoning, and configuration
+### [deepseek/](deepseek/)
+Reasoning models with transparent thinking process.
 
-### 🟠 DeepSeek
-**[deepseek/](deepseek/)**
-- **basic_usage.dart** - DeepSeek models, reasoning, and cost-effective usage
+### [groq/](groq/)
+Ultra-fast inference optimization.
 
-### 🟡 Ollama
-**[ollama/](ollama/)**
-- **basic_usage.dart** - Local model setup and usage
-- **advanced_features.dart** - Performance optimization and advanced configuration
+### [ollama/](ollama/)
+Local model deployment and configuration.
 
-### 🟢 Groq
-**[groq/](groq/)**
-- **basic_usage.dart** - High-speed model configuration and streaming
+### [elevenlabs/](elevenlabs/)
+Professional voice synthesis and audio processing.
 
-### 🎵 ElevenLabs
-**[elevenlabs/](elevenlabs/)**
-- **basic_usage.dart** - Voice generation and configuration
-- **audio_capabilities.dart** - Advanced audio features and optimization
+### [xai/](xai/)
+Live search and real-time information access.
 
-### 🔧 Others
-**[others/](others/)**
-- **xai_grok.dart** - X.AI Grok integration with personality features
-- **openai_compatible.dart** - All OpenAI-compatible providers demo (DeepSeek, Groq, xAI, OpenRouter, GitHub Copilot, Together AI)
+### [others/](others/)
+OpenAI-compatible provider integrations.
 
-## 🚀 Quick Start
+## Setup
 
-Run any example directly:
 ```bash
-# Core providers
-dart run openai/basic_usage.dart
-dart run anthropic/basic_usage.dart
-dart run deepseek/basic_usage.dart
+# Set up environment variables for specific providers
+export OPENAI_API_KEY="your-openai-key"
+export ANTHROPIC_API_KEY="your-anthropic-key"
+export DEEPSEEK_API_KEY="your-deepseek-key"
+export GROQ_API_KEY="your-groq-key"
+export ELEVENLABS_API_KEY="your-elevenlabs-key"
+export XAI_API_KEY="your-xai-key"
 
-# OpenAI-compatible providers (all in one demo)
-dart run others/openai_compatible.dart
-
-# Specialized features
+# Run provider-specific examples
 dart run openai/image_generation.dart
-dart run elevenlabs/audio_capabilities.dart
-dart run ollama/advanced_features.dart
+dart run anthropic/extended_thinking.dart
+dart run xai/live_search.dart
 ```
+
+## Provider-Specific Features
+
+### OpenAI Unique Capabilities
+- **DALL-E**: Advanced image generation and editing
+- **Whisper**: Professional audio transcription
+- **GPT-4 Vision**: Image analysis and understanding
+
+### OpenAI Unique Capabilities
+- **DALL-E**: Advanced image generation and editing
+- **Whisper**: Professional audio transcription
+- **Assistants API**: Persistent AI assistants with tools
+
+### Anthropic Unique Capabilities
+- **Extended Thinking**: Access to Claude's reasoning process
+- **File Processing**: Advanced document analysis
+- **Safety Features**: Built-in content filtering
+
+### DeepSeek Unique Capabilities
+- **Reasoning Models**: Transparent thinking process
+- **Cost Efficiency**: High performance at low cost
+
+### Groq Unique Capabilities
+- **Ultra-Fast Inference**: Optimized hardware acceleration
+- **Low Latency**: Real-time response streaming
+
+### Ollama Unique Capabilities
+- **Local Deployment**: Privacy-focused local models
+- **Custom Models**: Fine-tuned model support
+
+### ElevenLabs Unique Capabilities
+- **Voice Cloning**: Custom voice generation
+- **Real-time Audio**: Streaming voice synthesis
+
+### XAI Unique Capabilities
+- **Live Search**: Real-time web information access
+- **Current Events**: Up-to-date news and data
+
+## Usage Examples
+
+### OpenAI Image Generation
+```dart
+final imageProvider = await ai().openai().apiKey('your-key')
+    .model('dall-e-3').buildImageGeneration();
+
+final images = await imageProvider.generateImage(
+  prompt: 'A futuristic cityscape at sunset',
+  imageSize: '1024x1024',
+);
+```
+
+### Anthropic Extended Thinking
+```dart
+final provider = await ai().anthropic().apiKey('your-key')
+    .model('claude-sonnet-4-20250514').build();
+
+final response = await provider.chat([
+  ChatMessage.user('Solve this logic puzzle step by step'),
+]);
+
+// Access Claude's thinking process
+if (response.thinking != null) {
+  print('Claude\'s reasoning: ${response.thinking}');
+}
+```
+
+### DeepSeek Reasoning
+```dart
+final provider = await ai().deepseek().apiKey('your-key')
+    .model('deepseek-reasoner').build();
+
+final response = await provider.chat([
+  ChatMessage.user('Analyze this complex problem'),
+]);
+
+// View transparent thinking process
+print('AI thinking: ${response.thinking}');
+```
+
+### XAI Live Search
+```dart
+final provider = await ai().xai().apiKey('your-key')
+    .model('grok-beta').build();
+
+final response = await provider.chat([
+  ChatMessage.user('What are the latest AI developments this week?'),
+]);
+// Grok automatically includes live search results
+```
+
+## Best Practices
+
+### Feature Selection
+- Use provider-specific features for optimal results
+- Combine multiple providers for comprehensive solutions
+- Consider cost and performance trade-offs
+- Test unique capabilities with your use cases
+
+### Implementation
+- Use specialized build methods for type safety
+- Handle provider-specific errors appropriately
+- Cache expensive operations (image generation, audio processing)
+- Monitor usage and costs for premium features
+
+## Next Steps
+
+- [Core Features](../02_core_features/) - Essential functionality for all providers
+- [Advanced Features](../03_advanced_features/) - Cross-provider advanced capabilities
+- [Use Cases](../05_use_cases/) - Complete applications and Flutter integration
+- [Getting Started](../01_getting_started/) - Environment setup and configuration
