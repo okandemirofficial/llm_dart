@@ -11,6 +11,7 @@ import 'package:llm_dart/llm_dart.dart';
 /// - Structured outputs with tools
 /// - Parallel tool execution
 /// - Provider-specific tool features
+/// - Complex nested object structures in tool parameters
 ///
 /// Before running, set your API key:
 /// export OPENAI_API_KEY="your-key"
@@ -32,6 +33,7 @@ void main() async {
   // Demonstrate enhanced tool calling features
   await demonstrateToolValidation(provider);
   await demonstrateToolChoiceStrategies(provider);
+  await demonstrateNestedObjectStructures(provider);
   await demonstrateStructuredOutputWithTools(provider);
   await demonstrateProviderSpecificFeatures();
 
@@ -267,6 +269,142 @@ String _simulateCalculation(String expression, int precision) {
     return result.toStringAsFixed(precision);
   } catch (e) {
     return 'Error: Invalid expression';
+  }
+}
+
+/// Demonstrate complex nested object structures in tool parameters
+Future<void> demonstrateNestedObjectStructures(ChatCapability provider) async {
+  print('🏗️  Complex Nested Object Structures:\n');
+
+  try {
+    // Define a tool for processing orders with complex item structures
+    final processOrdersTool = Tool.function(
+      name: 'process_orders',
+      description: 'Process customer orders with complex item structures',
+      parameters: ParametersSchema(
+        schemaType: 'object',
+        properties: {
+          'orders': ParameterProperty(
+            propertyType: 'array',
+            description: 'Array of customer orders',
+            items: ParameterProperty(
+              propertyType: 'object',
+              description: 'Individual order object',
+              properties: {
+                'order_id': ParameterProperty(
+                  propertyType: 'string',
+                  description: 'Unique order identifier',
+                ),
+                'customer_name': ParameterProperty(
+                  propertyType: 'string',
+                  description: 'Customer full name',
+                ),
+                'items': ParameterProperty(
+                  propertyType: 'array',
+                  description: 'Array of items in the order',
+                  items: ParameterProperty(
+                    propertyType: 'object',
+                    description: 'Individual item object',
+                    properties: {
+                      'product_name': ParameterProperty(
+                        propertyType: 'string',
+                        description: 'Name of the product',
+                      ),
+                      'quantity': ParameterProperty(
+                        propertyType: 'integer',
+                        description: 'Number of items ordered',
+                      ),
+                      'price': ParameterProperty(
+                        propertyType: 'number',
+                        description: 'Price per item in dollars',
+                      ),
+                      'category': ParameterProperty(
+                        propertyType: 'string',
+                        description: 'Product category',
+                        enumList: ['electronics', 'clothing', 'books', 'home'],
+                      ),
+                    },
+                    required: ['product_name', 'quantity', 'price'],
+                  ),
+                ),
+                'total_amount': ParameterProperty(
+                  propertyType: 'number',
+                  description: 'Total order amount in dollars',
+                ),
+              },
+              required: ['order_id', 'customer_name', 'items'],
+            ),
+          ),
+        },
+        required: ['orders'],
+      ),
+    );
+
+    final messages = [
+      ChatMessage.user(
+        'Process order ORD001 for Alice Johnson: 2x Laptop at \$999 each (electronics), 1x T-shirt at \$25 (clothing). Total: \$2023. Use the process_orders tool.',
+      )
+    ];
+
+    print('   User: Process order ORD001 for Alice Johnson...');
+    print(
+        '   Available tools: process_orders (with nested arrays and objects)');
+
+    final response =
+        await provider.chatWithTools(messages, [processOrdersTool]);
+
+    if (response.toolCalls != null && response.toolCalls!.isNotEmpty) {
+      print('   🔧 AI tool calls:');
+
+      for (final toolCall in response.toolCalls!) {
+        print('      • Function: ${toolCall.function.name}');
+        print('      • Arguments: ${toolCall.function.arguments}');
+
+        try {
+          final isValid =
+              ToolValidator.validateToolCall(toolCall, processOrdersTool);
+          print('      • Validation: ${isValid ? '✅ Valid' : '❌ Invalid'}');
+
+          final result = await _processOrders(toolCall);
+          print('      • Result: $result');
+        } catch (e) {
+          print('      • Validation Error: $e');
+        }
+      }
+
+      print('   ✅ Complex nested structures completed\n');
+    } else {
+      print('   ℹ️  AI chose not to use tools: ${response.text}\n');
+    }
+  } catch (e) {
+    print('   ❌ Error: $e\n');
+  }
+}
+
+/// Mock function to process orders
+Future<String> _processOrders(ToolCall toolCall) async {
+  try {
+    final args =
+        jsonDecode(toolCall.function.arguments) as Map<String, dynamic>;
+    final orders = args['orders'] as List;
+
+    double totalRevenue = 0;
+    int totalItems = 0;
+
+    for (final order in orders) {
+      final o = order as Map<String, dynamic>;
+      final items = o['items'] as List;
+
+      for (final item in items) {
+        final i = item as Map<String, dynamic>;
+        totalItems += i['quantity'] as int;
+        totalRevenue += (i['quantity'] as int) * (i['price'] as num);
+      }
+    }
+
+    return 'Processed ${orders.length} orders, $totalItems items, \$${totalRevenue.toStringAsFixed(2)} revenue';
+  } catch (e) {
+    return 'Error processing orders: $e';
   }
 }
 

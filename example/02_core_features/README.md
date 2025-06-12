@@ -25,6 +25,9 @@ Real-time response streaming for better user experience.
 ### [tool_calling.dart](tool_calling.dart)
 Function calling - let AI execute custom functions.
 
+### [enhanced_tool_calling.dart](enhanced_tool_calling.dart)
+Advanced tool calling with validation, error handling, and complex nested object structures.
+
 ### [structured_output.dart](structured_output.dart)
 JSON schema output with validation.
 
@@ -53,6 +56,7 @@ dart run file_management.dart
 dart run chat_basics.dart
 dart run streaming_chat.dart
 dart run tool_calling.dart
+dart run enhanced_tool_calling.dart
 ```
 
 ## Key Concepts
