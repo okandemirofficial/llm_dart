@@ -56,8 +56,6 @@ A modular Dart library for AI provider interactions. This library provides a uni
 - **📁 File Support**: File upload, management, and processing capabilities
 - **🔍 Web Search**: Real-time web search across multiple providers
 - **🧮 Embeddings**: Text embeddings for semantic search and similarity
-- **🛡️ Content Moderation**: Built-in safety and content filtering
-- **🔌 MCP Integration**: Model Context Protocol for external tool access
 
 ## Installation
 
