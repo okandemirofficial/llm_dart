@@ -3,6 +3,7 @@ import '../../models/chat_models.dart';
 import '../../core/config.dart';
 import '../../core/provider_defaults.dart';
 import 'package:dio/dio.dart';
+import 'builtin_tools.dart';
 
 /// OpenAI provider configuration
 ///
@@ -31,6 +32,15 @@ class OpenAIConfig {
   final ServiceTier? serviceTier;
   final Dio? dioClient;
 
+  /// Whether to use the new Responses API instead of Chat Completions API
+  final bool useResponsesAPI;
+
+  /// Previous response ID for chaining responses (Responses API only)
+  final String? previousResponseId;
+
+  /// Built-in tools to use with Responses API
+  final List<OpenAIBuiltInTool>? builtInTools;
+
   /// Reference to original LLMConfig for accessing extensions
   final LLMConfig? _originalConfig;
 
@@ -55,6 +65,9 @@ class OpenAIConfig {
     this.user,
     this.serviceTier,
     this.dioClient,
+    this.useResponsesAPI = false,
+    this.previousResponseId,
+    this.builtInTools,
     LLMConfig? originalConfig,
   }) : _originalConfig = originalConfig;
 
@@ -111,6 +124,9 @@ class OpenAIConfig {
     String? user,
     ServiceTier? serviceTier,
     Dio? dioClient,
+    bool? useResponsesAPI,
+    String? previousResponseId,
+    List<OpenAIBuiltInTool>? builtInTools,
   }) =>
       OpenAIConfig(
         apiKey: apiKey ?? this.apiKey,
@@ -134,6 +150,9 @@ class OpenAIConfig {
         user: user ?? this.user,
         serviceTier: serviceTier ?? this.serviceTier,
         dioClient: dioClient ?? this.dioClient,
+        useResponsesAPI: useResponsesAPI ?? this.useResponsesAPI,
+        previousResponseId: previousResponseId ?? this.previousResponseId,
+        builtInTools: builtInTools ?? this.builtInTools,
       );
 
   @override
@@ -168,12 +187,15 @@ class OpenAIConfig {
         other.embeddingDimensions == embeddingDimensions &&
         other.stopSequences == stopSequences &&
         other.user == user &&
-        other.serviceTier == serviceTier;
+        other.serviceTier == serviceTier &&
+        other.useResponsesAPI == useResponsesAPI &&
+        other.previousResponseId == previousResponseId &&
+        other.builtInTools == builtInTools;
   }
 
   @override
   int get hashCode {
-    return Object.hash(
+    return Object.hashAll([
       apiKey,
       baseUrl,
       model,
@@ -193,6 +215,9 @@ class OpenAIConfig {
       stopSequences,
       user,
       serviceTier,
-    );
+      useResponsesAPI,
+      previousResponseId,
+      builtInTools,
+    ]);
   }
 }

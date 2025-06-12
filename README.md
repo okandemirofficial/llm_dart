@@ -63,7 +63,7 @@ Add this to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  llm_dart: ^0.5.0
+  llm_dart: ^0.6.0
 ```
 
 Then run:
@@ -634,8 +634,18 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 
 See [Contributing Guide](.github/CONTRIBUTING.md) for details.
 
+## Thanks
+
+This project exists thanks to all the people who have [contributed](https://github.com/Latias94/llm_dart/blob/main/.github/CONTRIBUTING.md):
+
+<a href="https://github.com/Latias94/llm_dart/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Latias94/llm_dart" />
+</a>
+
+## Acknowledgments
+
+This library is inspired by the Rust [graniet/llm](https://github.com/graniet/llm) library and follows similar patterns adapted for Dart.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-This library is inspired by the Rust [graniet/llm](https://github.com/graniet/llm) library and follows similar patterns adapted for Dart.

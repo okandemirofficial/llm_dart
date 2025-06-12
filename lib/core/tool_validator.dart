@@ -152,6 +152,38 @@ class ToolValidator {
         if (value is! Map<String, dynamic>) {
           errors.add(
               'Parameter $paramName must be an object, got ${value.runtimeType}');
+        } else if (property.properties != null) {
+          // Validate object properties if schema is defined
+          final objectValue = value;
+
+          // Check required properties
+          if (property.required != null) {
+            for (final requiredProp in property.required!) {
+              if (!objectValue.containsKey(requiredProp)) {
+                errors.add(
+                    'Object $paramName missing required property: $requiredProp');
+              }
+            }
+          }
+
+          // Validate each provided property
+          for (final entry in objectValue.entries) {
+            final propName = entry.key;
+            final propValue = entry.value;
+            final propProperty = property.properties![propName];
+
+            if (propProperty == null) {
+              errors.add('Object $paramName has unknown property: $propName');
+              continue;
+            }
+
+            final propErrors = _validateParameterValue(
+              '$paramName.$propName',
+              propValue,
+              propProperty,
+            );
+            errors.addAll(propErrors);
+          }
         }
         break;
 

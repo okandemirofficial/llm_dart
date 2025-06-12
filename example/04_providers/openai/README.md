@@ -13,6 +13,9 @@ Whisper speech-to-text and TTS voice synthesis.
 ### [advanced_features.dart](advanced_features.dart)
 Assistants API and specialized model features.
 
+### [responses_api.dart](responses_api.dart)
+OpenAI's new Responses API with built-in tools like web search, file search, and computer use.
+
 ## Setup
 
 ```bash
@@ -22,6 +25,7 @@ export OPENAI_API_KEY="your-openai-api-key"
 dart run image_generation.dart
 dart run audio_capabilities.dart
 dart run advanced_features.dart
+dart run responses_api.dart
 ```
 
 ## Unique Capabilities
@@ -37,9 +41,17 @@ dart run advanced_features.dart
 - **Multiple formats**: Support for various audio formats
 
 ### Assistants API
+
 - **Persistent assistants**: Stateful conversations
 - **Tool integration**: Code interpreter and file search
 - **File management**: Upload and process documents
+
+### Responses API
+
+- **Built-in tools**: Web search, file search, computer use
+- **Unified interface**: Combines Chat Completions and Assistants API
+- **Multi-turn workflows**: Single API call with multiple tool uses
+- **Response chaining**: Link responses for complex workflows
 
 ## Usage Examples
 
@@ -78,6 +90,23 @@ final assistant = await assistantProvider.createAssistant(
     tools: [CodeInterpreterTool()],
   ),
 );
+```
+
+### Responses API
+
+```dart
+final provider = await ai()
+    .openai((openai) => openai
+        .useResponsesAPI()
+        .webSearchTool()
+        .fileSearchTool(vectorStoreIds: ['vs_123']))
+    .apiKey('your-key')
+    .model('gpt-4o')
+    .build();
+
+final response = await provider.chat([
+  ChatMessage.user('Search for recent AI developments'),
+]);
 ```
 
 ## Next Steps

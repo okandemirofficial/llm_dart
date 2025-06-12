@@ -131,7 +131,8 @@ class GoogleConfig {
       tools: config.tools,
       dioClient: config.dioClient,
       // Google-specific extensions
-      reasoningEffort: config.getExtension<ReasoningEffort>('reasoningEffort'),
+      reasoningEffort: ReasoningEffort.fromString(
+          config.getExtension<String>('reasoningEffort')),
       thinkingBudgetTokens: config.getExtension<int>('thinkingBudgetTokens'),
       includeThoughts: config.getExtension<bool>('includeThoughts'),
       enableImageGeneration: config.getExtension<bool>('enableImageGeneration'),

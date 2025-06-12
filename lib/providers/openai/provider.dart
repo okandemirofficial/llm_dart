@@ -18,6 +18,7 @@ import 'models.dart';
 import 'moderation.dart';
 import 'assistants.dart';
 import 'completion.dart';
+import 'responses.dart';
 
 /// OpenAI Provider implementation
 ///
@@ -56,6 +57,7 @@ class OpenAIProvider
   late final OpenAIModeration _moderation;
   late final OpenAIAssistants _assistants;
   late final OpenAICompletion _completion;
+  late final OpenAIResponses? _responses;
 
   OpenAIProvider(this.config)
       : _client = OpenAIClient(config, customDio: config.dioClient) {
@@ -69,6 +71,13 @@ class OpenAIProvider
     _moderation = OpenAIModeration(_client, config);
     _assistants = OpenAIAssistants(_client, config);
     _completion = OpenAICompletion(_client, config);
+
+    // Initialize Responses API module if enabled
+    if (config.useResponsesAPI) {
+      _responses = OpenAIResponses(_client, config);
+    } else {
+      _responses = null;
+    }
   }
 
   String get providerName => 'OpenAI';
@@ -102,7 +111,12 @@ class OpenAIProvider
 
   @override
   Future<ChatResponse> chat(List<ChatMessage> messages) async {
-    return _chat.chat(messages);
+    // Use Responses API if enabled, otherwise use Chat Completions API
+    if (config.useResponsesAPI && _responses != null) {
+      return _responses.chat(messages);
+    } else {
+      return _chat.chat(messages);
+    }
   }
 
   @override
@@ -110,7 +124,12 @@ class OpenAIProvider
     List<ChatMessage> messages,
     List<Tool>? tools,
   ) async {
-    return _chat.chatWithTools(messages, tools);
+    // Use Responses API if enabled, otherwise use Chat Completions API
+    if (config.useResponsesAPI && _responses != null) {
+      return _responses.chatWithTools(messages, tools);
+    } else {
+      return _chat.chatWithTools(messages, tools);
+    }
   }
 
   @override
@@ -118,17 +137,32 @@ class OpenAIProvider
     List<ChatMessage> messages, {
     List<Tool>? tools,
   }) {
-    return _chat.chatStream(messages, tools: tools);
+    // Use Responses API if enabled, otherwise use Chat Completions API
+    if (config.useResponsesAPI && _responses != null) {
+      return _responses.chatStream(messages, tools: tools);
+    } else {
+      return _chat.chatStream(messages, tools: tools);
+    }
   }
 
   @override
   Future<List<ChatMessage>?> memoryContents() async {
-    return _chat.memoryContents();
+    // Use Responses API if enabled, otherwise use Chat Completions API
+    if (config.useResponsesAPI && _responses != null) {
+      return _responses.memoryContents();
+    } else {
+      return _chat.memoryContents();
+    }
   }
 
   @override
   Future<String> summarizeHistory(List<ChatMessage> messages) async {
-    return _chat.summarizeHistory(messages);
+    // Use Responses API if enabled, otherwise use Chat Completions API
+    if (config.useResponsesAPI && _responses != null) {
+      return _responses.summarizeHistory(messages);
+    } else {
+      return _chat.summarizeHistory(messages);
+    }
   }
 
   // ========== EmbeddingCapability (delegated to embeddings module) ==========

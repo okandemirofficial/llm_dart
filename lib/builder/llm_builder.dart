@@ -300,6 +300,9 @@ class LLMBuilder {
     return this;
   }
 
+  /// Gets the current configuration (for internal use by builders)
+  LLMConfig get currentConfig => _config;
+
   /// Configure HTTP settings using a fluent builder
   ///
   /// This method provides a clean, organized way to configure HTTP settings
