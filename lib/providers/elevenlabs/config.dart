@@ -1,5 +1,6 @@
 import '../../core/config.dart';
 import '../../core/provider_defaults.dart';
+import 'package:dio/dio.dart';
 
 /// ElevenLabs provider configuration
 ///
@@ -15,6 +16,7 @@ class ElevenLabsConfig {
   final double? similarityBoost;
   final double? style;
   final bool? useSpeakerBoost;
+  final Dio? dioClient;
 
   /// Reference to original LLMConfig for accessing extensions
   final LLMConfig? _originalConfig;
@@ -29,6 +31,7 @@ class ElevenLabsConfig {
     this.similarityBoost,
     this.style,
     this.useSpeakerBoost,
+    this.dioClient,
     LLMConfig? originalConfig,
   }) : _originalConfig = originalConfig;
 
@@ -45,6 +48,7 @@ class ElevenLabsConfig {
       similarityBoost: config.getExtension<double>('similarityBoost'),
       style: config.getExtension<double>('style'),
       useSpeakerBoost: config.getExtension<bool>('useSpeakerBoost'),
+      dioClient: config.dioClient,
       originalConfig: config,
     );
   }
@@ -97,6 +101,7 @@ class ElevenLabsConfig {
     double? similarityBoost,
     double? style,
     bool? useSpeakerBoost,
+    Dio? dioClient,
   }) =>
       ElevenLabsConfig(
         apiKey: apiKey ?? this.apiKey,
@@ -108,5 +113,6 @@ class ElevenLabsConfig {
         similarityBoost: similarityBoost ?? this.similarityBoost,
         style: style ?? this.style,
         useSpeakerBoost: useSpeakerBoost ?? this.useSpeakerBoost,
+        dioClient: dioClient ?? this.dioClient,
       );
 }

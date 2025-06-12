@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:logging/logging.dart';
 
 import '../../core/llm_error.dart';
+import '../../utils/config_utils.dart';
 import 'config.dart';
 
 /// ElevenLabs HTTP client implementation
@@ -13,9 +14,35 @@ class ElevenLabsClient {
   static final Logger _logger = Logger('ElevenLabsClient');
 
   final ElevenLabsConfig config;
-  final Dio _dio;
+  late final Dio _dio;
 
-  ElevenLabsClient(this.config) : _dio = _createDio(config);
+  ElevenLabsClient(this.config, {Dio? customDio}) {
+    if (customDio != null) {
+      _dio = customDio;
+      // Update the base options if they're not already set
+      if (_dio.options.baseUrl.isEmpty) {
+        _dio.options.baseUrl = config.baseUrl;
+      }
+      // Merge ElevenLabs-specific headers
+      final headers = ConfigUtils.buildElevenLabsHeaders(config.apiKey);
+      _dio.options.headers.addAll(headers);
+      // Set timeouts if not already configured
+      _dio.options.connectTimeout ??=
+          config.timeout ?? const Duration(seconds: 60);
+      _dio.options.receiveTimeout ??=
+          config.timeout ?? const Duration(seconds: 60);
+      _dio.options.sendTimeout ??=
+          config.timeout ?? const Duration(seconds: 60);
+    } else {
+      _dio = Dio(BaseOptions(
+        baseUrl: config.baseUrl,
+        connectTimeout: config.timeout ?? const Duration(seconds: 60),
+        receiveTimeout: config.timeout ?? const Duration(seconds: 60),
+        sendTimeout: config.timeout ?? const Duration(seconds: 60),
+        headers: ConfigUtils.buildElevenLabsHeaders(config.apiKey),
+      ));
+    }
+  }
 
   /// Logger instance for debugging
   Logger get logger => _logger;
@@ -131,22 +158,5 @@ class ElevenLabsClient {
   /// Get response headers from last request
   String? getContentType(Response response) {
     return response.headers.value('content-type');
-  }
-
-  /// Create configured Dio instance for ElevenLabs API
-  static Dio _createDio(ElevenLabsConfig config) {
-    final dio = Dio(
-      BaseOptions(
-        baseUrl: config.baseUrl,
-        connectTimeout: config.timeout ?? const Duration(seconds: 60),
-        receiveTimeout: config.timeout ?? const Duration(seconds: 60),
-        headers: {
-          'xi-api-key': config.apiKey,
-          'Content-Type': 'application/json',
-        },
-      ),
-    );
-
-    return dio;
   }
 }

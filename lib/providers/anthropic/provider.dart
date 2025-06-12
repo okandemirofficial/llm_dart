@@ -37,7 +37,8 @@ class AnthropicProvider
   late final AnthropicFiles _files;
   late final AnthropicModels _models;
 
-  AnthropicProvider(this.config) : _client = AnthropicClient(config) {
+  AnthropicProvider(this.config)
+      : _client = AnthropicClient(config, customDio: config.dioClient) {
     // Validate configuration on initialization
     final validationError = config.validateThinkingConfig();
     if (validationError != null) {

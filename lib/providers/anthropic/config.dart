@@ -2,7 +2,11 @@ import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
 import '../../core/config.dart';
 import '../../core/provider_defaults.dart';
+<<<<<<< Updated upstream
 import '../../core/web_search.dart';
+=======
+import 'package:dio/dio.dart';
+>>>>>>> Stashed changes
 
 /// Anthropic provider configuration
 ///
@@ -34,6 +38,7 @@ class AnthropicConfig {
   final List<String>? stopSequences;
   final String? user;
   final ServiceTier? serviceTier;
+  final Dio? dioClient;
 
   /// Reference to original LLMConfig for accessing extensions
   final LLMConfig? _originalConfig;
@@ -57,6 +62,7 @@ class AnthropicConfig {
     this.stopSequences,
     this.user,
     this.serviceTier,
+    this.dioClient,
     LLMConfig? originalConfig,
   }) : _originalConfig = originalConfig;
 
@@ -95,6 +101,7 @@ class AnthropicConfig {
       stopSequences: config.stopSequences,
       user: config.user,
       serviceTier: config.serviceTier,
+      dioClient: config.dioClient,
       // Anthropic-specific extensions
       reasoning: config.getExtension<bool>('reasoning') ?? false,
       thinkingBudgetTokens: config.getExtension<int>('thinkingBudgetTokens'),
@@ -242,6 +249,7 @@ class AnthropicConfig {
     List<String>? stopSequences,
     String? user,
     ServiceTier? serviceTier,
+    Dio? dioClient,
   }) =>
       AnthropicConfig(
         apiKey: apiKey ?? this.apiKey,
@@ -262,5 +270,6 @@ class AnthropicConfig {
         stopSequences: stopSequences ?? this.stopSequences,
         user: user ?? this.user,
         serviceTier: serviceTier ?? this.serviceTier,
+        dioClient: dioClient ?? this.dioClient,
       );
 }

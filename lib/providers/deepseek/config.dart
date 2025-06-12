@@ -1,6 +1,7 @@
 import '../../models/tool_models.dart';
 import '../../core/config.dart';
 import '../../core/provider_defaults.dart';
+import 'package:dio/dio.dart';
 
 /// DeepSeek provider configuration
 ///
@@ -26,6 +27,7 @@ class DeepSeekConfig {
   final double? frequencyPenalty;
   final double? presencePenalty;
   final Map<String, dynamic>? responseFormat;
+  final Dio? dioClient;
 
   /// Reference to original LLMConfig for accessing extensions
   final LLMConfig? _originalConfig;
@@ -47,6 +49,7 @@ class DeepSeekConfig {
     this.frequencyPenalty,
     this.presencePenalty,
     this.responseFormat,
+    this.dioClient,
     LLMConfig? originalConfig,
   }) : _originalConfig = originalConfig;
 
@@ -71,6 +74,7 @@ class DeepSeekConfig {
       presencePenalty: config.getExtension<double>('presence_penalty'),
       responseFormat:
           config.getExtension<Map<String, dynamic>>('response_format'),
+      dioClient: config.dioClient,
       originalConfig: config,
     );
   }
@@ -122,6 +126,7 @@ class DeepSeekConfig {
     double? frequencyPenalty,
     double? presencePenalty,
     Map<String, dynamic>? responseFormat,
+    Dio? dioClient,
   }) =>
       DeepSeekConfig(
         apiKey: apiKey ?? this.apiKey,
@@ -140,5 +145,6 @@ class DeepSeekConfig {
         frequencyPenalty: frequencyPenalty ?? this.frequencyPenalty,
         presencePenalty: presencePenalty ?? this.presencePenalty,
         responseFormat: responseFormat ?? this.responseFormat,
+        dioClient: dioClient ?? this.dioClient,
       );
 }

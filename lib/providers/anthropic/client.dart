@@ -25,14 +25,29 @@ class AnthropicClient {
   final Logger logger = Logger('AnthropicClient');
   late final Dio dio;
 
-  AnthropicClient(this.config) {
-    dio = Dio(BaseOptions(
-      baseUrl: config.baseUrl,
-      headers: _buildHeaders(),
-      connectTimeout: config.timeout,
-      receiveTimeout: config.timeout,
-      sendTimeout: config.timeout,
-    ));
+  AnthropicClient(this.config, {Dio? customDio}) {
+    if (customDio != null) {
+      dio = customDio;
+      // Update the base options if they're not already set
+      if (dio.options.baseUrl.isEmpty) {
+        dio.options.baseUrl = config.baseUrl;
+      }
+      // Merge headers instead of replacing them
+      final headers = _buildHeaders();
+      dio.options.headers.addAll(headers);
+      // Set timeouts if not already configured
+      dio.options.connectTimeout ??= config.timeout;
+      dio.options.receiveTimeout ??= config.timeout;
+      dio.options.sendTimeout ??= config.timeout;
+    } else {
+      dio = Dio(BaseOptions(
+        baseUrl: config.baseUrl,
+        headers: _buildHeaders(),
+        connectTimeout: config.timeout,
+        receiveTimeout: config.timeout,
+        sendTimeout: config.timeout,
+      ));
+    }
 
     // Add request interceptor to set endpoint-specific headers
     dio.interceptors.add(InterceptorsWrapper(

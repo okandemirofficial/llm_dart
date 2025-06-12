@@ -19,13 +19,29 @@ class GoogleClient {
   late final Dio dio;
 
   GoogleClient(this.config) {
-    dio = Dio(BaseOptions(
-      baseUrl: config.baseUrl,
-      headers: {'Content-Type': 'application/json'},
-      connectTimeout: config.timeout,
-      receiveTimeout: config.timeout,
-      sendTimeout: config.timeout,
-    ));
+    // Use custom Dio client if provided, otherwise create default one
+    if (config.dioClient != null) {
+      dio = config.dioClient!;
+      // Update base options with Google-specific settings
+      dio.options = dio.options.copyWith(
+        baseUrl: config.baseUrl,
+        headers: {
+          ...dio.options.headers,
+          'Content-Type': 'application/json',
+        },
+        connectTimeout: config.timeout ?? dio.options.connectTimeout,
+        receiveTimeout: config.timeout ?? dio.options.receiveTimeout,
+        sendTimeout: config.timeout ?? dio.options.sendTimeout,
+      );
+    } else {
+      dio = Dio(BaseOptions(
+        baseUrl: config.baseUrl,
+        headers: {'Content-Type': 'application/json'},
+        connectTimeout: config.timeout,
+        receiveTimeout: config.timeout,
+        sendTimeout: config.timeout,
+      ));
+    }
   }
 
   /// Get endpoint with API key authentication

@@ -6,6 +6,7 @@ import '../../models/image_models.dart';
 import '../../models/file_models.dart';
 import '../../models/moderation_models.dart';
 import '../../models/assistant_models.dart';
+
 import 'client.dart';
 import 'config.dart';
 import 'chat.dart';
@@ -56,7 +57,8 @@ class OpenAIProvider
   late final OpenAIAssistants _assistants;
   late final OpenAICompletion _completion;
 
-  OpenAIProvider(this.config) : _client = OpenAIClient(config) {
+  OpenAIProvider(this.config)
+      : _client = OpenAIClient(config, customDio: config.dioClient) {
     // Initialize capability modules
     _chat = OpenAIChat(_client, config);
     _embeddings = OpenAIEmbeddings(_client, config);

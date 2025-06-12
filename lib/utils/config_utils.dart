@@ -46,6 +46,14 @@ class ConfigUtils {
     );
   }
 
+  /// Build ElevenLabs-compatible headers
+  static Map<String, String> buildElevenLabsHeaders(String apiKey) {
+    return buildHeaders(
+      apiKey: apiKey,
+      authHeaderName: 'xi-api-key',
+    );
+  }
+
   /// Extract common request parameters from LLMConfig
   static Map<String, dynamic> buildCommonParams(LLMConfig config) {
     final params = <String, dynamic>{

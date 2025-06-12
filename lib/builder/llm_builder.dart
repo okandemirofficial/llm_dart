@@ -5,6 +5,7 @@ import '../core/llm_error.dart';
 import '../core/web_search.dart';
 import '../models/tool_models.dart';
 import '../models/chat_models.dart';
+<<<<<<< Updated upstream
 import '../providers/google/builder.dart';
 import '../providers/openai/builder.dart';
 import '../providers/anthropic/builder.dart';
@@ -12,6 +13,9 @@ import '../providers/ollama/builder.dart';
 import '../providers/elevenlabs/builder.dart';
 import '../providers/openai/compatible/openrouter/builder.dart';
 import 'http_config.dart';
+=======
+import 'package:dio/dio.dart';
+>>>>>>> Stashed changes
 
 /// Builder for configuring and instantiating LLM providers
 ///
@@ -231,6 +235,28 @@ class LLMBuilder {
   /// Sets service tier for API requests
   LLMBuilder serviceTier(ServiceTier tier) {
     _config = _config.copyWith(serviceTier: tier);
+    return this;
+  }
+
+  /// Sets a custom Dio instance for HTTP requests
+  ///
+  /// If provided, this Dio instance will be used for all HTTP requests
+  /// instead of creating a default one. This allows for custom interceptors,
+  /// proxy settings, certificates, and other advanced HTTP configurations.
+  ///
+  /// Example:
+  /// ```dart
+  /// final customDio = Dio();
+  /// customDio.interceptors.add(LogInterceptor());
+  ///
+  /// final provider = await ai()
+  ///     .anthropic()
+  ///     .apiKey(apiKey)
+  ///     .dioClient(customDio)
+  ///     .build();
+  /// ```
+  LLMBuilder dioClient(Dio dio) {
+    _config = _config.copyWith(dioClient: dio);
     return this;
   }
 

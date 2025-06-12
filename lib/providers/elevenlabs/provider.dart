@@ -19,7 +19,8 @@ class ElevenLabsProvider implements ChatCapability, AudioCapability {
   late final ElevenLabsAudio audio;
   late final ElevenLabsModels models;
 
-  ElevenLabsProvider(this.config) : client = ElevenLabsClient(config) {
+  ElevenLabsProvider(this.config)
+      : client = ElevenLabsClient(config, customDio: config.dioClient) {
     audio = ElevenLabsAudio(client, config);
     models = ElevenLabsModels(client, config);
   }

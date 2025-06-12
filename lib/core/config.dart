@@ -1,6 +1,7 @@
 import '../models/tool_models.dart';
 import '../models/chat_models.dart';
 import 'capability.dart';
+import 'package:dio/dio.dart';
 
 /// Unified configuration class for all LLM providers
 ///
@@ -49,6 +50,13 @@ class LLMConfig {
   /// Service tier for API requests
   final ServiceTier? serviceTier;
 
+  /// Custom Dio instance for HTTP requests
+  ///
+  /// If provided, this Dio instance will be used for all HTTP requests
+  /// instead of creating a default one. This allows for custom interceptors,
+  /// proxy settings, certificates, and other advanced HTTP configurations.
+  final Dio? dioClient;
+
   /// Provider-specific configuration extensions
   ///
   /// This map allows providers to store their unique configuration
@@ -73,6 +81,7 @@ class LLMConfig {
     this.stopSequences,
     this.user,
     this.serviceTier,
+    this.dioClient,
     this.extensions = const {},
   });
 
@@ -99,6 +108,7 @@ class LLMConfig {
       stopSequences: stopSequences,
       user: user,
       serviceTier: serviceTier,
+      dioClient: dioClient,
       extensions: {...extensions, ...newExtensions},
     );
   }
@@ -124,6 +134,7 @@ class LLMConfig {
     List<String>? stopSequences,
     String? user,
     ServiceTier? serviceTier,
+    Dio? dioClient,
     Map<String, dynamic>? extensions,
   }) {
     return LLMConfig(
@@ -141,6 +152,7 @@ class LLMConfig {
       stopSequences: stopSequences ?? this.stopSequences,
       user: user ?? this.user,
       serviceTier: serviceTier ?? this.serviceTier,
+      dioClient: dioClient ?? this.dioClient,
       extensions: extensions ?? this.extensions,
     );
   }
@@ -161,6 +173,7 @@ class LLMConfig {
         if (stopSequences != null) 'stopSequences': stopSequences,
         if (user != null) 'user': user,
         if (serviceTier != null) 'serviceTier': serviceTier!.value,
+        if (dioClient != null) 'dioClient': dioClient!.toString(),
         'extensions': extensions,
       };
 
@@ -190,6 +203,7 @@ class LLMConfig {
             : null,
         user: json['user'] as String?,
         serviceTier: ServiceTier.fromString(json['serviceTier'] as String?),
+        dioClient: json['dioClient'] != null ? Dio() : null,
         extensions: json['extensions'] as Map<String, dynamic>? ?? {},
       );
 
@@ -251,6 +265,7 @@ class LLMConfig {
         stopSequences,
         user,
         serviceTier,
+        dioClient,
         extensions,
       );
 

@@ -19,7 +19,8 @@ class DeepSeekProvider
   late final DeepSeekChat _chat;
   late final DeepSeekModels _models;
 
-  DeepSeekProvider(this.config) : _client = DeepSeekClient(config) {
+  DeepSeekProvider(this.config)
+      : _client = DeepSeekClient(config, customDio: config.dioClient) {
     // Initialize capability modules
     _chat = DeepSeekChat(_client, config);
     _models = DeepSeekModels(_client, config);

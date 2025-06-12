@@ -1,6 +1,7 @@
 import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
 import '../../core/config.dart';
+import 'package:dio/dio.dart';
 
 /// Google AI harm categories
 enum HarmCategory {
@@ -75,6 +76,7 @@ class GoogleConfig {
   final int maxInlineDataSize;
   final int? candidateCount;
   final List<String>? stopSequences;
+  final Dio? dioClient;
 
   // Embedding-specific parameters
   final String? embeddingTaskType;
@@ -106,9 +108,13 @@ class GoogleConfig {
     this.maxInlineDataSize = 20 * 1024 * 1024, // 20MB default
     this.candidateCount,
     this.stopSequences,
+<<<<<<< Updated upstream
     this.embeddingTaskType,
     this.embeddingTitle,
     this.embeddingDimensions,
+=======
+    this.dioClient,
+>>>>>>> Stashed changes
     LLMConfig? originalConfig,
   }) : _originalConfig = originalConfig;
 
@@ -126,6 +132,7 @@ class GoogleConfig {
       topP: config.topP,
       topK: config.topK,
       tools: config.tools,
+      dioClient: config.dioClient,
       // Google-specific extensions
       reasoningEffort: config.getExtension<ReasoningEffort>('reasoningEffort'),
       thinkingBudgetTokens: config.getExtension<int>('thinkingBudgetTokens'),
@@ -224,9 +231,13 @@ class GoogleConfig {
     int? maxInlineDataSize,
     int? candidateCount,
     List<String>? stopSequences,
+<<<<<<< Updated upstream
     String? embeddingTaskType,
     String? embeddingTitle,
     int? embeddingDimensions,
+=======
+    Dio? dioClient,
+>>>>>>> Stashed changes
   }) =>
       GoogleConfig(
         apiKey: apiKey ?? this.apiKey,
@@ -251,8 +262,12 @@ class GoogleConfig {
         maxInlineDataSize: maxInlineDataSize ?? this.maxInlineDataSize,
         candidateCount: candidateCount ?? this.candidateCount,
         stopSequences: stopSequences ?? this.stopSequences,
+<<<<<<< Updated upstream
         embeddingTaskType: embeddingTaskType ?? this.embeddingTaskType,
         embeddingTitle: embeddingTitle ?? this.embeddingTitle,
         embeddingDimensions: embeddingDimensions ?? this.embeddingDimensions,
+=======
+        dioClient: dioClient ?? this.dioClient,
+>>>>>>> Stashed changes
       );
 }

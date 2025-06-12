@@ -2,6 +2,7 @@ import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
 import '../../core/config.dart';
 import '../../core/provider_defaults.dart';
+import 'package:dio/dio.dart';
 
 /// OpenAI provider configuration
 ///
@@ -28,6 +29,7 @@ class OpenAIConfig {
   final List<String>? stopSequences;
   final String? user;
   final ServiceTier? serviceTier;
+  final Dio? dioClient;
 
   /// Reference to original LLMConfig for accessing extensions
   final LLMConfig? _originalConfig;
@@ -52,8 +54,38 @@ class OpenAIConfig {
     this.stopSequences,
     this.user,
     this.serviceTier,
+    this.dioClient,
     LLMConfig? originalConfig,
   }) : _originalConfig = originalConfig;
+
+  /// Create OpenAIConfig from unified LLMConfig
+  factory OpenAIConfig.fromLLMConfig(LLMConfig config) {
+    return OpenAIConfig(
+      apiKey: config.apiKey!,
+      baseUrl: config.baseUrl,
+      model: config.model,
+      maxTokens: config.maxTokens,
+      temperature: config.temperature,
+      systemPrompt: config.systemPrompt,
+      timeout: config.timeout,
+      topP: config.topP,
+      topK: config.topK,
+      tools: config.tools,
+      toolChoice: config.toolChoice,
+      stopSequences: config.stopSequences,
+      user: config.user,
+      serviceTier: config.serviceTier,
+      dioClient: config.dioClient,
+      // OpenAI-specific extensions
+      reasoningEffort: config.getExtension<ReasoningEffort>('reasoningEffort'),
+      jsonSchema: config.getExtension<StructuredOutputFormat>('jsonSchema'),
+      voice: config.getExtension<String>('voice'),
+      embeddingEncodingFormat:
+          config.getExtension<String>('embeddingEncodingFormat'),
+      embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
+      originalConfig: config,
+    );
+  }
 
   /// Get extension value from original config
   T? getExtension<T>(String key) => _originalConfig?.getExtension<T>(key);
@@ -78,6 +110,7 @@ class OpenAIConfig {
     List<String>? stopSequences,
     String? user,
     ServiceTier? serviceTier,
+    Dio? dioClient,
   }) =>
       OpenAIConfig(
         apiKey: apiKey ?? this.apiKey,
@@ -100,6 +133,7 @@ class OpenAIConfig {
         stopSequences: stopSequences ?? this.stopSequences,
         user: user ?? this.user,
         serviceTier: serviceTier ?? this.serviceTier,
+        dioClient: dioClient ?? this.dioClient,
       );
 
   @override
