@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Complete validation of required properties, unknown properties, and type checking in nested structures
   - Comprehensive test coverage in `enhanced_array_tools_test.dart`
   - Practical examples integrated into `enhanced_tool_calling.dart` demonstrating real-world usage scenarios
+  - **Special thanks to [@okandemirofficial](https://github.com/okandemirofficial) for this valuable contribution as our first external contributor! 🎉**
+
 
 - **Anthropic MCP Connector**: Native support for Anthropic's Model Context Protocol connector
   - `AnthropicMCPServer` - Configuration for remote MCP servers with OAuth support
