@@ -27,7 +27,8 @@ class XAIProvider
   late final XAIChat _chat;
   late final XAIEmbedding _embedding;
 
-  XAIProvider(this.config) : client = XAIClient(config) {
+  XAIProvider(this.config)
+      : client = XAIClient(config, customDio: config.dioClient) {
     _chat = XAIChat(client, config);
     _embedding = XAIEmbedding(client, config);
   }

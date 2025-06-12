@@ -1,6 +1,7 @@
 import '../../models/tool_models.dart';
 import '../../core/config.dart';
 import '../../core/web_search.dart';
+import 'package:dio/dio.dart';
 
 /// Search source configuration for search parameters
 class SearchSource {
@@ -184,6 +185,7 @@ class XAIConfig {
   final String? embeddingEncodingFormat;
   final int? embeddingDimensions;
   final SearchParameters? searchParameters;
+  final Dio? dioClient;
 
   /// Enable or disable live search functionality
   ///
@@ -214,6 +216,7 @@ class XAIConfig {
     this.embeddingEncodingFormat,
     this.embeddingDimensions,
     this.searchParameters,
+    this.dioClient,
     this.liveSearch,
     LLMConfig? originalConfig,
   }) : _originalConfig = originalConfig;
@@ -256,6 +259,7 @@ class XAIConfig {
       topK: config.topK,
       tools: config.tools,
       toolChoice: config.toolChoice,
+      dioClient: config.dioClient,
       // xAI-specific extensions
       jsonSchema: config.getExtension<StructuredOutputFormat>('jsonSchema'),
       embeddingEncodingFormat:
@@ -350,6 +354,7 @@ class XAIConfig {
     String? embeddingEncodingFormat,
     int? embeddingDimensions,
     SearchParameters? searchParameters,
+    Dio? dioClient,
     bool? liveSearch,
   }) =>
       XAIConfig(
@@ -369,6 +374,7 @@ class XAIConfig {
             embeddingEncodingFormat ?? this.embeddingEncodingFormat,
         embeddingDimensions: embeddingDimensions ?? this.embeddingDimensions,
         searchParameters: searchParameters ?? this.searchParameters,
+        dioClient: dioClient ?? this.dioClient,
         liveSearch: liveSearch ?? this.liveSearch,
       );
 }

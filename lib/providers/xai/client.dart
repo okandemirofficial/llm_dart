@@ -20,14 +20,29 @@ class XAIClient {
   final Logger logger = Logger('XAIClient');
   late final Dio dio;
 
-  XAIClient(this.config) {
-    dio = Dio(BaseOptions(
-      baseUrl: config.baseUrl,
-      headers: _buildXAIHeaders(config.apiKey),
-      connectTimeout: config.timeout,
-      receiveTimeout: config.timeout,
-      sendTimeout: config.timeout,
-    ));
+  XAIClient(this.config, {Dio? customDio}) {
+    if (customDio != null) {
+      dio = customDio;
+      // Update the base options if they're not already set
+      if (dio.options.baseUrl.isEmpty) {
+        dio.options.baseUrl = config.baseUrl;
+      }
+      // Merge headers instead of replacing them
+      final headers = _buildXAIHeaders(config.apiKey);
+      dio.options.headers.addAll(headers);
+      // Set timeouts if not already configured
+      dio.options.connectTimeout ??= config.timeout;
+      dio.options.receiveTimeout ??= config.timeout;
+      dio.options.sendTimeout ??= config.timeout;
+    } else {
+      dio = Dio(BaseOptions(
+        baseUrl: config.baseUrl,
+        headers: _buildXAIHeaders(config.apiKey),
+        connectTimeout: config.timeout,
+        receiveTimeout: config.timeout,
+        sendTimeout: config.timeout,
+      ));
+    }
   }
 
   /// Build xAI-specific HTTP headers
