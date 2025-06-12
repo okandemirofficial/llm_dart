@@ -42,6 +42,9 @@ export 'providers/factories/base_factory.dart';
 // Builder exports
 export 'builder/llm_builder.dart';
 export 'builder/http_config.dart';
+export 'builder/audio_config.dart';
+export 'builder/image_config.dart';
+export 'builder/provider_config.dart';
 
 // Utility exports
 export 'utils/config_utils.dart';
