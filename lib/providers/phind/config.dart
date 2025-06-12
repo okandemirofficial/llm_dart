@@ -1,5 +1,6 @@
 import '../../models/tool_models.dart';
 import '../../core/config.dart';
+import 'package:dio/dio.dart';
 
 /// Phind provider configuration
 ///
@@ -18,6 +19,7 @@ class PhindConfig {
   final int? topK;
   final List<Tool>? tools;
   final ToolChoice? toolChoice;
+  final Dio? dioClient;
 
   /// Reference to original LLMConfig for accessing extensions
   final LLMConfig? _originalConfig;
@@ -34,6 +36,7 @@ class PhindConfig {
     this.topK,
     this.tools,
     this.toolChoice,
+    this.dioClient,
     LLMConfig? originalConfig,
   }) : _originalConfig = originalConfig;
 
@@ -51,6 +54,7 @@ class PhindConfig {
       topK: config.topK,
       tools: config.tools,
       toolChoice: config.toolChoice,
+      dioClient: config.dioClient,
       originalConfig: config,
     );
   }
@@ -100,6 +104,7 @@ class PhindConfig {
     int? topK,
     List<Tool>? tools,
     ToolChoice? toolChoice,
+    Dio? dioClient,
   }) =>
       PhindConfig(
         apiKey: apiKey ?? this.apiKey,
@@ -113,5 +118,6 @@ class PhindConfig {
         topK: topK ?? this.topK,
         tools: tools ?? this.tools,
         toolChoice: toolChoice ?? this.toolChoice,
+        dioClient: dioClient ?? this.dioClient,
       );
 }

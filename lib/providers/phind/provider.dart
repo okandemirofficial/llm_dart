@@ -4,6 +4,7 @@ import '../../models/tool_models.dart';
 import 'chat.dart';
 import 'client.dart';
 import 'config.dart';
+import 'package:dio/dio.dart';
 
 /// Phind Provider implementation
 ///
@@ -17,7 +18,8 @@ class PhindProvider implements ChatCapability, ProviderCapabilities {
   // Capability modules
   late final PhindChat _chat;
 
-  PhindProvider(this.config) : client = PhindClient(config) {
+  PhindProvider(this.config)
+      : client = PhindClient(config, customDio: config.dioClient) {
     _chat = PhindChat(client, config);
   }
 
@@ -84,6 +86,7 @@ class PhindProvider implements ChatCapability, ProviderCapabilities {
     int? topK,
     List<Tool>? tools,
     ToolChoice? toolChoice,
+    Dio? dioClient,
   }) {
     final newConfig = config.copyWith(
       apiKey: apiKey,
@@ -97,6 +100,7 @@ class PhindProvider implements ChatCapability, ProviderCapabilities {
       topK: topK,
       tools: tools,
       toolChoice: toolChoice,
+      dioClient: dioClient,
     );
 
     return PhindProvider(newConfig);

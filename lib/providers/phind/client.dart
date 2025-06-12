@@ -13,9 +13,29 @@ class PhindClient {
   static final Logger _logger = Logger('PhindClient');
 
   final PhindConfig config;
-  final Dio _dio;
+  late final Dio _dio;
 
-  PhindClient(this.config) : _dio = _createDio(config);
+  PhindClient(this.config, {Dio? customDio}) {
+    if (customDio != null) {
+      _dio = customDio;
+      // Update the base options if they're not already set
+      if (_dio.options.baseUrl.isEmpty) {
+        _dio.options.baseUrl = config.baseUrl;
+      }
+      // Merge headers instead of replacing them
+      final headers = _buildPhindHeaders();
+      _dio.options.headers.addAll(headers);
+      // Set timeouts if not already configured
+      _dio.options.connectTimeout ??=
+          config.timeout ?? const Duration(seconds: 60);
+      _dio.options.receiveTimeout ??=
+          config.timeout ?? const Duration(seconds: 60);
+      _dio.options.sendTimeout ??=
+          config.timeout ?? const Duration(seconds: 60);
+    } else {
+      _dio = _createDio(config);
+    }
+  }
 
   /// Logger instance for debugging
   Logger get logger => _logger;
@@ -92,6 +112,16 @@ class PhindClient {
     } on DioException catch (e) {
       throw DioErrorHandler.handleDioError(e, 'Phind');
     }
+  }
+
+  /// Build Phind-specific headers
+  Map<String, String> _buildPhindHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      'User-Agent': '', // Phind requires empty User-Agent
+      'Accept': '*/*',
+      'Accept-Encoding': 'Identity',
+    };
   }
 
   /// Create configured Dio instance for Phind API
