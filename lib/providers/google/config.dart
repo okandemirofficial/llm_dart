@@ -127,7 +127,8 @@ class GoogleConfig {
       topK: config.topK,
       tools: config.tools,
       // Google-specific extensions
-      reasoningEffort: config.getExtension<ReasoningEffort>('reasoningEffort'),
+      reasoningEffort: ReasoningEffort.fromString(
+          config.getExtension<String>('reasoningEffort')),
       thinkingBudgetTokens: config.getExtension<int>('thinkingBudgetTokens'),
       includeThoughts: config.getExtension<bool>('includeThoughts'),
       enableImageGeneration: config.getExtension<bool>('enableImageGeneration'),
