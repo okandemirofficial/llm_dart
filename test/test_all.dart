@@ -36,6 +36,9 @@ import 'integration/utf8_streaming_test.dart' as utf8_streaming_tests;
 import 'integration/http_configuration_integration_test.dart'
     as http_integration_tests;
 
+// Feature tests
+import 'models/enhanced_array_tools_test.dart' as enhanced_array_tools_tests;
+
 // Provider tests
 import 'providers/factories/base_factory_test.dart' as factory_tests;
 
@@ -87,6 +90,10 @@ void main() {
       thinking_streaming_tests.main();
       utf8_streaming_tests.main();
       http_integration_tests.main();
+    });
+
+    group('Feature Tests', () {
+      enhanced_array_tools_tests.main();
     });
 
     group('Provider Tests', () {

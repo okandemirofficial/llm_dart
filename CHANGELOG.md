@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Enhanced Array Tools**: Support for nested object structures in tool parameters
+  - Added `properties` and `required` fields to `ParameterProperty` class for defining complex object schemas
+  - Enhanced `ToolValidator` with recursive validation for nested object arrays
+  - Support for deep nesting: array → object → array → object structures
+  - Complete validation of required properties, unknown properties, and type checking in nested structures
+  - Comprehensive test coverage in `enhanced_array_tools_test.dart`
+  - Practical examples integrated into `enhanced_tool_calling.dart` demonstrating real-world usage scenarios
+
 - **Anthropic MCP Connector**: Native support for Anthropic's Model Context Protocol connector
   - `AnthropicMCPServer` - Configuration for remote MCP servers with OAuth support
   - `AnthropicMCPToolConfiguration` - Fine-grained tool filtering and access control
