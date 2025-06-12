@@ -44,6 +44,8 @@ export 'models.dart';
 export 'moderation.dart';
 export 'assistants.dart';
 export 'completion.dart';
+export 'responses.dart';
+export 'builtin_tools.dart';
 
 /// Create an OpenAI provider with default settings
 OpenAIProvider createOpenAIProvider({

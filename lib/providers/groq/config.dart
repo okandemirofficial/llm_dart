@@ -83,6 +83,11 @@ class GroqConfig {
     // - llama-3.1-8b-instant
     // - gemma2-9b-it
 
+    // Base models don't support tool calling
+    if (model.contains('-base')) {
+      return false;
+    }
+
     // Models that support tool calling
     final supportedModels = [
       'llama-4-scout',

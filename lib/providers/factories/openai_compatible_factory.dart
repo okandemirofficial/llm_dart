@@ -94,6 +94,11 @@ class OpenAICompatibleProviderFactory
       embeddingEncodingFormat:
           config.getExtension<String>('embeddingEncodingFormat'),
       embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
+      // Responses API configuration (most OpenAI-compatible providers don't support this yet)
+      useResponsesAPI: config.getExtension<bool>('useResponsesAPI') ?? false,
+      previousResponseId: config.getExtension<String>('previousResponseId'),
+      builtInTools:
+          config.getExtension<List<OpenAIBuiltInTool>>('builtInTools'),
       originalConfig: config,
     );
   }
