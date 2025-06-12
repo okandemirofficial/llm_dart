@@ -315,9 +315,9 @@ Future<void> demonstrateTextToSpeech(String apiKey) async {
   try {
     // Create ElevenLabs provider with audio capabilities
     final provider = await ai()
-        .elevenlabs()
+        .elevenlabs((elevenlabs) =>
+            elevenlabs.voiceId('JBFqnCBsd6RMkjVDRZzb')) // Default voice
         .apiKey(apiKey)
-        .voiceId('JBFqnCBsd6RMkjVDRZzb') // Default voice
         .build();
 
     // Check if provider supports audio capabilities

@@ -21,12 +21,12 @@ Future<void> main() async {
   // Create ElevenLabs provider with high-quality voice settings using buildAudio()
   // This provides compile-time type safety and eliminates runtime type casting
   final audioProvider = await ai()
-      .elevenlabs()
+      .elevenlabs((elevenlabs) => elevenlabs
+          .voiceId('JBFqnCBsd6RMkjVDRZzb') // High-quality voice
+          .stability(0.5)
+          .similarityBoost(0.75)
+          .style(0.2))
       .apiKey(apiKey)
-      .voiceId('JBFqnCBsd6RMkjVDRZzb') // High-quality voice
-      .stability(0.5)
-      .similarityBoost(0.75)
-      .style(0.2)
       .buildAudio(); // Type-safe audio capability building
 
   // Display supported features

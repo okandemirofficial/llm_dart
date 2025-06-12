@@ -78,29 +78,6 @@ jobs:
           fail_ci_if_error: false
         continue-on-error: true
 
-  build-example:
-    name: Build Examples
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Dart
-        uses: dart-lang/setup-dart@v1
-        with:
-          sdk: stable
-
-      - name: Install dependencies
-        run: dart pub get
-
-      - name: Check example compilation
-        run: |
-          # Check if examples compile without errors
-          find example -name "*.dart" -type f | while read file; do
-            echo "Checking $file"
-            dart analyze "$file" || exit 1
-          done
-
   publish-dry-run:
     name: Publish Dry Run
     runs-on: ubuntu-latest

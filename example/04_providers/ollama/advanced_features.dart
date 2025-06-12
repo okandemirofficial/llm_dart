@@ -44,15 +44,15 @@ Future<void> demonstratePerformanceOptimization(String baseUrl) async {
     // High-performance configuration with GPU acceleration
     print('   High-Performance Configuration:');
     final highPerfProvider = await ai()
-        .ollama()
+        .ollama((ollama) => ollama
+            .numCtx(4096) // Large context window
+            .numGpu(1) // Use GPU acceleration
+            .numThread(8) // Use 8 CPU threads
+            .numa(false) // Disable NUMA for better performance
+            .numBatch(512)) // Larger batch size
         .baseUrl(baseUrl)
         .model('llama3.2')
         .temperature(0.7)
-        .numCtx(4096) // Large context window
-        .numGpu(1) // Use GPU acceleration
-        .numThread(8) // Use 8 CPU threads
-        .numa(false) // Disable NUMA for better performance
-        .numBatch(512) // Larger batch size
         .build();
 
     final stopwatch = Stopwatch()..start();
@@ -66,14 +66,14 @@ Future<void> demonstratePerformanceOptimization(String baseUrl) async {
     // Memory-efficient configuration
     print('   Memory-Efficient Configuration:');
     final memoryEfficientProvider = await ai()
-        .ollama()
+        .ollama((ollama) => ollama
+            .numCtx(2048) // Smaller context window
+            .numGpu(0) // CPU only
+            .numThread(4) // Fewer threads
+            .numBatch(128)) // Smaller batch size
         .baseUrl(baseUrl)
         .model('llama3.2')
         .temperature(0.7)
-        .numCtx(2048) // Smaller context window
-        .numGpu(0) // CPU only
-        .numThread(4) // Fewer threads
-        .numBatch(128) // Smaller batch size
         .build();
 
     final stopwatch2 = Stopwatch()..start();
@@ -97,11 +97,11 @@ Future<void> demonstrateContextManagement(String baseUrl) async {
   try {
     // Long context configuration
     final longContextProvider = await ai()
-        .ollama()
+        .ollama((ollama) => ollama
+            .numCtx(8192) // Large context window
+            .keepAlive('10m')) // Keep model in memory longer
         .baseUrl(baseUrl)
         .model('llama3.2')
-        .numCtx(8192) // Large context window
-        .keepAlive('10m') // Keep model in memory longer
         .build();
 
     // Build a long conversation
@@ -190,10 +190,9 @@ Future<void> demonstrateModelMemoryManagement(String baseUrl) async {
     // Short-lived model (unloads quickly)
     print('   Short-lived model configuration:');
     final shortLivedProvider = await ai()
-        .ollama()
+        .ollama((ollama) => ollama.keepAlive('30s')) // Unload after 30 seconds
         .baseUrl(baseUrl)
         .model('llama3.2')
-        .keepAlive('30s') // Unload after 30 seconds
         .build();
 
     await shortLivedProvider.chat([ChatMessage.user('Hello!')]);
@@ -202,10 +201,10 @@ Future<void> demonstrateModelMemoryManagement(String baseUrl) async {
     // Long-lived model (stays in memory)
     print('   Long-lived model configuration:');
     final longLivedProvider = await ai()
-        .ollama()
+        .ollama((ollama) =>
+            ollama.keepAlive('30m')) // Keep in memory for 30 minutes
         .baseUrl(baseUrl)
         .model('llama3.2')
-        .keepAlive('30m') // Keep in memory for 30 minutes
         .build();
 
     await longLivedProvider.chat([ChatMessage.user('Hello!')]);
