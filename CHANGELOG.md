@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - Not Released
+
+### Added
+
+- **OpenAI Responses API Support**: Complete integration of OpenAI's new Responses API
+  - `OpenAIResponses` module implementing the new Responses API endpoint
+  - `OpenAIBuiltInTool` classes for web search, file search, and computer use built-in tools
+  - `OpenAIWebSearchTool` - Real-time web search powered by the same model as ChatGPT search
+  - `OpenAIFileSearchTool` - Document search through vector stores with query optimization
+  - `OpenAIComputerUseTool` - Computer interaction through mouse and keyboard actions (research preview)
+  - OpenAI-specific builder methods in `OpenAIBuilder`:
+    - `useResponsesAPI()` - Enable Responses API instead of Chat Completions API
+    - `webSearchTool()` - Add web search built-in tool
+    - `fileSearchTool()` - Add file search built-in tool with vector store configuration
+    - `computerUseTool()` - Add computer use built-in tool with display configuration
+    - `previousResponseId()` - Chain responses for multi-turn workflows
+  - Automatic API selection based on configuration (Chat Completions vs Responses API)
+  - Support for combining function tools with built-in tools in single requests
+  - Enhanced streaming support with built-in tool events
+  - Response chaining capabilities for complex multi-turn workflows
+  - Example implementation in `example/04_providers/openai/responses_api.dart`
+
 ## [0.6.0] - 2025-6-12
 
 ### Added

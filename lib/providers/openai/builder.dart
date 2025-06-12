@@ -1,6 +1,7 @@
 import '../../builder/llm_builder.dart';
 import '../../core/capability.dart';
 import '../../core/web_search.dart';
+import 'builtin_tools.dart';
 
 /// OpenAI-specific LLM builder with provider-specific configuration methods
 ///
@@ -102,6 +103,118 @@ class OpenAIBuilder {
   OpenAIBuilder topLogprobs(int count) {
     _baseBuilder.extension('topLogprobs', count);
     return this;
+  }
+
+  // ========== OpenAI Responses API Configuration ==========
+
+  /// Enables the new Responses API instead of Chat Completions API
+  ///
+  /// The Responses API combines the simplicity of Chat Completions with
+  /// the tool-use capabilities of the Assistants API. It supports built-in
+  /// tools like web search, file search, and computer use.
+  ///
+  /// Example:
+  /// ```dart
+  /// final provider = await ai()
+  ///     .openai((openai) => openai
+  ///         .useResponsesAPI()
+  ///         .webSearchTool())
+  ///     .apiKey(apiKey)
+  ///     .model('gpt-4o')
+  ///     .build();
+  /// ```
+  OpenAIBuilder useResponsesAPI([bool use = true]) {
+    _baseBuilder.extension('useResponsesAPI', use);
+    return this;
+  }
+
+  /// Sets previous response ID for chaining responses
+  ///
+  /// Used with Responses API to maintain context across multiple API calls.
+  /// This allows for multi-turn conversations with state preservation.
+  OpenAIBuilder previousResponseId(String responseId) {
+    _baseBuilder.extension('previousResponseId', responseId);
+    return this;
+  }
+
+  /// Adds web search built-in tool
+  ///
+  /// Enables the model to search the web for real-time information.
+  /// Only available with Responses API.
+  OpenAIBuilder webSearchTool() {
+    final tools = _getBuiltInTools();
+    tools.add(OpenAIBuiltInTools.webSearch());
+    _baseBuilder.extension('builtInTools', tools);
+    return this;
+  }
+
+  /// Adds file search built-in tool
+  ///
+  /// Enables the model to search through documents in vector stores.
+  /// Only available with Responses API.
+  ///
+  /// Example:
+  /// ```dart
+  /// final provider = await ai()
+  ///     .openai((openai) => openai
+  ///         .useResponsesAPI()
+  ///         .fileSearchTool(vectorStoreIds: ['vs_123', 'vs_456']))
+  ///     .build();
+  /// ```
+  OpenAIBuilder fileSearchTool({
+    List<String>? vectorStoreIds,
+    Map<String, dynamic>? parameters,
+  }) {
+    final tools = _getBuiltInTools();
+    tools.add(OpenAIBuiltInTools.fileSearch(
+      vectorStoreIds: vectorStoreIds,
+      parameters: parameters,
+    ));
+    _baseBuilder.extension('builtInTools', tools);
+    return this;
+  }
+
+  /// Adds computer use built-in tool
+  ///
+  /// Enables the model to interact with computers through mouse and keyboard actions.
+  /// Currently in research preview with limited availability.
+  ///
+  /// Example:
+  /// ```dart
+  /// final provider = await ai()
+  ///     .openai((openai) => openai
+  ///         .useResponsesAPI()
+  ///         .computerUseTool(
+  ///           displayWidth: 1024,
+  ///           displayHeight: 768,
+  ///           environment: 'browser',
+  ///         ))
+  ///     .build();
+  /// ```
+  OpenAIBuilder computerUseTool({
+    required int displayWidth,
+    required int displayHeight,
+    required String environment,
+    Map<String, dynamic>? parameters,
+  }) {
+    final tools = _getBuiltInTools();
+    tools.add(OpenAIBuiltInTools.computerUse(
+      displayWidth: displayWidth,
+      displayHeight: displayHeight,
+      environment: environment,
+      parameters: parameters,
+    ));
+    _baseBuilder.extension('builtInTools', tools);
+    return this;
+  }
+
+  /// Helper method to get or create built-in tools list
+  List<OpenAIBuiltInTool> _getBuiltInTools() {
+    final existingTools = _baseBuilder.currentConfig
+        .getExtension<List<OpenAIBuiltInTool>>('builtInTools');
+    return existingTools != null
+        ? List.from(existingTools)
+        : <OpenAIBuiltInTool>[];
   }
 
   // ========== OpenAI Web Search Configuration ==========

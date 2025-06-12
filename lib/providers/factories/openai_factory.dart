@@ -91,6 +91,11 @@ class OpenAIProviderFactory
       embeddingEncodingFormat:
           getExtension<String>(config, 'embeddingEncodingFormat'),
       embeddingDimensions: getExtension<int>(config, 'embeddingDimensions'),
+      // Responses API configuration
+      useResponsesAPI: getExtension<bool>(config, 'useResponsesAPI') ?? false,
+      previousResponseId: getExtension<String>(config, 'previousResponseId'),
+      builtInTools:
+          getExtension<List<OpenAIBuiltInTool>>(config, 'builtInTools'),
       originalConfig: config,
     );
   }
