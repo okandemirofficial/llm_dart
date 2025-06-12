@@ -13,7 +13,6 @@ topics:
 
 environment:
   sdk: '>=3.5.0 <4.0.0'
-  flutter: ">=3.8.0"
 
 dependencies:
   dio: ^5.8.0
@@ -21,8 +20,6 @@ dependencies:
   logging: ^1.2.0
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
   test: ^1.25.15
   mockito: ^5.4.0
   mcp_dart: ^0.5.1
