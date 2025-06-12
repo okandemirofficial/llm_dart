@@ -2,11 +2,8 @@ import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
 import '../../core/config.dart';
 import '../../core/provider_defaults.dart';
-<<<<<<< Updated upstream
 import '../../core/web_search.dart';
-=======
 import 'package:dio/dio.dart';
->>>>>>> Stashed changes
 
 /// Anthropic provider configuration
 ///

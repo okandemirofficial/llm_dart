@@ -108,13 +108,10 @@ class GoogleConfig {
     this.maxInlineDataSize = 20 * 1024 * 1024, // 20MB default
     this.candidateCount,
     this.stopSequences,
-<<<<<<< Updated upstream
     this.embeddingTaskType,
     this.embeddingTitle,
     this.embeddingDimensions,
-=======
     this.dioClient,
->>>>>>> Stashed changes
     LLMConfig? originalConfig,
   }) : _originalConfig = originalConfig;
 
@@ -231,13 +228,10 @@ class GoogleConfig {
     int? maxInlineDataSize,
     int? candidateCount,
     List<String>? stopSequences,
-<<<<<<< Updated upstream
     String? embeddingTaskType,
     String? embeddingTitle,
     int? embeddingDimensions,
-=======
     Dio? dioClient,
->>>>>>> Stashed changes
   }) =>
       GoogleConfig(
         apiKey: apiKey ?? this.apiKey,
@@ -262,12 +256,9 @@ class GoogleConfig {
         maxInlineDataSize: maxInlineDataSize ?? this.maxInlineDataSize,
         candidateCount: candidateCount ?? this.candidateCount,
         stopSequences: stopSequences ?? this.stopSequences,
-<<<<<<< Updated upstream
         embeddingTaskType: embeddingTaskType ?? this.embeddingTaskType,
         embeddingTitle: embeddingTitle ?? this.embeddingTitle,
         embeddingDimensions: embeddingDimensions ?? this.embeddingDimensions,
-=======
         dioClient: dioClient ?? this.dioClient,
->>>>>>> Stashed changes
       );
 }

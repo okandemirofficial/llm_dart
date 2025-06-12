@@ -5,7 +5,6 @@ import '../core/llm_error.dart';
 import '../core/web_search.dart';
 import '../models/tool_models.dart';
 import '../models/chat_models.dart';
-<<<<<<< Updated upstream
 import '../providers/google/builder.dart';
 import '../providers/openai/builder.dart';
 import '../providers/anthropic/builder.dart';
@@ -13,9 +12,7 @@ import '../providers/ollama/builder.dart';
 import '../providers/elevenlabs/builder.dart';
 import '../providers/openai/compatible/openrouter/builder.dart';
 import 'http_config.dart';
-=======
 import 'package:dio/dio.dart';
->>>>>>> Stashed changes
 
 /// Builder for configuring and instantiating LLM providers
 ///
