@@ -4,6 +4,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Dart](https://img.shields.io/badge/Dart-3.5.0+-blue.svg)](https://dart.dev)
 [![likes](https://img.shields.io/pub/likes/llm_dart?logo=dart)](https://pub.dev/packages/llm_dart/score)
+[![CI](https://github.com/Latias94/llm_dart/actions/workflows/ci.yml/badge.svg)](https://github.com/Latias94/llm_dart/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/Latias94/llm_dart/branch/main/graph/badge.svg)](https://codecov.io/gh/Latias94/llm_dart)
+[![Platform Tests](https://github.com/Latias94/llm_dart/actions/workflows/platform-test.yml/badge.svg)](https://github.com/Latias94/llm_dart/actions/workflows/platform-test.yml)
 
 A modular Dart library for AI provider interactions. This library provides a unified interface for interacting with different AI providers using Dio for HTTP requests.
 
@@ -45,7 +48,7 @@ A modular Dart library for AI provider interactions. This library provides a uni
 - **🧠 Thinking Process Support**: Access to model's reasoning and thought processes  
 - **🎵 Audio Support**: Text-to-speech, speech-to-text, and audio processing  
 - **🖼️ Image Support**: Image generation, editing, and multi-modal processing  
-- **📁 File Support**: File upload, management, and processing capabilities  
+- **📁 File Support**: File upload, management, and processing capabilities
 
 ## Installation
 
@@ -485,6 +488,8 @@ See the [example directory](example) for comprehensive examples:
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+See [Contributing Guide](.github/CONTRIBUTING.md) for details.
 
 ## License
 
