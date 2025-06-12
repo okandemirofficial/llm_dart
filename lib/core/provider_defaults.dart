@@ -114,7 +114,7 @@ class ProviderDefaults {
   ];
 
   // Ollama
-  static const String ollamaBaseUrl = 'http://localhost:11434';
+  static const String ollamaBaseUrl = 'http://localhost:11434/';
   static const String ollamaDefaultModel = 'llama3.2';
 
   // OpenAI-compatible providers
@@ -180,6 +180,7 @@ class ProviderDefaults {
       case 'elevenlabs':
         return {
           'baseUrl': elevenLabsBaseUrl,
+          'model': elevenLabsDefaultTTSModel, // Use TTS model as default model
           'voiceId': elevenLabsDefaultVoiceId,
           'ttsModel': elevenLabsDefaultTTSModel,
           'sttModel': elevenLabsDefaultSTTModel,

@@ -193,10 +193,10 @@ Future<void> demoProviderSpecificConfigs(String? xaiKey, String? anthropicKey,
     try {
       print('3. OpenAI with High Context:');
       final provider = await ai()
-          .openai()
+          .openai((openai) =>
+              openai.webSearch(contextSize: WebSearchContextSize.high))
           .apiKey(openaiKey)
           .model('gpt-4o-search-preview')
-          .openaiWebSearch(contextSize: WebSearchContextSize.high)
           .build();
 
       final response = await provider
@@ -212,13 +212,12 @@ Future<void> demoProviderSpecificConfigs(String? xaiKey, String? anthropicKey,
     try {
       print('4. OpenRouter with Custom Search Prompt:');
       final provider = await ai()
-          .openRouter()
+          .openRouter((openrouter) => openrouter.webSearch(
+                maxResults: 5,
+                searchPrompt: 'Focus on recent academic papers and research',
+              ))
           .apiKey(openrouterKey)
           .model('anthropic/claude-3.5-sonnet')
-          .openRouterWebSearch(
-            maxResults: 5,
-            searchPrompt: 'Focus on recent academic papers and research',
-          )
           .build();
 
       final response = await provider
@@ -321,10 +320,10 @@ Future<void> demoConfigurationExamples() async {
 
   // OpenAI with context control
   final openaiProvider = await ai()
-      .openai()
+      .openai((openai) => openai
+          .webSearch(contextSize: WebSearchContextSize.high))
       .apiKey(apiKey)
       .model('gpt-4o-search-preview')
-      .openaiWebSearch(contextSize: WebSearchContextSize.high)
       .build();
   ''');
 

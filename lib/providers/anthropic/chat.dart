@@ -6,6 +6,7 @@ import '../../models/chat_models.dart';
 import '../../models/tool_models.dart';
 import 'client.dart';
 import 'config.dart';
+import 'mcp_models.dart';
 
 /// Anthropic Chat capability implementation
 ///
@@ -533,7 +534,8 @@ class AnthropicChat implements ChatCapability {
     }
 
     // Add MCP servers from extensions
-    final mcpServers = config.getExtension<List<MCPServer>>('mcpServers');
+    final mcpServers =
+        config.getExtension<List<AnthropicMCPServer>>('mcpServers');
     if (mcpServers != null && mcpServers.isNotEmpty) {
       body['mcp_servers'] =
           mcpServers.map((server) => server.toJson()).toList();
@@ -877,22 +879,68 @@ class AnthropicChatResponse implements ChatResponse {
     final content = _rawResponse['content'] as List?;
     if (content == null || content.isEmpty) return null;
 
+    final toolCalls = <ToolCall>[];
+
+    // Handle regular tool_use blocks
     final toolUseBlocks =
         content.where((block) => block['type'] == 'tool_use').toList();
 
-    if (toolUseBlocks.isEmpty) return null;
+    for (final block in toolUseBlocks) {
+      toolCalls.add(ToolCall(
+        id: block['id'] as String,
+        callType: 'function',
+        function: FunctionCall(
+          name: block['name'] as String,
+          arguments: jsonEncode(block['input']),
+        ),
+      ));
+    }
 
-    return toolUseBlocks
-        .map(
-          (block) => ToolCall(
-            id: block['id'] as String,
-            callType: 'function',
-            function: FunctionCall(
-              name: block['name'] as String,
-              arguments: jsonEncode(block['input']),
-            ),
-          ),
-        )
+    // Handle MCP tool_use blocks (Anthropic MCP connector)
+    final mcpToolUseBlocks =
+        content.where((block) => block['type'] == 'mcp_tool_use').toList();
+
+    for (final block in mcpToolUseBlocks) {
+      toolCalls.add(ToolCall(
+        id: block['id'] as String,
+        callType: 'mcp_function',
+        function: FunctionCall(
+          name: block['name'] as String,
+          arguments: jsonEncode(block['input']),
+        ),
+      ));
+    }
+
+    return toolCalls.isEmpty ? null : toolCalls;
+  }
+
+  /// Get Anthropic MCP tool use blocks from the response
+  List<AnthropicMCPToolUse>? get mcpToolUses {
+    final content = _rawResponse['content'] as List?;
+    if (content == null || content.isEmpty) return null;
+
+    final mcpToolUseBlocks =
+        content.where((block) => block['type'] == 'mcp_tool_use').toList();
+
+    if (mcpToolUseBlocks.isEmpty) return null;
+
+    return mcpToolUseBlocks
+        .map((block) => AnthropicMCPToolUse.fromJson(block))
+        .toList();
+  }
+
+  /// Get Anthropic MCP tool result blocks from the response
+  List<AnthropicMCPToolResult>? get mcpToolResults {
+    final content = _rawResponse['content'] as List?;
+    if (content == null || content.isEmpty) return null;
+
+    final mcpToolResultBlocks =
+        content.where((block) => block['type'] == 'mcp_tool_result').toList();
+
+    if (mcpToolResultBlocks.isEmpty) return null;
+
+    return mcpToolResultBlocks
+        .map((block) => AnthropicMCPToolResult.fromJson(block))
         .toList();
   }
 

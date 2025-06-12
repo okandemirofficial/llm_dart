@@ -31,9 +31,11 @@ import 'provider.dart';
 export 'config.dart';
 export 'client.dart';
 export 'provider.dart';
+export 'builder.dart';
 
 // Capability modules
 export 'chat.dart';
+export 'embeddings.dart';
 
 /// Create a Google provider with default configuration
 GoogleProvider createGoogleProvider({
@@ -56,6 +58,9 @@ GoogleProvider createGoogleProvider({
   int? maxInlineDataSize,
   int? candidateCount,
   List<String>? stopSequences,
+  String? embeddingTaskType,
+  String? embeddingTitle,
+  int? embeddingDimensions,
 }) {
   final config = GoogleConfig(
     apiKey: apiKey,
@@ -77,6 +82,9 @@ GoogleProvider createGoogleProvider({
     maxInlineDataSize: maxInlineDataSize ?? 20 * 1024 * 1024,
     candidateCount: candidateCount,
     stopSequences: stopSequences,
+    embeddingTaskType: embeddingTaskType,
+    embeddingTitle: embeddingTitle,
+    embeddingDimensions: embeddingDimensions,
   );
 
   return GoogleProvider(config);
@@ -144,5 +152,22 @@ GoogleProvider createGoogleImageGenerationProvider({
     model: model,
     enableImageGeneration: true,
     responseModalities: responseModalities ?? ['TEXT', 'IMAGE'],
+  );
+}
+
+/// Create a Google provider for embeddings
+GoogleProvider createGoogleEmbeddingProvider({
+  required String apiKey,
+  String model = 'text-embedding-004',
+  String? embeddingTaskType,
+  String? embeddingTitle,
+  int? embeddingDimensions,
+}) {
+  return createGoogleProvider(
+    apiKey: apiKey,
+    model: model,
+    embeddingTaskType: embeddingTaskType,
+    embeddingTitle: embeddingTitle,
+    embeddingDimensions: embeddingDimensions,
   );
 }

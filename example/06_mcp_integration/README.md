@@ -173,7 +173,6 @@ dart run new_example/07_mcp_integration/basic_mcp_client.dart
    ✅ Tool execution successful
 
 ✅ MCP client examples completed!
-📖 Next: Try mcp_with_llm.dart for LLM integration
 ```
 
 **Duration:** ~10 seconds
@@ -220,10 +219,6 @@ dart run new_example/07_mcp_integration/simple_mcp_demo.dart
    ✅ LLM integration successful
 
 ✅ Simple MCP demo completed!
-📖 Next steps:
-   • Explore real MCP servers: https://modelcontextprotocol.io/examples
-   • Build custom MCP tools for your domain
-   • Integrate with production LLM applications
 ```
 
 **Duration:** ~15 seconds

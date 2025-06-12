@@ -28,8 +28,6 @@ void main() async {
   await demonstrateModelSelection(providers);
 
   print('\n✅ Model listing completed!');
-  print(
-      '📖 Next: Try error_handling.dart for production-ready error management');
 }
 
 /// Create providers that support model listing

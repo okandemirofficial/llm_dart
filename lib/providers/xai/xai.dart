@@ -48,7 +48,7 @@ export 'provider.dart';
 
 // Capability modules
 export 'chat.dart';
-export 'embedding.dart';
+export 'embeddings.dart';
 
 /// Create an xAI provider with default settings
 XAIProvider createXAIProvider({

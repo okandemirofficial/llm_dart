@@ -20,8 +20,7 @@ void main() async {
   await demonstrateToolDiscovery();
   await demonstrateToolExecution();
 
-  print('\nMCP client examples completed!');
-  print('Next: Try mcp_with_llm.dart for LLM integration');
+  print('\n✅ MCP client examples completed!');
 }
 
 /// Demonstrate connecting to MCP server via stdio

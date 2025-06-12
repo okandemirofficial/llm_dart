@@ -32,7 +32,6 @@ void main() async {
   await demonstrateDocumentComparison(apiKey);
 
   print('\n✅ Anthropic file handling completed!');
-  print('📖 Next: Try other provider examples for comparison');
 }
 
 /// Demonstrate file management capabilities

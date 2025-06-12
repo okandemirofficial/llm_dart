@@ -1,167 +1,100 @@
-# 🟣 Anthropic Provider Examples
+# Anthropic Unique Features
 
-Anthropic's Claude models are known for advanced reasoning, safety, and extended thinking processes. These examples showcase Anthropic-specific capabilities.
+Claude's advanced reasoning capabilities and safety-focused design.
 
-## 📚 Available Examples
+## Examples
 
-### 🚀 Basic Usage
-**[basic_usage.dart](basic_usage.dart)** - Getting started with Claude
-- Claude model selection
-- Basic chat functionality
-- Configuration options
-- Safety features
+### [extended_thinking.dart](extended_thinking.dart)
+Access Claude's step-by-step reasoning process.
 
-### 🧠 Extended Thinking
-**[extended_thinking.dart](extended_thinking.dart)** - Claude's reasoning process
-- Accessing thinking processes
-- Complex problem solving
-- Step-by-step reasoning
-- Thought analysis
+### [file_handling.dart](file_handling.dart)
+Advanced document processing and analysis.
 
-### 📄 File Handling
-**[file_handling.dart](file_handling.dart)** - Document processing
-- File upload and analysis
-- Document understanding
-- Text extraction
-- Content summarization
+### [mcp_connector.dart](mcp_connector.dart)
+Anthropic's MCP connector for external tool integration.
 
-## 🎯 Claude Model Guide
-
-### Available Models
-
-| Model | Best For | Speed | Cost | Context |
-|-------|----------|-------|------|---------|
-| **claude-3-5-sonnet** | General purpose, reasoning | Medium | Medium | 200K |
-| **claude-3-5-haiku** | Fast responses | Fast | Low | 200K |
-| **claude-3-opus** | Complex tasks | Slow | High | 200K |
-
-### Model Characteristics
-
-| Feature | Sonnet | Haiku | Opus |
-|---------|--------|-------|------|
-| **Reasoning** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **Speed** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐ |
-| **Cost** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐ |
-| **Creativity** | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **Analysis** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-
-## 🚀 Quick Start
+## Setup
 
 ```bash
-# Set your Anthropic API key
 export ANTHROPIC_API_KEY="your-anthropic-api-key"
 
-# Run basic example
-dart run basic_usage.dart
-
-# Try extended thinking
+# Run Anthropic-specific examples
 dart run extended_thinking.dart
-
-# Test file handling
 dart run file_handling.dart
+dart run mcp_connector.dart
 ```
 
-## 💡 Best Practices
+## Unique Capabilities
 
-### Model Selection
-- **claude-3-5-haiku-20241022**: Fast responses, cost-effective
-- **claude-sonnet-4-20250514**: Balanced performance and quality
-- **claude-opus-4-20250514**: Highest quality for complex tasks
+### Extended Thinking
+- **Reasoning Process**: Access Claude's step-by-step thinking
+- **Problem Solving**: Complex logical analysis and decomposition
+- **Transparency**: See how Claude arrives at conclusions
 
-### Prompt Engineering
-- Be specific and detailed in requests
-- Use structured prompts for complex tasks
-- Leverage Claude's reasoning capabilities
-- Ask for step-by-step explanations
+### Advanced File Processing
+- **Document Analysis**: Deep understanding of complex documents
+- **Content Extraction**: Intelligent text and data extraction
+- **Summarization**: Comprehensive document summarization
 
-### Safety and Ethics
-- Claude has built-in safety measures
-- Refuses harmful or inappropriate requests
-- Provides balanced, thoughtful responses
-- Good for sensitive or ethical topics
+### MCP Connector
+- **Direct Integration**: Connect to MCP servers without separate client
+- **OAuth Support**: Secure authentication with external services
+- **Tool Filtering**: Control which tools are available to Claude
 
-### Performance Optimization
-- Use appropriate model for task complexity
-- Implement caching for repeated queries
-- Monitor token usage
-- Use streaming for better UX
+## Usage Examples
 
-## 🔧 Configuration Examples
-
-### Basic Configuration
+### Extended Thinking
 ```dart
-final provider = await ai()
-    .anthropic()
-    .apiKey(apiKey)
-    .model('claude-3-5-haiku-20241022')
-    .temperature(0.7)
-    .maxTokens(1000)
-    .build();
+final provider = await ai().anthropic().apiKey('your-key')
+    .model('claude-sonnet-4-20250514').build();
+
+final response = await provider.chat([
+  ChatMessage.user('Solve this logic puzzle step by step'),
+]);
+
+// Access Claude's thinking process
+if (response.thinking != null) {
+  print('Claude\'s reasoning: ${response.thinking}');
+}
 ```
 
-### Advanced Configuration
+### File Processing
+```dart
+final provider = await ai().anthropic().apiKey('your-key')
+    .buildFileManagement();
+
+// Upload and analyze document
+final fileObject = await provider.uploadFile(FileUploadRequest(
+  file: documentBytes,
+  purpose: FilePurpose.assistants,
+));
+
+final analysis = await provider.chat([
+  ChatMessage.user('Analyze this document: ${fileObject.id}'),
+]);
+```
+
+### MCP Connector
 ```dart
 final provider = await ai()
-    .anthropic()
-    .apiKey(apiKey)
+    .anthropic((anthropic) => anthropic
+        .mcpServers([
+          AnthropicMCPServer.url(
+            name: 'file-server',
+            url: 'https://example.com/mcp',
+            authorizationToken: 'your-oauth-token',
+          ),
+        ]))
+    .apiKey('your-key')
     .model('claude-sonnet-4-20250514')
-    .temperature(0.3)
-    .maxTokens(4000)
-    .systemPrompt('You are an expert analyst.')
-    .timeout(Duration(seconds: 60))
     .build();
+
+final response = await provider.chat([
+  ChatMessage.user('Use the file server to read my documents'),
+]);
 ```
 
-## 📊 Feature Support Matrix
+## Next Steps
 
-| Feature | Haiku | Sonnet | Opus |
-|---------|-------|--------|------|
-| Text Generation | ✅ | ✅ | ✅ |
-| Function Calling | ✅ | ✅ | ✅ |
-| Vision | ✅ | ✅ | ✅ |
-| File Processing | ✅ | ✅ | ✅ |
-| Extended Thinking | ⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| Complex Reasoning | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-
-## 🎯 Unique Strengths
-
-### Advanced Reasoning
-- Step-by-step problem solving
-- Complex logical analysis
-- Mathematical reasoning
-- Ethical considerations
-
-### Safety Focus
-- Refuses harmful requests
-- Balanced perspectives
-- Ethical guidelines
-- Responsible AI behavior
-
-### Extended Context
-- Large context windows (200K tokens)
-- Long document processing
-- Conversation memory
-- Complex multi-turn dialogues
-
-### Thinking Process
-- Access to reasoning steps
-- Transparent decision making
-- Problem decomposition
-- Verification and checking
-
-## 🔗 Related Examples
-
-- **Core Features**: [Chat Basics](../../02_core_features/chat_basics.dart)
-- **Advanced**: [Reasoning Models](../../03_advanced_features/reasoning_models.dart)
-- **Comparison**: [Provider Comparison](../../01_getting_started/provider_comparison.dart)
-
-## 📖 External Resources
-
-- [Anthropic API Documentation](https://docs.anthropic.com/)
-- [Claude Model Guide](https://docs.anthropic.com/claude/docs/models-overview)
-- [Prompt Engineering Guide](https://docs.anthropic.com/claude/docs/prompt-engineering)
-- [Safety Guidelines](https://www.anthropic.com/safety)
-
----
-
-**💡 Tip**: Claude excels at reasoning and analysis. Use it for complex problems that require step-by-step thinking!
+- [Core Features](../../02_core_features/) - Basic chat and streaming
+- [Advanced Features](../../03_advanced_features/) - Cross-provider capabilities

@@ -20,3 +20,13 @@
 
 <!-- List main changes -->
 -
+
+## Checklist
+
+Before marking this PR as ready for review, please ensure you have:
+
+- [ ] ✅ Run `dart analyze` and fixed all issues
+- [ ] 🧪 Run `dart test` and all tests pass
+- [ ] 📝 Added tests for new features (if applicable)
+- [ ] 📚 Updated documentation (if applicable)
+- [ ] 🔍 Tested with real API keys (if applicable)

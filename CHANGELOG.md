@@ -7,6 +7,163 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Anthropic MCP Connector**: Native support for Anthropic's Model Context Protocol connector
+  - `AnthropicMCPServer` - Configuration for remote MCP servers with OAuth support
+  - `AnthropicMCPToolConfiguration` - Fine-grained tool filtering and access control
+  - `AnthropicMCPToolUse` and `AnthropicMCPToolResult` - Specialized content blocks for MCP interactions
+  - Automatic beta header injection (`anthropic-beta: mcp-client-2025-04-04`) when MCP servers are configured
+  - Convenience methods: `mcpServers()` and `withMcpServers()` for easy configuration
+  - Support for URL-based MCP servers with authentication tokens
+  - Distinct from general MCP protocol - provides direct integration with Anthropic's API
+  - Example implementation in `example/04_providers/anthropic/mcp_connector.dart`
+
+- **Provider-Specific Builder Pattern**: Complete migration of provider-specific parameters
+  - `ElevenLabsBuilder` - Dedicated builder for ElevenLabs TTS parameters (`voiceId`, `stability`, `similarityBoost`, `style`, `useSpeakerBoost`)
+  - `OpenAIBuilder` - Dedicated builder for OpenAI-specific parameters (`frequencyPenalty`, `presencePenalty`, `logitBias`, `seed`, `parallelToolCalls`, `logprobs`, `topLogprobs`) and web search methods
+  - `OllamaBuilder` - Dedicated builder for Ollama-specific parameters (`numCtx`, `numGpu`, `numThread`, `numa`, `numBatch`, `keepAlive`, `raw`)
+  - `AnthropicBuilder` - Dedicated builder for Anthropic-specific parameters (`metadata`, `container`, `mcpServers`)
+  - Cleaner separation of concerns between generic and provider-specific configurations
+  - Consistent callback-style configuration pattern across all providers
+
+- **Google Embeddings Support**: Full embedding capability for Google provider
+  - `GoogleLLMBuilder` class for Google-specific embedding parameters
+  - Support for task types (`SEMANTIC_SIMILARITY`, `RETRIEVAL_QUERY`, `RETRIEVAL_DOCUMENT`, etc.)
+  - Embedding dimensions configuration and document title support
+  - Convenience methods for common embedding tasks (`forSemanticSimilarity()`, `forDocumentRetrieval()`)
+  - Integrated callback configuration in `LLMBuilder.google()` method
+
+- **Layered HTTP Configuration**: New organized approach to HTTP settings configuration
+  - `HttpConfig` class for clean, organized HTTP settings management
+  - Unified HTTP configuration across all providers with consistent API
+  - Support for proxy configuration, custom headers, SSL settings, and timeouts
+  - HTTP request/response logging for debugging and development
+  - `LLMBuilder.http()` method for layered configuration instead of flat methods
+
+- **HTTP Configuration Utils**: Centralized HTTP configuration management
+  - `HttpConfigUtils` class for unified Dio instance creation with advanced settings
+  - Support for corporate proxy environments and custom SSL certificates
+
+### Fixed
+
+- **Web Search Functionality**: Complete fix for previously non-functional `enableWebSearch()` method
+  - **xAI Provider**: Fixed `webSearchEnabled` extension processing in `XAIConfig.fromLLMConfig()`
+    - Now properly converts `webSearchEnabled` flag to `liveSearch` activation with default `SearchParameters`
+    - Added automatic conversion of `webSearchConfig` to xAI-specific `SearchParameters`
+    - Enables Live Search with proper mode, sources, and result limit configuration
+  - **Anthropic Provider**: Added missing web search support in `AnthropicConfig.fromLLMConfig()`
+    - Now processes `webSearchEnabled` flag to automatically add `web_search` tool
+    - Converts `webSearchConfig` to Anthropic's `web_search_20250305` tool specification
+    - Supports domain filtering, location-based search, and usage limits
+  - **OpenAI Provider**: Enhanced `OpenAIProviderFactory._transformConfig()` with search model switching
+    - Automatically switches to search-enabled models (e.g., `gpt-4o` → `gpt-4o-search-preview`) when `webSearchEnabled` is true
+    - Supports model mapping for both standard and mini variants
+    - Handles `webSearchConfig` for context size control
+  - **OpenRouter Provider**: Added web search support in `OpenAICompatibleProviderFactory._transformConfig()`
+    - Automatically adds `:online` suffix to models when `webSearchEnabled` is true
+    - Supports both simple activation and advanced plugin configuration
+  - **Universal Fix**: All providers now properly handle both `enableWebSearch()` method and `webSearchConfig` extensions
+  - **Backward Compatibility**: Existing `webSearch()`, `newsSearch()`, and provider-specific methods continue to work unchanged
+
+### Changed
+
+- **Anthropic MCP Models Reorganization**: Moved MCP-related classes to provider-specific location
+  - Removed generic `MCPServer` and `MCPToolConfiguration` from `lib/models/chat_models.dart`
+  - Created `lib/providers/anthropic/mcp_models.dart` with Anthropic-prefixed classes
+  - All MCP classes now clearly identified as Anthropic-specific (`AnthropicMCPServer`, `AnthropicMCPToolConfiguration`, etc.)
+  - Prevents confusion with general MCP protocol implementations
+  - Updated all imports and references to use new Anthropic-specific models
+
+- **LLMBuilder API Cleanup**: Removed provider-specific methods from main builder
+  - Moved ElevenLabs-specific methods (`voiceId`, `stability`, `similarityBoost`, `style`, `useSpeakerBoost`) to `ElevenLabsBuilder`
+  - Moved OpenAI-specific methods (`frequencyPenalty`, `presencePenalty`, `logitBias`, `seed`, `parallelToolCalls`, `logprobs`, `topLogprobs`) to `OpenAIBuilder`
+  - Moved Ollama-specific methods (`numCtx`, `numGpu`, `numThread`, `numa`, `numBatch`, `keepAlive`, `raw`) to `OllamaBuilder`
+  - Moved Anthropic-specific methods (`metadata`, `container`, `mcpServers`) to `AnthropicBuilder`
+  - Moved provider-specific web search methods (`openaiWebSearch`, `openRouterWebSearch`, `perplexityWebSearch`) to respective builders
+  - Main `LLMBuilder` now focuses on universal parameters and provider selection
+
+- **Provider Configuration Pattern**: Unified callback-style configuration across all providers
+  - `LLMBuilder.openai()` now accepts optional configuration callback for OpenAI-specific parameters
+  - `LLMBuilder.anthropic()` now accepts optional configuration callback for Anthropic-specific parameters
+  - `LLMBuilder.ollama()` now accepts optional configuration callback for Ollama-specific parameters
+  - `LLMBuilder.elevenlabs()` now accepts optional configuration callback for ElevenLabs-specific parameters
+  - Consistent API pattern following Google provider implementation
+
+- **Google Provider Configuration**: Consolidated callback configuration methods
+  - Removed redundant `googleConfig()` method in favor of unified `google()` callback approach
+  - `LLMBuilder.google()` now accepts optional configuration callback for provider-specific parameters
+  - Maintains backward compatibility while providing cleaner API surface
+
+- **BaseHttpProvider**: Cleaned up unused code and modernized implementation
+  - Removed unused `createDio()` method that was not used by any provider
+  - Enhanced `createConfiguredDio()` method to use new `HttpConfigUtils`
+  - Updated to use modern Dio API patterns and best practices
+
+### Migration Guide
+
+- **Web Search Functionality**: No migration required - previously broken functionality now works
+  - **`enableWebSearch()` method**: Now functional across all providers (was previously ignored)
+    - xAI: Automatically enables Live Search with default parameters
+    - Anthropic: Automatically adds web_search tool to tool list
+    - OpenAI: Automatically switches to search-enabled model variants
+    - OpenRouter: Automatically adds `:online` suffix to model names
+  - **Existing code**: All existing web search code continues to work unchanged
+  - **New functionality**: `enableWebSearch()` can now be used as a simple, universal web search activation method
+
+- **Anthropic MCP Models**: Update imports and class references
+  - **Before**: `import '../../models/chat_models.dart'; MCPServer(...)`
+  - **After**: `import 'package:llm_dart/providers/anthropic/mcp_models.dart'; AnthropicMCPServer(...)`
+  - All MCP classes now have `Anthropic` prefix to distinguish from general MCP protocol
+  - Update constructor calls: `MCPServer.url()` → `AnthropicMCPServer.url()`
+
+- **Provider-Specific Parameters**: Update usage to new callback-style configuration
+  - **Before**: `ai().elevenlabs().voiceId('voice-123').stability(0.5).build()`
+  - **After**: `ai().elevenlabs((elevenlabs) => elevenlabs.voiceId('voice-123').stability(0.5)).build()`
+  - **Before**: `ai().openai().seed(12345).frequencyPenalty(0.5).build()`
+  - **After**: `ai().openai((openai) => openai.seed(12345).frequencyPenalty(0.5)).build()`
+  - **Before**: `ai().ollama().numCtx(4096).keepAlive('10m').build()`
+  - **After**: `ai().ollama((ollama) => ollama.numCtx(4096).keepAlive('10m')).build()`
+  - **Before**: `ai().anthropic().metadata({'user': 'test'}).build()`
+  - **After**: `ai().anthropic((anthropic) => anthropic.metadata({'user': 'test'})).build()`
+  - **Before**: `ai().openRouter().openRouterWebSearch(maxResults: 5).build()`
+  - **After**: `ai().openRouter((openrouter) => openrouter.webSearch(maxResults: 5)).build()`
+
+### Examples
+
+- **Anthropic MCP Connector Examples**: Complete demonstration of MCP connector functionality
+  - `example/04_providers/anthropic/mcp_connector.dart` - Comprehensive MCP connector usage examples
+  - Basic MCP server configuration with URL-based servers
+  - Multiple MCP servers with different configurations and tool filtering
+  - OAuth authentication with access tokens for secure MCP servers
+  - Updated Anthropic provider README with MCP connector documentation
+
+- **HTTP Configuration Examples**: Comprehensive demonstration of new layered approach
+  - `http_configuration.dart` - Complete HTTP configuration examples with all features
+  - `layered_http_config.dart` - New layered configuration approach demonstration
+- **Provider-Specific Builder Examples**: Updated examples demonstrating new callback-style configuration
+  - All provider examples updated to use new builder pattern
+  - Consistent API across all providers with provider-specific capabilities
+
+## [0.5.0] - 2025-6-11
+
+### Added
+
+- New examples and restructured the example directory for better clarity.
+- **Comprehensive Test Suite**: Added extensive test coverage for core functionality
+- **UTF-8 Stream Decoder**: Robust handling of multi-byte characters in streaming responses
+  - `Utf8StreamDecoder` class for intelligent buffering of incomplete UTF-8 byte sequences
+  - Prevents `FormatException: Unfinished UTF-8 octet sequence` errors in streaming
+
+### Fixed
+
+- **UTF-8 Streaming Issues**: Complete resolution of multi-byte character encoding problems
+  - Fixed garbled text output (e.g., `ä½ æ` → `你好`) in streaming responses
+  - Updated all provider clients (OpenAI, Anthropic, DeepSeek, Groq, Google, xAI, Ollama) to use UTF-8 stream decoder
+  - Proper handling of Chinese, Japanese, Korean, Arabic, and emoji characters in streams
+  - Eliminated `FormatException: Unfinished UTF-8 octet sequence` errors when multi-byte characters are split across network chunks
+- **BaseProviderFactory**: Improved validation logic in `validateConfigWithDetails` method
+
 ## [0.4.0] - 2025-6-11
 
 ### Added

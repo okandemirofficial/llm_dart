@@ -1,161 +1,143 @@
-# 🟡 Core Features
+# Core Features
 
-Master the essential functionality of LLM Dart. These examples cover the most important features you'll use in real applications.
+Essential functionality for building AI applications with LLM Dart.
 
-## 📚 Learning Path
+## Examples
 
-### Step 1: Master Basic Chat
-**[chat_basics.dart](chat_basics.dart)** - Foundation of all AI interactions
-- Simple conversations
-- Message history management
-- Response handling
-- Usage statistics
+### [capability_factory_methods.dart](capability_factory_methods.dart)
+Type-safe provider initialization using specialized build methods.
 
-### Step 2: Real-time Streaming
-**[streaming_chat.dart](streaming_chat.dart)** - Live response streaming
-- Stream events handling
-- Real-time UI updates
-- Performance optimization
-- Error recovery
+### [assistants.dart](assistants.dart)
+AI assistants creation, management, and tool integration.
 
-### Step 3: Tool Integration
-**[tool_calling.dart](tool_calling.dart)** - Function calling and execution
-- Define custom functions
-- Handle tool calls
-- Multi-step workflows
-- Error handling in tools
+### [embeddings.dart](embeddings.dart)
+Text embeddings for semantic search and similarity analysis.
 
-### Step 4: Structured Data
-**[structured_output.dart](structured_output.dart)** - JSON and schema output
-- JSON schema definition
-- Data validation
-- Type-safe responses
-- Complex data structures
+### [file_management.dart](file_management.dart)
+File upload, download, and management for AI workflows.
 
-### Step 5: Provider Capabilities
-**[capability_detection.dart](capability_detection.dart)** - Discover provider features
-- Check supported capabilities
-- Compare provider features
-- Capability-based provider selection
-- Feature availability validation
+### [chat_basics.dart](chat_basics.dart)
+Foundation of AI interactions - messages, context, and responses.
 
-### Step 6: Model Discovery
-**[model_listing.dart](model_listing.dart)** - Explore available models
-- List available models
-- Filter models by type
-- Model metadata inspection
-- Provider-specific model features
+### [streaming_chat.dart](streaming_chat.dart)
+Real-time response streaming for better user experience.
 
-### Step 7: Web Search Integration
-**[web_search.dart](web_search.dart)** - Unified web search across providers
-- Real-time web search capabilities
-- Provider-agnostic search API
-- News search and filtering
-- Location-based search results
-- Domain filtering and customization
+### [tool_calling.dart](tool_calling.dart)
+Function calling - let AI execute custom functions.
 
-### Step 8: Production Ready
-**[error_handling.dart](error_handling.dart)** - Robust error management
-- Error types and handling
-- Retry strategies
-- Graceful degradation
-- Monitoring and logging
+### [structured_output.dart](structured_output.dart)
+JSON schema output with validation.
 
-## 🎯 What You'll Master
+### [audio_processing.dart](audio_processing.dart)
+Text-to-speech and speech-to-text capabilities.
 
-After completing these examples, you'll be able to:
+### [image_generation.dart](image_generation.dart)
+AI-powered image creation and editing.
 
-- ✅ Build conversational AI applications
-- ✅ Create real-time streaming interfaces
-- ✅ Integrate AI with external tools and APIs
-- ✅ Handle structured data and validation
-- ✅ Discover and compare provider capabilities
-- ✅ Explore and select appropriate models
-- ✅ Implement web search across providers
-- ✅ Build production-ready error handling
+### [error_handling.dart](error_handling.dart)
+Production-ready error management patterns.
 
-## 🚀 Running Examples
+## Setup
 
 ```bash
-# Set your preferred provider's API key
-export OPENAI_API_KEY="your-key"
-export GROQ_API_KEY="your-key"
-export ANTHROPIC_API_KEY="your-key"
+# Set up environment variables
+export OPENAI_API_KEY="your-openai-key"
+export ANTHROPIC_API_KEY="your-anthropic-key"
+export GOOGLE_API_KEY="your-google-key"
 
-# Run examples in order
+# Run core feature examples
+dart run capability_factory_methods.dart
+dart run assistants.dart
+dart run embeddings.dart
+dart run file_management.dart
 dart run chat_basics.dart
 dart run streaming_chat.dart
 dart run tool_calling.dart
-dart run structured_output.dart
-dart run capability_detection.dart
-dart run model_listing.dart
-dart run web_search.dart
-dart run error_handling.dart
 ```
 
-## 💡 Key Concepts
+## Key Concepts
 
-### Chat Basics
-- **Messages**: User, assistant, and system messages
-- **Context**: Maintaining conversation history
-- **Responses**: Text, usage statistics, and metadata
+### Capability-Based Architecture
+- **Type Safety**: Use specialized build methods (`buildChat()`, `buildAssistant()`, `buildEmbedding()`)
+- **Provider Abstraction**: Unified interface across different AI providers
+- **Capability Detection**: Automatic feature detection and validation
 
-### Streaming
-- **Events**: Text deltas, tool calls, completion events
-- **Performance**: Reduced perceived latency
-- **UX**: Real-time feedback for users
+### Core Capabilities
+- **Chat**: Messages, context, and response handling
+- **Assistants**: Persistent AI assistants with tools and memory
+- **Embeddings**: Vector representations for semantic search
+- **File Management**: Upload, download, and organize files for AI workflows
+- **Streaming**: Real-time response delivery
+- **Tools**: Function calling and execution
+- **Structured Output**: JSON schema validation
+- **Error Handling**: Production-ready error management
 
-### Tool Calling
-- **Functions**: Define what the AI can do
-- **Parameters**: Structured input validation
-- **Execution**: Safe function calling
-- **Results**: Feeding results back to AI
+## Usage Examples
 
-### Structured Output
-- **Schemas**: JSON schema definitions
-- **Validation**: Automatic data validation
-- **Types**: Type-safe data handling
-- **Complex Data**: Nested objects and arrays
+### Basic Chat
+```dart
+// Type-safe provider initialization
+final provider = await ai().openai().apiKey('your-key').buildChat();
 
-### Capability Detection
-- **Discovery**: Check what features a provider supports
-- **Comparison**: Compare capabilities across providers
-- **Selection**: Choose providers based on required features
-- **Validation**: Ensure features are available before use
+// Simple conversation
+final response = await provider.chat([
+  ChatMessage.user('Hello, how are you?'),
+]);
+print(response.text);
+```
 
-### Model Listing
-- **Discovery**: Find available models from providers
-- **Filtering**: Filter models by type and capability
-- **Metadata**: Access model information and ownership
-- **Selection**: Choose appropriate models for tasks
+### Assistant with Tools
+```dart
+// Create assistant with tools
+final assistant = await provider.createAssistant(CreateAssistantRequest(
+  model: 'gpt-4',
+  name: 'Code Helper',
+  instructions: 'You are a helpful coding assistant.',
+  tools: [CodeInterpreterTool(), FileSearchTool()],
+));
+```
 
-### Web Search
-- **Unified API**: Same interface across all providers
-- **Provider Adaptation**: Automatic translation to provider-specific formats
-- **Rich Configuration**: Domain filtering, location-based search, context control
-- **Multiple Sources**: Web, news, academic sources
+### File Management
+```dart
+// Upload file for AI processing
+final fileBytes = await File('document.pdf').readAsBytes();
+final fileObject = await provider.uploadFile(FileUploadRequest(
+  file: Uint8List.fromList(fileBytes),
+  purpose: FilePurpose.assistants,
+  filename: 'document.pdf',
+));
+```
 
-### Error Handling
-- **Types**: Authentication, rate limits, network errors
-- **Recovery**: Retry logic and fallbacks
-- **Monitoring**: Logging and alerting
-- **UX**: Graceful error messages
+### Embeddings for Search
+```dart
+// Generate embeddings for semantic search
+final embeddings = await provider.embed([
+  'Machine learning fundamentals',
+  'Deep learning neural networks',
+  'Natural language processing',
+]);
+```
 
-## 📖 Next Steps
+## Best Practices
 
-After mastering core features:
+### Type Safety
+- Always use specialized build methods (`buildChat()`, `buildAssistant()`, etc.)
+- Handle null values properly with null-aware operators (`?.`, `!`)
+- Use proper error handling with try-catch blocks
 
-1. **[Advanced Features](../03_advanced_features/)** - Reasoning, multi-modal, custom providers
-2. **[Use Cases](../05_use_cases/)** - Real-world application examples
-3. **[Provider Specific](../04_providers/)** - Deep dive into specific providers
-4. **[Integration](../06_integration/)** - Flutter, web, CLI integration
+### Resource Management
+- Dispose of streams and controllers when done
+- Close file handles and network connections
+- Use proper async/await patterns
 
-## 🔗 Related Examples
+### Performance
+- Use streaming for long responses
+- Implement proper caching for embeddings
+- Handle rate limits gracefully
 
-- **Beginner**: [Getting Started](../01_getting_started/) - Basic setup and provider comparison
-- **Advanced**: [Reasoning Models](../03_advanced_features/reasoning_models.dart) - AI thinking processes
-- **Real-world**: [Chatbot](../05_use_cases/chatbot.dart) - Complete chatbot implementation
+## Next Steps
 
----
-
-**💡 Tip**: These core features form the foundation of most AI applications. Master them before moving to advanced topics!
+- [Advanced Features](../03_advanced_features/) - Batch processing, real-time audio, semantic search
+- [Provider Examples](../04_providers/) - Provider-specific features and optimizations
+- [Use Cases](../05_use_cases/) - Complete applications and Flutter integration
+- [Getting Started](../01_getting_started/) - Environment setup and configuration

@@ -48,7 +48,6 @@ void main() async {
   await demonstrateCapabilityValidation(providers);
 
   print('\n✅ Capability detection completed!');
-  print('📖 Next: Try model_listing.dart to explore available models');
 }
 
 /// Create multiple providers for capability comparison

@@ -47,25 +47,23 @@ abstract class BaseProviderFactory<T extends ChatCapability>
 
   /// Enhanced validation with detailed error messages
   void validateConfigWithDetails(LLMConfig config) {
-    if (!validateConfig(config)) {
-      final errors = <String>[];
+    final errors = <String>[];
 
-      if (requiresApiKey && (config.apiKey == null || config.apiKey!.isEmpty)) {
-        errors.add('API key is required for $displayName');
-      }
+    if (requiresApiKey && (config.apiKey == null || config.apiKey!.isEmpty)) {
+      errors.add('API key is required for $displayName');
+    }
 
-      if (config.model.isEmpty) {
-        errors.add('Model is required');
-      }
+    if (config.model.isEmpty) {
+      errors.add('Model is required');
+    }
 
-      if (config.baseUrl.isEmpty) {
-        errors.add('Base URL is required');
-      }
+    if (config.baseUrl.isEmpty) {
+      errors.add('Base URL is required');
+    }
 
-      if (errors.isNotEmpty) {
-        throw InvalidRequestError(
-            'Invalid configuration for $displayName: ${errors.join(', ')}');
-      }
+    if (errors.isNotEmpty) {
+      throw InvalidRequestError(
+          'Invalid configuration for $displayName: ${errors.join(', ')}');
     }
   }
 
@@ -106,9 +104,17 @@ abstract class BaseProviderFactory<T extends ChatCapability>
   @override
   LLMConfig getDefaultConfig() {
     final defaults = getProviderDefaults();
+    final baseUrl = defaults['baseUrl'] as String?;
+    final model = defaults['model'] as String?;
+
+    if (baseUrl == null) {
+      throw GenericError(
+          'Provider $providerId must provide a baseUrl in getProviderDefaults()');
+    }
+
     return LLMConfig(
-      baseUrl: defaults['baseUrl'] as String,
-      model: defaults['model'] as String,
+      baseUrl: baseUrl,
+      model: model ?? 'default-model',
     );
   }
 

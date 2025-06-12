@@ -27,8 +27,6 @@ void main() async {
   await demonstrateProviderChaining();
 
   print('\n✅ Custom providers completed!');
-  print(
-      '📖 Next: Try performance_optimization.dart for production optimization');
 }
 
 /// Demonstrate a mock provider for testing

@@ -4,7 +4,7 @@ import '../../models/tool_models.dart';
 import 'chat.dart';
 import 'client.dart';
 import 'config.dart';
-import 'embedding.dart';
+import 'embeddings.dart';
 
 /// xAI Provider implementation
 ///

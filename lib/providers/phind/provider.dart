@@ -10,7 +10,7 @@ import 'config.dart';
 /// This is the main provider class that implements the ChatCapability interface
 /// and delegates to specialized modules for different functionalities.
 /// Phind is specialized for coding tasks and development assistance.
-class PhindProvider implements ChatCapability {
+class PhindProvider implements ChatCapability, ProviderCapabilities {
   final PhindConfig config;
   final PhindClient client;
 
@@ -22,6 +22,22 @@ class PhindProvider implements ChatCapability {
   }
 
   String get providerName => 'Phind';
+
+  // ========== ProviderCapabilities ==========
+
+  @override
+  Set<LLMCapability> get supportedCapabilities => {
+        LLMCapability.chat,
+        LLMCapability.streaming,
+        LLMCapability.toolCalling,
+        if (config.supportsVision) LLMCapability.vision,
+        if (config.supportsReasoning) LLMCapability.reasoning,
+      };
+
+  @override
+  bool supports(LLMCapability capability) {
+    return supportedCapabilities.contains(capability);
+  }
 
   @override
   Future<ChatResponse> chatWithTools(

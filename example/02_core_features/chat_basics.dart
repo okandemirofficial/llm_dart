@@ -36,7 +36,6 @@ void main() async {
   await demonstrateContextManagement(provider);
 
   print('\n✅ Chat basics completed!');
-  print('📖 Next: Try streaming_chat.dart for real-time responses');
 }
 
 /// Demonstrate basic chat functionality

@@ -138,13 +138,14 @@ class OllamaConfig {
 
   /// Get the model family
   String get modelFamily {
+    // Check more specific models first
+    if (model.contains('codellama')) return 'Code Llama';
+    if (model.contains('llava')) return 'LLaVA';
     if (model.contains('llama')) return 'Llama';
     if (model.contains('mistral')) return 'Mistral';
     if (model.contains('qwen')) return 'Qwen';
     if (model.contains('phi')) return 'Phi';
     if (model.contains('gemma')) return 'Gemma';
-    if (model.contains('codellama')) return 'Code Llama';
-    if (model.contains('llava')) return 'LLaVA';
     return 'Unknown';
   }
 

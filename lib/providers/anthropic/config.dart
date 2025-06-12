@@ -2,6 +2,7 @@ import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
 import '../../core/config.dart';
 import '../../core/provider_defaults.dart';
+import '../../core/web_search.dart';
 
 /// Anthropic provider configuration
 ///
@@ -64,6 +65,22 @@ class AnthropicConfig {
 
   /// Create AnthropicConfig from unified LLMConfig
   factory AnthropicConfig.fromLLMConfig(LLMConfig config) {
+    // Handle web search configuration
+    List<Tool>? tools = config.tools;
+
+    // Check for webSearchEnabled flag
+    final webSearchEnabled = config.getExtension<bool>('webSearchEnabled');
+    if (webSearchEnabled == true) {
+      tools = _addWebSearchTool(tools, null);
+    }
+
+    // Check for webSearchConfig and convert to web_search tool
+    final webSearchConfig =
+        config.getExtension<WebSearchConfig>('webSearchConfig');
+    if (webSearchConfig != null) {
+      tools = _addWebSearchTool(tools, webSearchConfig);
+    }
+
     return AnthropicConfig(
       apiKey: config.apiKey!,
       baseUrl: config.baseUrl,
@@ -75,7 +92,7 @@ class AnthropicConfig {
 
       topP: config.topP,
       topK: config.topK,
-      tools: config.tools,
+      tools: tools,
       toolChoice: config.toolChoice,
       // Common parameters
       stopSequences: config.stopSequences,
@@ -91,6 +108,40 @@ class AnthropicConfig {
     );
   }
 
+  /// Add web search tool to the tools list
+  static List<Tool> _addWebSearchTool(
+      List<Tool>? existingTools, WebSearchConfig? config) {
+    final tools = List<Tool>.from(existingTools ?? []);
+
+    // Check if web search tool already exists
+    final hasWebSearchTool =
+        tools.any((tool) => tool.function.name == 'web_search');
+    if (hasWebSearchTool) {
+      return tools; // Don't add duplicate
+    }
+
+    // Create web search tool based on Anthropic's specification
+    // Note: For Anthropic, we need to create a special tool that will be handled differently
+    // in the chat implementation to use the web_search_20250305 tool type
+    final webSearchTool = Tool.function(
+      name: 'web_search',
+      description: 'Search the web for current information',
+      parameters: ParametersSchema(
+        schemaType: 'object',
+        properties: {
+          'query': ParameterProperty(
+            propertyType: 'string',
+            description: 'The search query to execute',
+          ),
+        },
+        required: ['query'],
+      ),
+    );
+
+    tools.add(webSearchTool);
+    return tools;
+  }
+
   /// Get extension value from original config
   T? getExtension<T>(String key) => _originalConfig?.getExtension<T>(key);
 
@@ -98,29 +149,27 @@ class AnthropicConfig {
   ///
   /// **Reference:** https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking
   ///
-  /// Based on official Anthropic documentation, extended thinking is supported in:
+  /// Known reasoning models include:
   /// - Claude Opus 4 (claude-opus-4-20250514)
   /// - Claude Sonnet 4 (claude-sonnet-4-20250514)
   /// - Claude Sonnet 3.7 (claude-3-7-sonnet-20250219)
-  ///
-  /// Note: The exact model names may vary, so we check patterns
   bool get supportsReasoning {
     return model == 'claude-opus-4-20250514' ||
         model == 'claude-sonnet-4-20250514' ||
         model == 'claude-3-7-sonnet-20250219' ||
         model.contains('claude-3-7-sonnet') ||
-        model.contains('claude-4') ||
         model.contains('claude-opus-4') ||
-        model.contains('claude-sonnet-4') ||
-        reasoning; // Allow explicit override
+        model.contains('claude-sonnet-4');
   }
 
   /// Check if this model supports vision
   ///
   /// **Reference:** https://docs.anthropic.com/en/docs/build-with-claude/vision
   bool get supportsVision {
-    // Most Claude 3+ models support vision
-    return model.contains('claude-3') || model.contains('claude-4');
+    // Most Claude 3+ models support vision, including the new naming scheme
+    return model.contains('claude-3') ||
+        model.contains('claude-opus-4') ||
+        model.contains('claude-sonnet-4');
   }
 
   /// Check if this model supports tool calling
@@ -135,16 +184,17 @@ class AnthropicConfig {
   ///
   /// **Reference:** https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking
   bool get supportsInterleavedThinking {
-    // Only Claude 4 models support interleaved thinking
-    return model.contains('claude-4');
+    return model.contains('claude-opus-4') || model.contains('claude-sonnet-4');
   }
 
   /// Check if this model supports PDF documents
   ///
   /// **Reference:** https://docs.anthropic.com/en/docs/build-with-claude/pdf-support
   bool get supportsPDF {
-    // Claude 3+ models support PDF documents
-    return model.contains('claude-3') || model.contains('claude-4');
+    // Claude 3+ models support PDF documents, including the new naming scheme
+    return model.contains('claude-3') ||
+        model.contains('claude-opus-4') ||
+        model.contains('claude-sonnet-4');
   }
 
   /// Get the maximum thinking budget tokens for this model
@@ -158,17 +208,12 @@ class AnthropicConfig {
   }
 
   /// Validate thinking configuration
+  ///
+  /// This validation is now more permissive, trusting user configuration
+  /// while still providing helpful warnings for obvious misconfigurations.
   String? validateThinkingConfig() {
-    if (reasoning && !supportsReasoning) {
-      return 'Model $model does not support extended thinking. '
-          'Supported models: claude-opus-4-20250514, claude-sonnet-4-20250514, claude-3-7-sonnet-20250219';
-    }
-
-    if (interleavedThinking && !supportsInterleavedThinking) {
-      return 'Model $model does not support interleaved thinking. '
-          'Only Claude 4 models support this feature.';
-    }
-
+    // Only validate budget constraints, not model capabilities
+    // since users may know better about their specific model setup
     if (thinkingBudgetTokens != null) {
       if (thinkingBudgetTokens! < 1024) {
         return 'Thinking budget tokens must be at least 1024, got $thinkingBudgetTokens';
@@ -179,7 +224,7 @@ class AnthropicConfig {
       }
     }
 
-    return null; // Valid
+    return null; // Valid - trust user configuration for model capabilities
   }
 
   AnthropicConfig copyWith({

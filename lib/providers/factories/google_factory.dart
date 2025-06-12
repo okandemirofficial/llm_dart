@@ -1,12 +1,11 @@
 import '../../core/capability.dart';
 import '../../core/config.dart';
-import '../../core/registry.dart';
-import '../../models/tool_models.dart';
-import '../../models/chat_models.dart';
+import '../../core/provider_defaults.dart';
 import '../google/google.dart';
+import 'base_factory.dart';
 
 /// Factory for creating Google (Gemini) provider instances
-class GoogleProviderFactory implements LLMProviderFactory<ChatCapability> {
+class GoogleProviderFactory extends BaseProviderFactory<ChatCapability> {
   @override
   String get providerId => 'google';
 
@@ -29,56 +28,20 @@ class GoogleProviderFactory implements LLMProviderFactory<ChatCapability> {
 
   @override
   ChatCapability create(LLMConfig config) {
-    final googleConfig = _transformConfig(config);
-    return GoogleProvider(googleConfig);
-  }
-
-  @override
-  bool validateConfig(LLMConfig config) {
-    // Google requires an API key
-    return config.apiKey != null && config.apiKey!.isNotEmpty;
-  }
-
-  @override
-  LLMConfig getDefaultConfig() {
-    return LLMConfig(
-      baseUrl: 'https://generativelanguage.googleapis.com/v1beta/',
-      model: 'gemini-1.5-flash',
+    return createProviderSafely<GoogleConfig>(
+      config,
+      () => _transformConfig(config),
+      (googleConfig) => GoogleProvider(googleConfig),
     );
+  }
+
+  @override
+  Map<String, dynamic> getProviderDefaults() {
+    return ProviderDefaults.getDefaults('google');
   }
 
   /// Transform unified config to Google-specific config
   GoogleConfig _transformConfig(LLMConfig config) {
-    return GoogleConfig(
-      apiKey: config.apiKey!,
-      baseUrl: config.baseUrl,
-      model: config.model,
-      maxTokens: config.maxTokens,
-      temperature: config.temperature,
-      systemPrompt: config.systemPrompt,
-      timeout: config.timeout,
-
-      topP: config.topP,
-      topK: config.topK,
-      tools: config.tools,
-      // Google-specific extensions
-      jsonSchema: config.getExtension<StructuredOutputFormat>('jsonSchema'),
-      reasoningEffort: config.getExtension<ReasoningEffort>('reasoningEffort'),
-      thinkingBudgetTokens: config.getExtension<int>('thinkingBudgetTokens'),
-      // For Google API, includeThoughts should be true when reasoning is enabled
-      // or when explicitly set via extension
-      includeThoughts: config.getExtension<bool>('includeThoughts') ??
-          (config.getExtension<bool>('reasoning') == true ? true : null),
-      enableImageGeneration: config.getExtension<bool>('enableImageGeneration'),
-      responseModalities:
-          config.getExtension<List<String>>('responseModalities'),
-      safetySettings:
-          config.getExtension<List<SafetySetting>>('safetySettings'),
-      maxInlineDataSize:
-          config.getExtension<int>('maxInlineDataSize') ?? 20 * 1024 * 1024,
-      candidateCount: config.getExtension<int>('candidateCount'),
-      stopSequences: config.getExtension<List<String>>('stopSequences'),
-      originalConfig: config,
-    );
+    return GoogleConfig.fromLLMConfig(config);
   }
 }

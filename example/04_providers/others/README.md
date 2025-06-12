@@ -1,78 +1,64 @@
-# 🔧 Other Providers Examples
+# Other Provider Integrations
 
-Additional AI providers and specialized integrations.
+OpenAI-compatible providers and specialized integrations.
 
-## 📁 Examples
+## Examples
 
-### 🚀 [xai_grok.dart](xai_grok.dart)
+### [openai_compatible.dart](openai_compatible.dart)
+Unified interface for multiple OpenAI-compatible providers.
 
-**X.AI Grok Integration**
-- Grok model access and configuration
+### [xai_grok.dart](xai_grok.dart)
+X.AI Grok integration and configuration.
 
-### 🔗 [openai_compatible.dart](openai_compatible.dart)
-
-**OpenAI-Compatible Providers Demo**
-- All OpenAI-compatible providers in one example
-- DeepSeek, Groq, xAI, OpenRouter, GitHub Copilot, Together AI
-- Provider comparison and selection
-- Unified interface demonstration
-- Fallback strategies and best practices
-
-## 🚀 Quick Start
-
-### X.AI Grok
-
-```dart
-// X.AI Grok usage
-final grokProvider = await ai()
-    .xai()
-    .apiKey('your-xai-api-key')
-    .model('grok-beta')
-    .temperature(0.7)
-    .build();
-
-final response = await grokProvider.chat([
-  ChatMessage.user('Tell me something interesting about AI!')
-]);
-```
-
-### OpenAI-Compatible Providers
-
-```dart
-// DeepSeek (OpenAI-compatible)
-final deepseek = await ai()
-    .deepseekOpenAI()
-    .apiKey('your-deepseek-key')
-    .model('deepseek-chat')
-    .build();
-
-// Groq (OpenAI-compatible)
-final groq = await ai()
-    .groqOpenAI()
-    .apiKey('your-groq-key')
-    .model('llama-3.3-70b-versatile')
-    .build();
-
-// OpenRouter
-final openrouter = await ai()
-    .openRouter()
-    .apiKey('your-openrouter-key')
-    .model('openai/gpt-4')
-    .build();
-```
-
-## � Run Examples
+## Setup
 
 ```bash
-# X.AI Grok example
-dart run xai_grok.dart
+# Set up API keys for providers you want to use
+export XAI_API_KEY="your-xai-api-key"
+export DEEPSEEK_API_KEY="your-deepseek-key"
+export GROQ_API_KEY="your-groq-key"
+export OPENROUTER_API_KEY="your-openrouter-key"
 
-# All OpenAI-compatible providers demo
+# Run provider integration examples
 dart run openai_compatible.dart
+dart run xai_grok.dart
 ```
 
-## �🔗 Related Examples
+## Unique Capabilities
+
+### OpenAI-Compatible Interface
+- **Unified API**: Same interface across multiple providers
+- **Provider Fallback**: Automatic failover between providers
+- **Cost Optimization**: Choose providers based on cost and performance
+
+### Specialized Integrations
+- **OpenRouter**: Access to multiple models through one API
+- **GitHub Copilot**: Coding assistance integration
+- **Together AI**: Open source model access
+
+## Usage Examples
+
+### Provider Fallback Strategy
+```dart
+final providers = [
+  () => ai().groqOpenAI().apiKey('groq-key').model('llama-3.3-70b-versatile'),
+  () => ai().deepseekOpenAI().apiKey('deepseek-key').model('deepseek-chat'),
+  () => ai().openRouter().apiKey('openrouter-key').model('openai/gpt-3.5-turbo'),
+];
+
+for (final providerBuilder in providers) {
+  try {
+    final provider = await providerBuilder().build();
+    final response = await provider.chat([ChatMessage.user('Test')]);
+    print('Success: ${response.text}');
+    break;
+  } catch (e) {
+    print('Provider failed, trying next...');
+  }
+}
+```
+
+## Next Steps
 
 - [Core Features](../../02_core_features/) - Basic functionality
 - [Advanced Features](../../03_advanced_features/) - Custom providers
-- [Main Providers](../) - Core provider examples
