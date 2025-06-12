@@ -5,13 +5,14 @@ import '../../core/openai_compatible_configs.dart';
 import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
 import '../openai/openai.dart';
+import 'base_factory.dart';
 
 /// Generic factory for creating OpenAI-compatible provider instances
 ///
 /// This factory can create providers for any service that offers an OpenAI-compatible API,
 /// using pre-configured settings for popular providers like DeepSeek, Gemini, xAI, etc.
 class OpenAICompatibleProviderFactory
-    implements LLMProviderFactory<ChatCapability> {
+    extends BaseProviderFactory<ChatCapability> {
   final OpenAICompatibleProviderConfig _config;
 
   OpenAICompatibleProviderFactory(this._config);
@@ -30,8 +31,19 @@ class OpenAICompatibleProviderFactory
 
   @override
   ChatCapability create(LLMConfig config) {
-    final openaiConfig = _transformConfig(config);
-    return OpenAIProvider(openaiConfig);
+    return createProviderSafely<OpenAIConfig>(
+      config,
+      () => _transformConfig(config),
+      (openaiConfig) => OpenAIProvider(openaiConfig),
+    );
+  }
+
+  @override
+  Map<String, dynamic> getProviderDefaults() {
+    return {
+      'baseUrl': _config.defaultBaseUrl,
+      'model': _config.defaultModel,
+    };
   }
 
   /// Transform unified config to OpenAI-compatible config
@@ -44,7 +56,6 @@ class OpenAICompatibleProviderFactory
       temperature: config.temperature,
       systemPrompt: config.systemPrompt,
       timeout: config.timeout,
-
       topP: config.topP,
       topK: config.topK,
       tools: config.tools,
@@ -53,7 +64,7 @@ class OpenAICompatibleProviderFactory
       stopSequences: config.stopSequences,
       user: config.user,
       serviceTier: config.serviceTier,
-      // OpenAI-compatible extensions
+      // OpenAI-compatible extensions using safe access
       reasoningEffort: ReasoningEffort.fromString(
           config.getExtension<String>('reasoningEffort')),
       jsonSchema: config.getExtension<StructuredOutputFormat>('jsonSchema'),
@@ -62,20 +73,6 @@ class OpenAICompatibleProviderFactory
           config.getExtension<String>('embeddingEncodingFormat'),
       embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
       originalConfig: config,
-    );
-  }
-
-  @override
-  bool validateConfig(LLMConfig config) {
-    // Most OpenAI-compatible providers require an API key
-    return config.apiKey != null && config.apiKey!.isNotEmpty;
-  }
-
-  @override
-  LLMConfig getDefaultConfig() {
-    return LLMConfig(
-      baseUrl: _config.defaultBaseUrl,
-      model: _config.defaultModel,
     );
   }
 

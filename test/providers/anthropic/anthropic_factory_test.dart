@@ -48,7 +48,7 @@ void main() {
       test('should create provider with basic config', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com',
+          baseUrl: 'https://api.anthropic.com/v1/',
           model: 'claude-3-5-sonnet-20241022',
         );
 
@@ -145,7 +145,7 @@ void main() {
         final baseUrl = defaultConfig['baseUrl'] as String?;
 
         expect(baseUrl, isNotNull);
-        expect(baseUrl, equals('https://api.anthropic.com'));
+        expect(baseUrl, equals('https://api.anthropic.com/v1/'));
       });
     });
 
@@ -236,8 +236,8 @@ void main() {
           model: 'claude-3-5-sonnet-20241022',
         );
 
-        // Should not throw during creation, but provider may validate later
-        expect(() => factory.create(config), returnsNormally);
+        // Should throw during creation due to URL validation
+        expect(() => factory.create(config), throwsA(isA<LLMError>()));
       });
     });
   });

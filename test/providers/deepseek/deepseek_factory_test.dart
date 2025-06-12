@@ -108,7 +108,7 @@ void main() {
           model: 'deepseek-chat',
         );
 
-        expect(() => factory.create(config), throwsA(isA<Exception>()));
+        expect(() => factory.create(config), throwsA(isA<LLMError>()));
       });
 
       test('should handle empty API key gracefully', () {
@@ -118,7 +118,7 @@ void main() {
           model: 'deepseek-chat',
         );
 
-        expect(() => factory.create(config), throwsA(isA<Exception>()));
+        expect(() => factory.create(config), throwsA(isA<LLMError>()));
       });
     });
 
@@ -294,8 +294,8 @@ void main() {
           model: 'deepseek-chat',
         );
 
-        // Should not throw during creation, but provider may validate later
-        expect(() => factory.create(config), returnsNormally);
+        // Should throw during creation due to URL validation
+        expect(() => factory.create(config), throwsA(isA<LLMError>()));
       });
     });
   });
