@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
 import 'package:llm_dart/llm_dart.dart';
-import 'package:llm_dart/providers/deepseek/deepseek.dart';
 
 void main() {
   group('DeepSeekConfig Tests', () {

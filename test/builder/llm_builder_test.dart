@@ -238,78 +238,62 @@ void main() {
         final builder = LLMBuilder().responseFormat('text');
         expect(builder, isNotNull);
       });
-
-      test('should set seed', () {
-        final builder = LLMBuilder().seed(12345);
-        expect(builder, isNotNull);
-      });
-
-      test('should set frequency penalty', () {
-        final builder = LLMBuilder().frequencyPenalty(0.5);
-        expect(builder, isNotNull);
-      });
-
-      test('should set presence penalty', () {
-        final builder = LLMBuilder().presencePenalty(0.3);
-        expect(builder, isNotNull);
-      });
-
-      test('should set logit bias', () {
-        final builder = LLMBuilder().logitBias({'token': 0.5});
-        expect(builder, isNotNull);
-      });
-
-      test('should set logprobs', () {
-        final builder = LLMBuilder().logprobs(true);
-        expect(builder, isNotNull);
-      });
-
-      test('should set top logprobs', () {
-        final builder = LLMBuilder().topLogprobs(5);
-        expect(builder, isNotNull);
-      });
     });
 
-    group('Anthropic-Specific Configuration', () {
-      test('should enable reasoning', () {
-        final builder = LLMBuilder().reasoning(true);
+    group('Provider-Specific Builder Configuration', () {
+      test('should configure ElevenLabs with callback', () {
+        final builder = LLMBuilder().elevenlabs((elevenlabs) => elevenlabs
+            .voiceId('voice-123')
+            .stability(0.7)
+            .similarityBoost(0.8)
+            .style(0.2)
+            .useSpeakerBoost(true));
         expect(builder, isNotNull);
       });
 
-      test('should set thinking budget tokens', () {
-        final builder = LLMBuilder().thinkingBudgetTokens(16000);
+      test('should configure OpenAI with callback', () {
+        final builder = LLMBuilder().openai((openai) => openai
+            .frequencyPenalty(0.5)
+            .presencePenalty(0.3)
+            .seed(12345)
+            .parallelToolCalls(true)
+            .logprobs(true)
+            .topLogprobs(5));
         expect(builder, isNotNull);
       });
 
-      test('should enable interleaved thinking', () {
-        final builder = LLMBuilder().interleavedThinking(true);
-        expect(builder, isNotNull);
-      });
-    });
-
-    group('ElevenLabs-Specific Configuration', () {
-      test('should set voice ID', () {
-        final builder = LLMBuilder().voiceId('voice-123');
-        expect(builder, isNotNull);
-      });
-
-      test('should set stability', () {
-        final builder = LLMBuilder().stability(0.7);
+      test('should configure Ollama with callback', () {
+        final builder = LLMBuilder().ollama((ollama) => ollama
+            .numCtx(4096)
+            .numGpu(1)
+            .numThread(8)
+            .numa(false)
+            .numBatch(512)
+            .keepAlive('10m')
+            .raw(false));
         expect(builder, isNotNull);
       });
 
-      test('should set similarity boost', () {
-        final builder = LLMBuilder().similarityBoost(0.8);
+      test('should configure Anthropic with callback', () {
+        final builder = LLMBuilder().anthropic((anthropic) => anthropic
+            .metadata({'user_id': 'test123'}).container('container-123'));
         expect(builder, isNotNull);
       });
 
-      test('should set style', () {
-        final builder = LLMBuilder().style(0.2);
+      test('should configure OpenRouter with callback', () {
+        final builder = LLMBuilder().openRouter((openrouter) => openrouter
+            .webSearch(maxResults: 5, searchPrompt: 'Focus on recent research')
+            .useOnlineShortcut(true));
         expect(builder, isNotNull);
       });
 
-      test('should enable speaker boost', () {
-        final builder = LLMBuilder().useSpeakerBoost(true);
+      test('should work without callback configuration', () {
+        final builder = LLMBuilder()
+            .openai()
+            .anthropic()
+            .ollama()
+            .elevenlabs()
+            .openRouter();
         expect(builder, isNotNull);
       });
     });
@@ -448,15 +432,14 @@ void main() {
         );
 
         final builder = LLMBuilder()
-            .openai()
+            .openai((openai) => openai.seed(12345).parallelToolCalls(true))
             .apiKey('test-key')
             .model('gpt-4')
             .tools([tool])
             .toolChoice(AutoToolChoice())
             .reasoningEffort(ReasoningEffort.medium)
             .voice('alloy')
-            .responseFormat('json_object')
-            .seed(12345);
+            .responseFormat('json_object');
 
         expect(builder, isNotNull);
       });

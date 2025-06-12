@@ -1,27 +1,27 @@
 import 'package:test/test.dart';
 import 'package:llm_dart/llm_dart.dart';
-import 'package:llm_dart/providers/factories/anthropic_factory.dart';
+import 'package:llm_dart/providers/factories/xai_factory.dart';
 
 void main() {
-  group('AnthropicProviderFactory Tests', () {
-    late AnthropicProviderFactory factory;
+  group('XAIProviderFactory Tests', () {
+    late XAIProviderFactory factory;
 
     setUp(() {
-      factory = AnthropicProviderFactory();
+      factory = XAIProviderFactory();
     });
 
     group('Factory Properties', () {
       test('should have correct provider ID', () {
-        expect(factory.providerId, equals('anthropic'));
+        expect(factory.providerId, equals('xai'));
       });
 
       test('should have correct display name', () {
-        expect(factory.displayName, equals('Anthropic'));
+        expect(factory.displayName, equals('xAI (Grok)'));
       });
 
       test('should have descriptive description', () {
         expect(factory.description, isNotEmpty);
-        expect(factory.description, contains('Claude'));
+        expect(factory.description.toLowerCase(), contains('grok'));
       });
 
       test('should support expected capabilities', () {
@@ -32,14 +32,16 @@ void main() {
         expect(capabilities, contains(LLMCapability.toolCalling));
         expect(capabilities, contains(LLMCapability.reasoning));
         expect(capabilities, contains(LLMCapability.vision));
+        expect(capabilities, contains(LLMCapability.embedding));
+        expect(capabilities, contains(LLMCapability.liveSearch));
       });
 
       test('should not support unsupported capabilities', () {
         final capabilities = factory.supportedCapabilities;
 
-        expect(capabilities, isNot(contains(LLMCapability.embedding)));
         expect(capabilities, isNot(contains(LLMCapability.imageGeneration)));
         expect(capabilities, isNot(contains(LLMCapability.textToSpeech)));
+        expect(capabilities, isNot(contains(LLMCapability.speechToText)));
       });
     });
 
@@ -47,31 +49,29 @@ void main() {
       test('should create provider with basic config', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com/v1/',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.x.ai/v1/',
+          model: 'grok-2-latest',
         );
 
         final provider = factory.create(config);
 
-        expect(provider, isA<AnthropicProvider>());
+        expect(provider, isA<XAIProvider>());
         expect(provider, isA<ChatCapability>());
       });
 
-      test('should create provider with reasoning config', () {
+      test('should create provider with live search enabled', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-sonnet-4-20250514',
+          baseUrl: 'https://api.x.ai/v1/',
+          model: 'grok-2-latest',
           extensions: {
-            'reasoning': true,
-            'thinkingBudgetTokens': 5000,
-            'interleavedThinking': false,
+            'liveSearch': true,
           },
         );
 
         final provider = factory.create(config);
 
-        expect(provider, isA<AnthropicProvider>());
+        expect(provider, isA<XAIProvider>());
         expect(provider, isA<ChatCapability>());
       });
 
@@ -79,32 +79,32 @@ void main() {
         final config = LLMConfig(
           apiKey: 'test-api-key',
           baseUrl: 'https://custom.api.com',
-          model: 'claude-sonnet-4-20250514',
+          model: 'grok-vision-beta',
           maxTokens: 2000,
           temperature: 0.8,
           systemPrompt: 'You are a helpful assistant',
           timeout: const Duration(seconds: 30),
           topP: 0.9,
           topK: 50,
-          stopSequences: ['STOP'],
-          user: 'test-user',
+          tools: [],
+          toolChoice: const AutoToolChoice(),
           extensions: {
-            'reasoning': true,
-            'thinkingBudgetTokens': 3000,
-            'interleavedThinking': true,
+            'embeddingEncodingFormat': 'float',
+            'embeddingDimensions': 1536,
+            'liveSearch': true,
           },
         );
 
         final provider = factory.create(config);
 
-        expect(provider, isA<AnthropicProvider>());
+        expect(provider, isA<XAIProvider>());
         expect(provider, isA<ChatCapability>());
       });
 
       test('should handle missing API key gracefully', () {
         final config = LLMConfig(
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.x.ai/v1/',
+          model: 'grok-2-latest',
         );
 
         expect(() => factory.create(config), throwsA(isA<LLMError>()));
@@ -113,8 +113,8 @@ void main() {
       test('should handle empty API key gracefully', () {
         final config = LLMConfig(
           apiKey: '',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.x.ai/v1/',
+          model: 'grok-2-latest',
         );
 
         expect(() => factory.create(config), throwsA(isA<LLMError>()));
@@ -136,7 +136,7 @@ void main() {
 
         expect(model, isNotNull);
         expect(model, isNotEmpty);
-        expect(model, startsWith('claude'));
+        expect(model, startsWith('grok'));
       });
 
       test('should have valid default base URL', () {
@@ -144,7 +144,7 @@ void main() {
         final baseUrl = defaultConfig['baseUrl'] as String?;
 
         expect(baseUrl, isNotNull);
-        expect(baseUrl, equals('https://api.anthropic.com/v1/'));
+        expect(baseUrl, equals('https://api.x.ai/v1/'));
       });
     });
 
@@ -152,8 +152,8 @@ void main() {
       test('should validate valid config', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.x.ai/v1/',
+          model: 'grok-2-latest',
         );
 
         expect(factory.validateConfig(config), isTrue);
@@ -161,8 +161,8 @@ void main() {
 
       test('should reject config without API key', () {
         final config = LLMConfig(
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.x.ai/v1/',
+          model: 'grok-2-latest',
         );
 
         expect(factory.validateConfig(config), isFalse);
@@ -171,21 +171,21 @@ void main() {
       test('should reject config with empty API key', () {
         final config = LLMConfig(
           apiKey: '',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.x.ai/v1/',
+          model: 'grok-2-latest',
         );
 
         expect(factory.validateConfig(config), isFalse);
       });
 
-      test('should accept config with reasoning extensions', () {
+      test('should accept config with search extensions', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-sonnet-4-20250514',
+          baseUrl: 'https://api.x.ai/v1/',
+          model: 'grok-2-latest',
           extensions: {
-            'reasoning': true,
-            'thinkingBudgetTokens': 5000,
+            'liveSearch': true,
+            'webSearchEnabled': true,
           },
         );
 
@@ -205,8 +205,8 @@ void main() {
       test('should create providers that implement required interfaces', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.x.ai/v1/',
+          model: 'grok-2-latest',
         );
 
         final provider = factory.create(config);
@@ -220,7 +220,7 @@ void main() {
       test('should handle invalid model gracefully', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com',
+          baseUrl: 'https://api.x.ai/v1/',
           model: 'invalid-model',
         );
 
@@ -232,11 +232,31 @@ void main() {
         final config = LLMConfig(
           apiKey: 'test-api-key',
           baseUrl: 'invalid-url',
-          model: 'claude-3-5-sonnet-20241022',
+          model: 'grok-2-latest',
         );
 
         // Should throw during creation due to URL validation
         expect(() => factory.create(config), throwsA(isA<LLMError>()));
+      });
+
+      test('should handle vision models correctly', () {
+        final config = LLMConfig(
+          apiKey: 'test-api-key',
+          baseUrl: 'https://api.x.ai/v1/',
+          model: 'grok-vision-beta',
+        );
+
+        expect(() => factory.create(config), returnsNormally);
+      });
+
+      test('should handle embedding models correctly', () {
+        final config = LLMConfig(
+          apiKey: 'test-api-key',
+          baseUrl: 'https://api.x.ai/v1/',
+          model: 'text-embedding-ada-002',
+        );
+
+        expect(() => factory.create(config), returnsNormally);
       });
     });
   });

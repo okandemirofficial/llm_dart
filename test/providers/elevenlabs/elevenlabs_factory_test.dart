@@ -1,45 +1,44 @@
 import 'package:test/test.dart';
 import 'package:llm_dart/llm_dart.dart';
-import 'package:llm_dart/providers/factories/anthropic_factory.dart';
+import 'package:llm_dart/providers/factories/elevenlabs_factory.dart';
 
 void main() {
-  group('AnthropicProviderFactory Tests', () {
-    late AnthropicProviderFactory factory;
+  group('ElevenLabsProviderFactory Tests', () {
+    late ElevenLabsProviderFactory factory;
 
     setUp(() {
-      factory = AnthropicProviderFactory();
+      factory = ElevenLabsProviderFactory();
     });
 
     group('Factory Properties', () {
       test('should have correct provider ID', () {
-        expect(factory.providerId, equals('anthropic'));
+        expect(factory.providerId, equals('elevenlabs'));
       });
 
       test('should have correct display name', () {
-        expect(factory.displayName, equals('Anthropic'));
+        expect(factory.displayName, equals('ElevenLabs'));
       });
 
       test('should have descriptive description', () {
         expect(factory.description, isNotEmpty);
-        expect(factory.description, contains('Claude'));
+        expect(factory.description.toLowerCase(), contains('text-to-speech'));
       });
 
       test('should support expected capabilities', () {
         final capabilities = factory.supportedCapabilities;
 
-        expect(capabilities, contains(LLMCapability.chat));
-        expect(capabilities, contains(LLMCapability.streaming));
-        expect(capabilities, contains(LLMCapability.toolCalling));
-        expect(capabilities, contains(LLMCapability.reasoning));
-        expect(capabilities, contains(LLMCapability.vision));
+        expect(capabilities, contains(LLMCapability.textToSpeech));
+        expect(capabilities, contains(LLMCapability.speechToText));
       });
 
       test('should not support unsupported capabilities', () {
         final capabilities = factory.supportedCapabilities;
 
+        expect(capabilities, isNot(contains(LLMCapability.chat)));
         expect(capabilities, isNot(contains(LLMCapability.embedding)));
         expect(capabilities, isNot(contains(LLMCapability.imageGeneration)));
-        expect(capabilities, isNot(contains(LLMCapability.textToSpeech)));
+        expect(capabilities, isNot(contains(LLMCapability.reasoning)));
+        expect(capabilities, isNot(contains(LLMCapability.streaming)));
       });
     });
 
@@ -47,64 +46,61 @@ void main() {
       test('should create provider with basic config', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com/v1/',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.elevenlabs.io/v1/',
+          model: 'eleven_multilingual_v2',
         );
 
         final provider = factory.create(config);
 
-        expect(provider, isA<AnthropicProvider>());
-        expect(provider, isA<ChatCapability>());
+        expect(provider, isA<ElevenLabsProvider>());
+        expect(provider, isA<AudioCapability>());
       });
 
-      test('should create provider with reasoning config', () {
+      test('should create provider with voice settings', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-sonnet-4-20250514',
+          baseUrl: 'https://api.elevenlabs.io/v1/',
+          model: 'eleven_multilingual_v2',
           extensions: {
-            'reasoning': true,
-            'thinkingBudgetTokens': 5000,
-            'interleavedThinking': false,
+            'voiceId': 'test-voice-id',
+            'stability': 0.5,
+            'similarityBoost': 0.8,
+            'style': 0.3,
+            'useSpeakerBoost': true,
           },
         );
 
         final provider = factory.create(config);
 
-        expect(provider, isA<AnthropicProvider>());
-        expect(provider, isA<ChatCapability>());
+        expect(provider, isA<ElevenLabsProvider>());
+        expect(provider, isA<AudioCapability>());
       });
 
       test('should create provider with all supported parameters', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
           baseUrl: 'https://custom.api.com',
-          model: 'claude-sonnet-4-20250514',
-          maxTokens: 2000,
-          temperature: 0.8,
-          systemPrompt: 'You are a helpful assistant',
+          model: 'eleven_multilingual_v2',
           timeout: const Duration(seconds: 30),
-          topP: 0.9,
-          topK: 50,
-          stopSequences: ['STOP'],
-          user: 'test-user',
           extensions: {
-            'reasoning': true,
-            'thinkingBudgetTokens': 3000,
-            'interleavedThinking': true,
+            'voiceId': 'custom-voice',
+            'stability': 0.6,
+            'similarityBoost': 0.9,
+            'style': 0.4,
+            'useSpeakerBoost': false,
           },
         );
 
         final provider = factory.create(config);
 
-        expect(provider, isA<AnthropicProvider>());
-        expect(provider, isA<ChatCapability>());
+        expect(provider, isA<ElevenLabsProvider>());
+        expect(provider, isA<AudioCapability>());
       });
 
       test('should handle missing API key gracefully', () {
         final config = LLMConfig(
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.elevenlabs.io/v1/',
+          model: 'eleven_multilingual_v2',
         );
 
         expect(() => factory.create(config), throwsA(isA<LLMError>()));
@@ -113,8 +109,8 @@ void main() {
       test('should handle empty API key gracefully', () {
         final config = LLMConfig(
           apiKey: '',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.elevenlabs.io/v1/',
+          model: 'eleven_multilingual_v2',
         );
 
         expect(() => factory.create(config), throwsA(isA<LLMError>()));
@@ -126,17 +122,7 @@ void main() {
         final defaultConfig = factory.getProviderDefaults();
 
         expect(defaultConfig, isNotEmpty);
-        expect(defaultConfig['model'], isNotNull);
         expect(defaultConfig['baseUrl'], isNotNull);
-      });
-
-      test('should have valid default model', () {
-        final defaultConfig = factory.getProviderDefaults();
-        final model = defaultConfig['model'] as String?;
-
-        expect(model, isNotNull);
-        expect(model, isNotEmpty);
-        expect(model, startsWith('claude'));
       });
 
       test('should have valid default base URL', () {
@@ -144,7 +130,14 @@ void main() {
         final baseUrl = defaultConfig['baseUrl'] as String?;
 
         expect(baseUrl, isNotNull);
-        expect(baseUrl, equals('https://api.anthropic.com/v1/'));
+        expect(baseUrl, equals('https://api.elevenlabs.io/v1/'));
+      });
+
+      test('should have default voice settings', () {
+        final defaultConfig = factory.getProviderDefaults();
+
+        expect(defaultConfig, isNotEmpty);
+        // ElevenLabs may have default voice configurations
       });
     });
 
@@ -152,8 +145,8 @@ void main() {
       test('should validate valid config', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.elevenlabs.io/v1/',
+          model: 'eleven_multilingual_v2',
         );
 
         expect(factory.validateConfig(config), isTrue);
@@ -161,8 +154,8 @@ void main() {
 
       test('should reject config without API key', () {
         final config = LLMConfig(
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.elevenlabs.io/v1/',
+          model: 'eleven_multilingual_v2',
         );
 
         expect(factory.validateConfig(config), isFalse);
@@ -171,21 +164,22 @@ void main() {
       test('should reject config with empty API key', () {
         final config = LLMConfig(
           apiKey: '',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.elevenlabs.io/v1/',
+          model: 'eleven_multilingual_v2',
         );
 
         expect(factory.validateConfig(config), isFalse);
       });
 
-      test('should accept config with reasoning extensions', () {
+      test('should accept config with voice extensions', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-sonnet-4-20250514',
+          baseUrl: 'https://api.elevenlabs.io/v1/',
+          model: 'eleven_multilingual_v2',
           extensions: {
-            'reasoning': true,
-            'thinkingBudgetTokens': 5000,
+            'voiceId': 'test-voice',
+            'stability': 0.5,
+            'similarityBoost': 0.8,
           },
         );
 
@@ -205,14 +199,14 @@ void main() {
       test('should create providers that implement required interfaces', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.elevenlabs.io/v1/',
+          model: 'eleven_multilingual_v2',
         );
 
         final provider = factory.create(config);
 
         expect(provider, isA<ChatCapability>());
-        expect(provider, isA<ProviderCapabilities>());
+        expect(provider, isA<AudioCapability>());
       });
     });
 
@@ -220,7 +214,7 @@ void main() {
       test('should handle invalid model gracefully', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com',
+          baseUrl: 'https://api.elevenlabs.io/v1/',
           model: 'invalid-model',
         );
 
@@ -232,11 +226,26 @@ void main() {
         final config = LLMConfig(
           apiKey: 'test-api-key',
           baseUrl: 'invalid-url',
-          model: 'claude-3-5-sonnet-20241022',
+          model: 'eleven_multilingual_v2',
         );
 
         // Should throw during creation due to URL validation
         expect(() => factory.create(config), throwsA(isA<LLMError>()));
+      });
+
+      test('should handle invalid voice settings gracefully', () {
+        final config = LLMConfig(
+          apiKey: 'test-api-key',
+          baseUrl: 'https://api.elevenlabs.io/v1/',
+          model: 'eleven_multilingual_v2',
+          extensions: {
+            'stability': 2.0, // Invalid value (should be 0-1)
+            'similarityBoost': -0.5, // Invalid value (should be 0-1)
+          },
+        );
+
+        // Should not throw during creation, validation happens at runtime
+        expect(() => factory.create(config), returnsNormally);
       });
     });
   });

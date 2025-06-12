@@ -1,27 +1,27 @@
 import 'package:test/test.dart';
 import 'package:llm_dart/llm_dart.dart';
-import 'package:llm_dart/providers/factories/anthropic_factory.dart';
+import 'package:llm_dart/providers/factories/phind_factory.dart';
 
 void main() {
-  group('AnthropicProviderFactory Tests', () {
-    late AnthropicProviderFactory factory;
+  group('PhindProviderFactory Tests', () {
+    late PhindProviderFactory factory;
 
     setUp(() {
-      factory = AnthropicProviderFactory();
+      factory = PhindProviderFactory();
     });
 
     group('Factory Properties', () {
       test('should have correct provider ID', () {
-        expect(factory.providerId, equals('anthropic'));
+        expect(factory.providerId, equals('phind'));
       });
 
       test('should have correct display name', () {
-        expect(factory.displayName, equals('Anthropic'));
+        expect(factory.displayName, equals('Phind'));
       });
 
       test('should have descriptive description', () {
         expect(factory.description, isNotEmpty);
-        expect(factory.description, contains('Claude'));
+        expect(factory.description.toLowerCase(), contains('coding'));
       });
 
       test('should support expected capabilities', () {
@@ -30,16 +30,15 @@ void main() {
         expect(capabilities, contains(LLMCapability.chat));
         expect(capabilities, contains(LLMCapability.streaming));
         expect(capabilities, contains(LLMCapability.toolCalling));
-        expect(capabilities, contains(LLMCapability.reasoning));
-        expect(capabilities, contains(LLMCapability.vision));
       });
 
       test('should not support unsupported capabilities', () {
         final capabilities = factory.supportedCapabilities;
 
+        expect(capabilities, isNot(contains(LLMCapability.reasoning)));
+        expect(capabilities, isNot(contains(LLMCapability.vision)));
         expect(capabilities, isNot(contains(LLMCapability.embedding)));
         expect(capabilities, isNot(contains(LLMCapability.imageGeneration)));
-        expect(capabilities, isNot(contains(LLMCapability.textToSpeech)));
       });
     });
 
@@ -47,31 +46,13 @@ void main() {
       test('should create provider with basic config', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com/v1/',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://https.extension.phind.com/agent/',
+          model: 'Phind-70B',
         );
 
         final provider = factory.create(config);
 
-        expect(provider, isA<AnthropicProvider>());
-        expect(provider, isA<ChatCapability>());
-      });
-
-      test('should create provider with reasoning config', () {
-        final config = LLMConfig(
-          apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-sonnet-4-20250514',
-          extensions: {
-            'reasoning': true,
-            'thinkingBudgetTokens': 5000,
-            'interleavedThinking': false,
-          },
-        );
-
-        final provider = factory.create(config);
-
-        expect(provider, isA<AnthropicProvider>());
+        expect(provider, isA<PhindProvider>());
         expect(provider, isA<ChatCapability>());
       });
 
@@ -79,32 +60,25 @@ void main() {
         final config = LLMConfig(
           apiKey: 'test-api-key',
           baseUrl: 'https://custom.api.com',
-          model: 'claude-sonnet-4-20250514',
+          model: 'Phind-34B',
           maxTokens: 2000,
           temperature: 0.8,
-          systemPrompt: 'You are a helpful assistant',
+          systemPrompt: 'You are a coding assistant',
           timeout: const Duration(seconds: 30),
           topP: 0.9,
           topK: 50,
-          stopSequences: ['STOP'],
-          user: 'test-user',
-          extensions: {
-            'reasoning': true,
-            'thinkingBudgetTokens': 3000,
-            'interleavedThinking': true,
-          },
         );
 
         final provider = factory.create(config);
 
-        expect(provider, isA<AnthropicProvider>());
+        expect(provider, isA<PhindProvider>());
         expect(provider, isA<ChatCapability>());
       });
 
       test('should handle missing API key gracefully', () {
         final config = LLMConfig(
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://https.extension.phind.com/agent/',
+          model: 'Phind-70B',
         );
 
         expect(() => factory.create(config), throwsA(isA<LLMError>()));
@@ -113,8 +87,8 @@ void main() {
       test('should handle empty API key gracefully', () {
         final config = LLMConfig(
           apiKey: '',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://https.extension.phind.com/agent/',
+          model: 'Phind-70B',
         );
 
         expect(() => factory.create(config), throwsA(isA<LLMError>()));
@@ -136,7 +110,7 @@ void main() {
 
         expect(model, isNotNull);
         expect(model, isNotEmpty);
-        expect(model, startsWith('claude'));
+        expect(model, startsWith('Phind'));
       });
 
       test('should have valid default base URL', () {
@@ -144,7 +118,7 @@ void main() {
         final baseUrl = defaultConfig['baseUrl'] as String?;
 
         expect(baseUrl, isNotNull);
-        expect(baseUrl, equals('https://api.anthropic.com/v1/'));
+        expect(baseUrl, equals('https://api.phind.com/v1/'));
       });
     });
 
@@ -152,8 +126,8 @@ void main() {
       test('should validate valid config', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.phind.com/v1/',
+          model: 'Phind-70B',
         );
 
         expect(factory.validateConfig(config), isTrue);
@@ -161,8 +135,8 @@ void main() {
 
       test('should reject config without API key', () {
         final config = LLMConfig(
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.phind.com/v1/',
+          model: 'Phind-70B',
         );
 
         expect(factory.validateConfig(config), isFalse);
@@ -171,25 +145,11 @@ void main() {
       test('should reject config with empty API key', () {
         final config = LLMConfig(
           apiKey: '',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.phind.com/v1/',
+          model: 'Phind-70B',
         );
 
         expect(factory.validateConfig(config), isFalse);
-      });
-
-      test('should accept config with reasoning extensions', () {
-        final config = LLMConfig(
-          apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-sonnet-4-20250514',
-          extensions: {
-            'reasoning': true,
-            'thinkingBudgetTokens': 5000,
-          },
-        );
-
-        expect(factory.validateConfig(config), isTrue);
       });
     });
 
@@ -205,8 +165,8 @@ void main() {
       test('should create providers that implement required interfaces', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com',
-          model: 'claude-3-5-sonnet-20241022',
+          baseUrl: 'https://api.phind.com/v1/',
+          model: 'Phind-70B',
         );
 
         final provider = factory.create(config);
@@ -220,7 +180,7 @@ void main() {
       test('should handle invalid model gracefully', () {
         final config = LLMConfig(
           apiKey: 'test-api-key',
-          baseUrl: 'https://api.anthropic.com',
+          baseUrl: 'https://api.phind.com/v1/',
           model: 'invalid-model',
         );
 
@@ -232,7 +192,7 @@ void main() {
         final config = LLMConfig(
           apiKey: 'test-api-key',
           baseUrl: 'invalid-url',
-          model: 'claude-3-5-sonnet-20241022',
+          model: 'Phind-70B',
         );
 
         // Should throw during creation due to URL validation
