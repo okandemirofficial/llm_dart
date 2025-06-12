@@ -65,6 +65,12 @@ class AnthropicClient {
       betaFeatures.add('files-api-2025-04-14');
     }
 
+    // Add MCP connector beta if MCP servers are configured
+    final mcpServers = config.getExtension<List>('mcpServers');
+    if (mcpServers != null && mcpServers.isNotEmpty) {
+      betaFeatures.add('mcp-client-2025-04-04');
+    }
+
     if (betaFeatures.isNotEmpty) {
       headers['anthropic-beta'] = betaFeatures.join(',');
     }

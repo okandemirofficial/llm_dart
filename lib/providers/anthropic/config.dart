@@ -2,6 +2,7 @@ import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
 import '../../core/config.dart';
 import '../../core/provider_defaults.dart';
+import '../../core/web_search.dart';
 
 /// Anthropic provider configuration
 ///
@@ -61,6 +62,22 @@ class AnthropicConfig {
 
   /// Create AnthropicConfig from unified LLMConfig
   factory AnthropicConfig.fromLLMConfig(LLMConfig config) {
+    // Handle web search configuration
+    List<Tool>? tools = config.tools;
+
+    // Check for webSearchEnabled flag
+    final webSearchEnabled = config.getExtension<bool>('webSearchEnabled');
+    if (webSearchEnabled == true) {
+      tools = _addWebSearchTool(tools, null);
+    }
+
+    // Check for webSearchConfig and convert to web_search tool
+    final webSearchConfig =
+        config.getExtension<WebSearchConfig>('webSearchConfig');
+    if (webSearchConfig != null) {
+      tools = _addWebSearchTool(tools, webSearchConfig);
+    }
+
     return AnthropicConfig(
       apiKey: config.apiKey!,
       baseUrl: config.baseUrl,
@@ -72,7 +89,7 @@ class AnthropicConfig {
 
       topP: config.topP,
       topK: config.topK,
-      tools: config.tools,
+      tools: tools,
       toolChoice: config.toolChoice,
       // Common parameters
       stopSequences: config.stopSequences,
@@ -85,6 +102,40 @@ class AnthropicConfig {
           config.getExtension<bool>('interleavedThinking') ?? false,
       originalConfig: config,
     );
+  }
+
+  /// Add web search tool to the tools list
+  static List<Tool> _addWebSearchTool(
+      List<Tool>? existingTools, WebSearchConfig? config) {
+    final tools = List<Tool>.from(existingTools ?? []);
+
+    // Check if web search tool already exists
+    final hasWebSearchTool =
+        tools.any((tool) => tool.function.name == 'web_search');
+    if (hasWebSearchTool) {
+      return tools; // Don't add duplicate
+    }
+
+    // Create web search tool based on Anthropic's specification
+    // Note: For Anthropic, we need to create a special tool that will be handled differently
+    // in the chat implementation to use the web_search_20250305 tool type
+    final webSearchTool = Tool.function(
+      name: 'web_search',
+      description: 'Search the web for current information',
+      parameters: ParametersSchema(
+        schemaType: 'object',
+        properties: {
+          'query': ParameterProperty(
+            propertyType: 'string',
+            description: 'The search query to execute',
+          ),
+        },
+        required: ['query'],
+      ),
+    );
+
+    tools.add(webSearchTool);
+    return tools;
   }
 
   /// Get extension value from original config

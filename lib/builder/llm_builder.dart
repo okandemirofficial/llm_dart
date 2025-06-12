@@ -6,6 +6,11 @@ import '../core/web_search.dart';
 import '../models/tool_models.dart';
 import '../models/chat_models.dart';
 import '../providers/google/builder.dart';
+import '../providers/openai/builder.dart';
+import '../providers/anthropic/builder.dart';
+import '../providers/ollama/builder.dart';
+import '../providers/elevenlabs/builder.dart';
+import '../providers/openai/compatible/openrouter/builder.dart';
 import 'http_config.dart';
 
 /// Builder for configuring and instantiating LLM providers
@@ -41,12 +46,28 @@ class LLMBuilder {
   }
 
   /// Convenience methods for built-in providers
-  LLMBuilder openai() => provider('openai');
-  LLMBuilder anthropic() => provider('anthropic');
+  LLMBuilder openai([OpenAIBuilder Function(OpenAIBuilder)? configure]) {
+    provider('openai');
+    if (configure != null) {
+      final openaiBuilder = OpenAIBuilder(this);
+      configure(openaiBuilder);
+    }
+    return this;
+  }
+
+  LLMBuilder anthropic(
+      [AnthropicBuilder Function(AnthropicBuilder)? configure]) {
+    provider('anthropic');
+    if (configure != null) {
+      final anthropicBuilder = AnthropicBuilder(this);
+      configure(anthropicBuilder);
+    }
+    return this;
+  }
+
   LLMBuilder google([GoogleLLMBuilder Function(GoogleLLMBuilder)? configure]) {
     provider('google');
     if (configure != null) {
-      // Import the GoogleLLMBuilder when needed
       final googleBuilder = GoogleLLMBuilder(this);
       configure(googleBuilder);
     }
@@ -54,11 +75,29 @@ class LLMBuilder {
   }
 
   LLMBuilder deepseek() => provider('deepseek');
-  LLMBuilder ollama() => provider('ollama');
+
+  LLMBuilder ollama([OllamaBuilder Function(OllamaBuilder)? configure]) {
+    provider('ollama');
+    if (configure != null) {
+      final ollamaBuilder = OllamaBuilder(this);
+      configure(ollamaBuilder);
+    }
+    return this;
+  }
+
   LLMBuilder xai() => provider('xai');
   LLMBuilder phind() => provider('phind');
   LLMBuilder groq() => provider('groq');
-  LLMBuilder elevenlabs() => provider('elevenlabs');
+
+  LLMBuilder elevenlabs(
+      [ElevenLabsBuilder Function(ElevenLabsBuilder)? configure]) {
+    provider('elevenlabs');
+    if (configure != null) {
+      final elevenLabsBuilder = ElevenLabsBuilder(this);
+      configure(elevenLabsBuilder);
+    }
+    return this;
+  }
 
   /// Convenience methods for OpenAI-compatible providers
   /// These use the OpenAI interface but with provider-specific configurations
@@ -67,7 +106,16 @@ class LLMBuilder {
   LLMBuilder xaiOpenAI() => provider('xai-openai');
   LLMBuilder groqOpenAI() => provider('groq-openai');
   LLMBuilder phindOpenAI() => provider('phind-openai');
-  LLMBuilder openRouter() => provider('openrouter');
+  LLMBuilder openRouter(
+      [OpenRouterBuilder Function(OpenRouterBuilder)? configure]) {
+    provider('openrouter');
+    if (configure != null) {
+      final openRouterBuilder = OpenRouterBuilder(this);
+      configure(openRouterBuilder);
+    }
+    return this;
+  }
+
   LLMBuilder githubCopilot() => provider('github-copilot');
   LLMBuilder togetherAI() => provider('together-ai');
 
@@ -199,39 +247,9 @@ class LLMBuilder {
     return this;
   }
 
-  /// Sets voice for text-to-speech (OpenAI providers) or voice ID (ElevenLabs)
+  /// Sets voice for text-to-speech (OpenAI providers)
   LLMBuilder voice(String voiceName) {
     _config = _config.withExtension('voice', voiceName);
-    return this;
-  }
-
-  /// Sets voice ID for ElevenLabs TTS (alias for voice method)
-  LLMBuilder voiceId(String voiceId) {
-    _config = _config.withExtension('voiceId', voiceId);
-    return this;
-  }
-
-  /// Sets stability parameter for ElevenLabs TTS (0.0-1.0)
-  LLMBuilder stability(double stability) {
-    _config = _config.withExtension('stability', stability);
-    return this;
-  }
-
-  /// Sets similarity boost parameter for ElevenLabs TTS (0.0-1.0)
-  LLMBuilder similarityBoost(double similarityBoost) {
-    _config = _config.withExtension('similarityBoost', similarityBoost);
-    return this;
-  }
-
-  /// Sets style parameter for ElevenLabs TTS (0.0-1.0)
-  LLMBuilder style(double style) {
-    _config = _config.withExtension('style', style);
-    return this;
-  }
-
-  /// Enables or disables speaker boost for ElevenLabs TTS
-  LLMBuilder useSpeakerBoost(bool enable) {
-    _config = _config.withExtension('useSpeakerBoost', enable);
     return this;
   }
 
@@ -433,85 +451,6 @@ class LLMBuilder {
     return extension('webSearchLocation', location);
   }
 
-  /// Provider-specific web search configurations
-
-  /// Configures web search for OpenAI models
-  ///
-  /// OpenAI supports web search through specific models like `gpt-4o-search-preview`
-  /// and provides context size control for search results.
-  ///
-  /// Example:
-  /// ```dart
-  /// final provider = await ai()
-  ///     .openai()
-  ///     .apiKey(apiKey)
-  ///     .model('gpt-4o-search-preview')
-  ///     .openaiWebSearch(contextSize: WebSearchContextSize.high)
-  ///     .build();
-  /// ```
-  LLMBuilder openaiWebSearch({
-    WebSearchContextSize contextSize = WebSearchContextSize.medium,
-  }) {
-    return extension(
-        'webSearchConfig',
-        WebSearchConfig.openai(
-          contextSize: contextSize,
-        ));
-  }
-
-  /// Configures web search for OpenRouter models
-  ///
-  /// OpenRouter supports web search in two ways:
-  /// 1. Simple: Add `:online` to model name
-  /// 2. Advanced: Use web plugin with custom parameters
-  ///
-  /// Example:
-  /// ```dart
-  /// final provider = await ai()
-  ///     .openRouter()
-  ///     .apiKey(apiKey)
-  ///     .openRouterWebSearch(
-  ///       maxResults: 5,
-  ///       searchPrompt: 'Focus on recent developments',
-  ///     )
-  ///     .build();
-  /// ```
-  LLMBuilder openRouterWebSearch({
-    int maxResults = 5,
-    String? searchPrompt,
-    bool useOnlineShortcut = true,
-  }) {
-    return extension(
-        'webSearchConfig',
-        WebSearchConfig.openRouter(
-          maxResults: maxResults,
-          searchPrompt: searchPrompt,
-          useOnlineShortcut: useOnlineShortcut,
-        ));
-  }
-
-  /// Configures web search for Perplexity models
-  ///
-  /// Perplexity has native web search capabilities with context size control.
-  ///
-  /// Example:
-  /// ```dart
-  /// final provider = await ai()
-  ///     .perplexity()
-  ///     .apiKey(apiKey)
-  ///     .perplexityWebSearch(contextSize: WebSearchContextSize.high)
-  ///     .build();
-  /// ```
-  LLMBuilder perplexityWebSearch({
-    WebSearchContextSize contextSize = WebSearchContextSize.medium,
-  }) {
-    return extension(
-        'webSearchConfig',
-        WebSearchConfig.perplexity(
-          contextSize: contextSize,
-        ));
-  }
-
   /// Advanced web search configuration with full control
   ///
   /// This method provides access to all web search parameters and allows
@@ -561,35 +500,6 @@ class LLMBuilder {
     );
     return extension('webSearchConfig', config);
   }
-
-  /// OpenAI-specific parameter convenience methods
-  LLMBuilder frequencyPenalty(double penalty) =>
-      extension('frequencyPenalty', penalty);
-  LLMBuilder presencePenalty(double penalty) =>
-      extension('presencePenalty', penalty);
-  LLMBuilder logitBias(Map<String, double> bias) =>
-      extension('logitBias', bias);
-  LLMBuilder seed(int seedValue) => extension('seed', seedValue);
-  LLMBuilder parallelToolCalls(bool enabled) =>
-      extension('parallelToolCalls', enabled);
-  LLMBuilder logprobs(bool enabled) => extension('logprobs', enabled);
-  LLMBuilder topLogprobs(int count) => extension('topLogprobs', count);
-
-  /// Ollama-specific parameter convenience methods
-  LLMBuilder numCtx(int contextLength) => extension('numCtx', contextLength);
-  LLMBuilder numGpu(int gpuLayers) => extension('numGpu', gpuLayers);
-  LLMBuilder numThread(int threads) => extension('numThread', threads);
-  LLMBuilder numa(bool enabled) => extension('numa', enabled);
-  LLMBuilder numBatch(int batchSize) => extension('numBatch', batchSize);
-  LLMBuilder keepAlive(String duration) => extension('keepAlive', duration);
-  LLMBuilder raw(bool enabled) => extension('raw', enabled);
-
-  /// Anthropic-specific parameter convenience methods
-  LLMBuilder metadata(Map<String, dynamic> data) => extension('metadata', data);
-  LLMBuilder container(String containerId) =>
-      extension('container', containerId);
-  LLMBuilder mcpServers(List<MCPServer> servers) =>
-      extension('mcpServers', servers);
 
   /// Image generation configuration methods
   LLMBuilder imageSize(String size) => extension('imageSize', size);

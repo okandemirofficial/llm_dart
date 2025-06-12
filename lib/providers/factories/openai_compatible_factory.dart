@@ -2,6 +2,7 @@ import '../../core/capability.dart';
 import '../../core/config.dart';
 import '../../core/registry.dart';
 import '../../core/openai_compatible_configs.dart';
+import '../../core/web_search.dart';
 import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
 import '../openai/openai.dart';
@@ -48,10 +49,31 @@ class OpenAICompatibleProviderFactory
 
   /// Transform unified config to OpenAI-compatible config
   OpenAIConfig _transformConfig(LLMConfig config) {
+    // Handle web search configuration for OpenRouter
+    String? model = config.model;
+
+    // Check for webSearchEnabled flag (for OpenRouter)
+    final webSearchEnabled = config.getExtension<bool>('webSearchEnabled');
+    if (webSearchEnabled == true &&
+        _isOpenRouter() &&
+        !_hasOnlineSuffix(model)) {
+      // Add :online suffix for OpenRouter web search
+      model = _addOnlineSuffix(model);
+    }
+
+    // Check for webSearchConfig (for OpenRouter)
+    final webSearchConfig =
+        config.getExtension<WebSearchConfig>('webSearchConfig');
+    if (webSearchConfig != null &&
+        _isOpenRouter() &&
+        !_hasOnlineSuffix(model)) {
+      model = _addOnlineSuffix(model);
+    }
+
     return OpenAIConfig(
       apiKey: config.apiKey!,
       baseUrl: config.baseUrl,
-      model: config.model,
+      model: model,
       maxTokens: config.maxTokens,
       temperature: config.temperature,
       systemPrompt: config.systemPrompt,
@@ -74,6 +96,24 @@ class OpenAICompatibleProviderFactory
       embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
       originalConfig: config,
     );
+  }
+
+  /// Check if this is an OpenRouter provider
+  bool _isOpenRouter() {
+    return _config.providerId == 'openrouter';
+  }
+
+  /// Check if model already has :online suffix
+  bool _hasOnlineSuffix(String? model) {
+    if (model == null) return false;
+    return model.endsWith(':online');
+  }
+
+  /// Add :online suffix to model for OpenRouter web search
+  String _addOnlineSuffix(String? model) {
+    if (model == null) return ':online';
+    if (_hasOnlineSuffix(model)) return model;
+    return '$model:online';
   }
 
   /// Create factory instances for all pre-configured providers

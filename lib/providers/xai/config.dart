@@ -1,5 +1,6 @@
 import '../../models/tool_models.dart';
 import '../../core/config.dart';
+import '../../core/web_search.dart';
 
 /// Search source configuration for search parameters
 class SearchSource {
@@ -219,6 +220,29 @@ class XAIConfig {
 
   /// Create XAIConfig from unified LLMConfig
   factory XAIConfig.fromLLMConfig(LLMConfig config) {
+    // Handle web search configuration
+    SearchParameters? searchParams =
+        config.getExtension<SearchParameters>('searchParameters');
+    bool? liveSearchEnabled = config.getExtension<bool>('liveSearch');
+
+    // Check for webSearchEnabled flag
+    final webSearchEnabled = config.getExtension<bool>('webSearchEnabled');
+    if (webSearchEnabled == true &&
+        searchParams == null &&
+        liveSearchEnabled != true) {
+      // Enable live search with default web search parameters
+      liveSearchEnabled = true;
+      searchParams = SearchParameters.webSearch();
+    }
+
+    // Check for webSearchConfig and convert to SearchParameters
+    final webSearchConfig =
+        config.getExtension<WebSearchConfig>('webSearchConfig');
+    if (webSearchConfig != null && searchParams == null) {
+      searchParams = _convertWebSearchConfigToSearchParameters(webSearchConfig);
+      liveSearchEnabled = true;
+    }
+
     return XAIConfig(
       apiKey: config.apiKey!,
       baseUrl: config.baseUrl,
@@ -237,10 +261,29 @@ class XAIConfig {
       embeddingEncodingFormat:
           config.getExtension<String>('embeddingEncodingFormat'),
       embeddingDimensions: config.getExtension<int>('embeddingDimensions'),
-      searchParameters:
-          config.getExtension<SearchParameters>('searchParameters'),
-      liveSearch: config.getExtension<bool>('liveSearch'),
+      searchParameters: searchParams,
+      liveSearch: liveSearchEnabled,
       originalConfig: config,
+    );
+  }
+
+  /// Convert WebSearchConfig to xAI SearchParameters
+  static SearchParameters _convertWebSearchConfigToSearchParameters(
+      WebSearchConfig config) {
+    // Determine source type based on search type
+    final sourceType = config.searchType == WebSearchType.news ? 'news' : 'web';
+
+    return SearchParameters(
+      mode: config.mode ?? 'auto',
+      sources: [
+        SearchSource(
+          sourceType: sourceType,
+          excludedWebsites: config.blockedDomains,
+        ),
+      ],
+      maxSearchResults: config.maxResults,
+      fromDate: config.fromDate,
+      toDate: config.toDate,
     );
   }
 

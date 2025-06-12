@@ -1,6 +1,7 @@
 import '../../core/capability.dart';
 import '../../core/config.dart';
 import '../../core/provider_defaults.dart';
+import '../../core/web_search.dart';
 import '../../models/tool_models.dart';
 import '../../models/chat_models.dart';
 import '../openai/openai.dart';
@@ -49,10 +50,27 @@ class OpenAIProviderFactory
 
   /// Transform unified config to OpenAI-specific config
   OpenAIConfig _transformConfig(LLMConfig config) {
+    // Handle web search configuration
+    String? model = config.model;
+
+    // Check for webSearchEnabled flag
+    final webSearchEnabled = getExtension<bool>(config, 'webSearchEnabled');
+    if (webSearchEnabled == true && !_isSearchModel(model)) {
+      // Switch to search-enabled model if not already using one
+      model = _getSearchModel(model);
+    }
+
+    // Check for webSearchConfig
+    final webSearchConfig =
+        getExtension<WebSearchConfig>(config, 'webSearchConfig');
+    if (webSearchConfig != null && !_isSearchModel(model)) {
+      model = _getSearchModel(model);
+    }
+
     return OpenAIConfig(
       apiKey: config.apiKey!,
       baseUrl: config.baseUrl,
-      model: config.model,
+      model: model,
       maxTokens: config.maxTokens,
       temperature: config.temperature,
       systemPrompt: config.systemPrompt,
@@ -75,5 +93,26 @@ class OpenAIProviderFactory
       embeddingDimensions: getExtension<int>(config, 'embeddingDimensions'),
       originalConfig: config,
     );
+  }
+
+  /// Check if the model supports web search
+  bool _isSearchModel(String? model) {
+    if (model == null) return false;
+    return model.contains('search-preview') || model.contains('search');
+  }
+
+  /// Get the search-enabled version of a model
+  String _getSearchModel(String? model) {
+    if (model == null) return 'gpt-4o-search-preview';
+
+    // Map common models to their search variants
+    if (model.startsWith('gpt-4o')) {
+      return 'gpt-4o-search-preview';
+    } else if (model.startsWith('gpt-4o-mini')) {
+      return 'gpt-4o-mini-search-preview';
+    } else {
+      // Default to gpt-4o-search-preview for other models
+      return 'gpt-4o-search-preview';
+    }
   }
 }
