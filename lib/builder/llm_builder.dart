@@ -310,8 +310,6 @@ class LLMBuilder {
     return this;
   }
 
-
-
   /// Convenience methods for common extensions
   LLMBuilder embeddingEncodingFormat(String format) =>
       extension('embeddingEncodingFormat', format);

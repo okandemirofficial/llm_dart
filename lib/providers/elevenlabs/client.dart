@@ -140,6 +140,4 @@ class ElevenLabsClient {
   String? getContentType(Response response) {
     return response.headers.value('content-type');
   }
-
-
 }

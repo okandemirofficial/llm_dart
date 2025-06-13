@@ -102,8 +102,6 @@ class PhindClient {
     }
   }
 
-
-
   /// Parse the complete Phind streaming response into a single string
   String _parsePhindStreamResponse(String responseText) {
     return responseText

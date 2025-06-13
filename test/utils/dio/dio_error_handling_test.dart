@@ -53,10 +53,12 @@ void main() {
         fail('Expected timeout exception');
       } catch (e) {
         expect(e, isA<DioException>());
-        
+
         // Should have logged the error
-        final errorLogs = logRecords.where((record) => 
-          record.level == Level.SEVERE && record.message.contains('✗')).toList();
+        final errorLogs = logRecords
+            .where((record) =>
+                record.level == Level.SEVERE && record.message.contains('✗'))
+            .toList();
         expect(errorLogs.length, greaterThan(0));
       }
     });
@@ -85,12 +87,14 @@ void main() {
         fail('Expected 404 exception');
       } catch (e) {
         expect(e, isA<DioException>());
-        
+
         // Should have logged the error
-        final errorLogs = logRecords.where((record) => 
-          record.level == Level.SEVERE && record.message.contains('✗')).toList();
+        final errorLogs = logRecords
+            .where((record) =>
+                record.level == Level.SEVERE && record.message.contains('✗'))
+            .toList();
         expect(errorLogs.length, greaterThan(0));
-        
+
         // Should contain the URL and error details
         final errorLog = errorLogs.first;
         expect(errorLog.message, contains('GET'));
@@ -122,12 +126,14 @@ void main() {
         fail('Expected 401 exception');
       } catch (e) {
         expect(e, isA<DioException>());
-        
+
         // Should have logged the error
-        final errorLogs = logRecords.where((record) => 
-          record.level == Level.SEVERE && record.message.contains('✗')).toList();
+        final errorLogs = logRecords
+            .where((record) =>
+                record.level == Level.SEVERE && record.message.contains('✗'))
+            .toList();
         expect(errorLogs.length, greaterThan(0));
-        
+
         // Should contain the URL and error details
         final errorLog = errorLogs.first;
         expect(errorLog.message, contains('GET'));
@@ -159,12 +165,14 @@ void main() {
         fail('Expected 500 exception');
       } catch (e) {
         expect(e, isA<DioException>());
-        
+
         // Should have logged the error
-        final errorLogs = logRecords.where((record) => 
-          record.level == Level.SEVERE && record.message.contains('✗')).toList();
+        final errorLogs = logRecords
+            .where((record) =>
+                record.level == Level.SEVERE && record.message.contains('✗'))
+            .toList();
         expect(errorLogs.length, greaterThan(0));
-        
+
         // Should contain the URL and error details
         final errorLog = errorLogs.first;
         expect(errorLog.message, contains('GET'));
@@ -196,10 +204,12 @@ void main() {
         fail('Expected network exception');
       } catch (e) {
         expect(e, isA<DioException>());
-        
+
         // Should have logged the error
-        final errorLogs = logRecords.where((record) => 
-          record.level == Level.SEVERE && record.message.contains('✗')).toList();
+        final errorLogs = logRecords
+            .where((record) =>
+                record.level == Level.SEVERE && record.message.contains('✗'))
+            .toList();
         expect(errorLogs.length, greaterThan(0));
       }
     });
@@ -228,7 +238,7 @@ void main() {
         fail('Expected 404 exception');
       } catch (e) {
         expect(e, isA<DioException>());
-        
+
         // Should not have logged anything (no logging interceptor)
         expect(logRecords.length, equals(0));
       }
@@ -255,7 +265,7 @@ void main() {
       } catch (e) {
         expect(e, isA<DioException>());
         final dioError = e as DioException;
-        
+
         // Original error information should be preserved
         expect(dioError.response?.statusCode, equals(404));
         expect(dioError.requestOptions.path, equals('/status/404'));
@@ -284,15 +294,16 @@ void main() {
       try {
         // Get HTML response (not JSON)
         await dio.get('/html');
-        
+
         // This should succeed, but let's check that logging handles non-JSON responses
-        final responseLogs = logRecords.where((record) => 
-          record.message.contains('← 200')).toList();
+        final responseLogs = logRecords
+            .where((record) => record.message.contains('← 200'))
+            .toList();
         expect(responseLogs.length, greaterThan(0));
       } catch (e) {
         // If it fails, that's also fine for this test
-        final errorLogs = logRecords.where((record) => 
-          record.level == Level.SEVERE).toList();
+        final errorLogs =
+            logRecords.where((record) => record.level == Level.SEVERE).toList();
         expect(errorLogs.length, greaterThan(0));
       }
     });
@@ -317,16 +328,18 @@ void main() {
 
       try {
         // Get a large response
-        await dio.get('/base64/SFRUUEJJTiBpcyBhd2Vzb21l' * 100); // Large base64 string
-        
+        await dio.get(
+            '/base64/SFRUUEJJTiBpcyBhd2Vzb21l' * 100); // Large base64 string
+
         // Should handle large responses without issues
-        final responseLogs = logRecords.where((record) => 
-          record.message.contains('← 200')).toList();
+        final responseLogs = logRecords
+            .where((record) => record.message.contains('← 200'))
+            .toList();
         expect(responseLogs.length, greaterThan(0));
       } catch (e) {
         // If it fails, that's also fine for this test
-        final errorLogs = logRecords.where((record) => 
-          record.level == Level.SEVERE).toList();
+        final errorLogs =
+            logRecords.where((record) => record.level == Level.SEVERE).toList();
         expect(errorLogs.length, greaterThan(0));
       }
     });

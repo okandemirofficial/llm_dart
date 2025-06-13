@@ -1,26 +1,26 @@
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
-import '../../lib/core/config.dart';
-import '../../lib/providers/anthropic/config.dart';
-import '../../lib/providers/anthropic/dio_strategy.dart';
-import '../../lib/providers/openai/config.dart';
-import '../../lib/providers/openai/dio_strategy.dart';
-import '../../lib/providers/google/config.dart';
-import '../../lib/providers/google/dio_strategy.dart';
-import '../../lib/providers/xai/config.dart';
-import '../../lib/providers/xai/dio_strategy.dart';
-import '../../lib/providers/groq/config.dart';
-import '../../lib/providers/groq/dio_strategy.dart';
-import '../../lib/providers/deepseek/config.dart';
-import '../../lib/providers/deepseek/dio_strategy.dart';
-import '../../lib/providers/ollama/config.dart';
-import '../../lib/providers/ollama/dio_strategy.dart';
-import '../../lib/providers/phind/config.dart';
-import '../../lib/providers/phind/dio_strategy.dart';
-import '../../lib/providers/elevenlabs/config.dart';
-import '../../lib/providers/elevenlabs/dio_strategy.dart';
-import '../../lib/utils/dio_client_factory.dart';
+import 'package:llm_dart/core/config.dart';
+import 'package:llm_dart/providers/anthropic/config.dart';
+import 'package:llm_dart/providers/anthropic/dio_strategy.dart';
+import 'package:llm_dart/providers/openai/config.dart';
+import 'package:llm_dart/providers/openai/dio_strategy.dart';
+import 'package:llm_dart/providers/google/config.dart';
+import 'package:llm_dart/providers/google/dio_strategy.dart';
+import 'package:llm_dart/providers/xai/config.dart';
+import 'package:llm_dart/providers/xai/dio_strategy.dart';
+import 'package:llm_dart/providers/groq/config.dart';
+import 'package:llm_dart/providers/groq/dio_strategy.dart';
+import 'package:llm_dart/providers/deepseek/config.dart';
+import 'package:llm_dart/providers/deepseek/dio_strategy.dart';
+import 'package:llm_dart/providers/ollama/config.dart';
+import 'package:llm_dart/providers/ollama/dio_strategy.dart';
+import 'package:llm_dart/providers/phind/config.dart';
+import 'package:llm_dart/providers/phind/dio_strategy.dart';
+import 'package:llm_dart/providers/elevenlabs/config.dart';
+import 'package:llm_dart/providers/elevenlabs/dio_strategy.dart';
+import 'package:llm_dart/utils/dio_client_factory.dart';
 
 void main() {
   group('DioClientFactory', () {
@@ -40,7 +40,7 @@ void main() {
       expect(dio.options.baseUrl, equals('https://api.anthropic.com/v1/'));
       expect(dio.options.headers['x-api-key'], equals('test-key'));
       expect(dio.options.headers['anthropic-version'], equals('2023-06-01'));
-      
+
       // Should have Anthropic-specific interceptors
       expect(dio.interceptors.length, greaterThan(0));
     });
@@ -76,7 +76,8 @@ void main() {
       );
 
       expect(dio, isA<Dio>());
-      expect(dio.options.baseUrl, equals('https://generativelanguage.googleapis.com/v1beta/'));
+      expect(dio.options.baseUrl,
+          equals('https://generativelanguage.googleapis.com/v1beta/'));
       expect(dio.options.headers['Content-Type'], equals('application/json'));
       // Google uses query parameter auth, so no Authorization header
       expect(dio.options.headers.containsKey('Authorization'), isFalse);
@@ -110,21 +111,19 @@ void main() {
       // Should use the custom Dio instance
       expect(dio, same(customDio));
       expect(dio.options.headers['X-Custom'], equals('test'));
-      
+
       // Should still have essential Anthropic headers merged
       expect(dio.options.headers['x-api-key'], equals('test-key'));
-      
+
       // Should have Anthropic-specific interceptors added
       expect(dio.interceptors.length, greaterThan(0));
     });
 
     test('should preserve custom interceptors when using custom Dio', () {
       final customDio = Dio();
-      var interceptorCalled = false;
-      
+
       customDio.interceptors.add(InterceptorsWrapper(
         onRequest: (options, handler) {
-          interceptorCalled = true;
           options.headers['X-Custom-Interceptor'] = 'active';
           handler.next(options);
         },
@@ -316,15 +315,66 @@ void main() {
 
       // Test all provider strategies with custom Dio
       final providers = [
-        {'strategy': AnthropicDioStrategy(), 'config': AnthropicConfig.fromLLMConfig(llmConfig)},
-        {'strategy': OpenAIDioStrategy(), 'config': OpenAIConfig(apiKey: 'test-key', baseUrl: 'https://api.example.com', model: 'test-model', originalConfig: llmConfig)},
-        {'strategy': GoogleDioStrategy(), 'config': GoogleConfig(apiKey: 'test-key', baseUrl: 'https://api.example.com', model: 'test-model', originalConfig: llmConfig)},
-        {'strategy': XAIDioStrategy(), 'config': XAIConfig(apiKey: 'test-key', baseUrl: 'https://api.example.com', model: 'test-model', originalConfig: llmConfig)},
-        {'strategy': GroqDioStrategy(), 'config': GroqConfig(apiKey: 'test-key', baseUrl: 'https://api.example.com', model: 'test-model', originalConfig: llmConfig)},
-        {'strategy': DeepSeekDioStrategy(), 'config': DeepSeekConfig(apiKey: 'test-key', baseUrl: 'https://api.example.com', model: 'test-model', originalConfig: llmConfig)},
-        {'strategy': OllamaDioStrategy(), 'config': OllamaConfig(apiKey: 'test-key', baseUrl: 'https://api.example.com', model: 'test-model', originalConfig: llmConfig)},
-        {'strategy': PhindDioStrategy(), 'config': PhindConfig.fromLLMConfig(llmConfig)},
-        {'strategy': ElevenLabsDioStrategy(), 'config': ElevenLabsConfig.fromLLMConfig(llmConfig)},
+        {
+          'strategy': AnthropicDioStrategy(),
+          'config': AnthropicConfig.fromLLMConfig(llmConfig)
+        },
+        {
+          'strategy': OpenAIDioStrategy(),
+          'config': OpenAIConfig(
+              apiKey: 'test-key',
+              baseUrl: 'https://api.example.com',
+              model: 'test-model',
+              originalConfig: llmConfig)
+        },
+        {
+          'strategy': GoogleDioStrategy(),
+          'config': GoogleConfig(
+              apiKey: 'test-key',
+              baseUrl: 'https://api.example.com',
+              model: 'test-model',
+              originalConfig: llmConfig)
+        },
+        {
+          'strategy': XAIDioStrategy(),
+          'config': XAIConfig(
+              apiKey: 'test-key',
+              baseUrl: 'https://api.example.com',
+              model: 'test-model',
+              originalConfig: llmConfig)
+        },
+        {
+          'strategy': GroqDioStrategy(),
+          'config': GroqConfig(
+              apiKey: 'test-key',
+              baseUrl: 'https://api.example.com',
+              model: 'test-model',
+              originalConfig: llmConfig)
+        },
+        {
+          'strategy': DeepSeekDioStrategy(),
+          'config': DeepSeekConfig(
+              apiKey: 'test-key',
+              baseUrl: 'https://api.example.com',
+              model: 'test-model',
+              originalConfig: llmConfig)
+        },
+        {
+          'strategy': OllamaDioStrategy(),
+          'config': OllamaConfig(
+              apiKey: 'test-key',
+              baseUrl: 'https://api.example.com',
+              model: 'test-model',
+              originalConfig: llmConfig)
+        },
+        {
+          'strategy': PhindDioStrategy(),
+          'config': PhindConfig.fromLLMConfig(llmConfig)
+        },
+        {
+          'strategy': ElevenLabsDioStrategy(),
+          'config': ElevenLabsConfig.fromLLMConfig(llmConfig)
+        },
       ];
 
       for (final provider in providers) {
@@ -337,13 +387,16 @@ void main() {
         );
 
         // Should use the same custom Dio instance
-        expect(dio, same(customDio), reason: 'Provider ${strategy.providerName} should use custom Dio');
+        expect(dio, same(customDio),
+            reason: 'Provider ${strategy.providerName} should use custom Dio');
         expect(dio.options.headers['X-Custom'], equals('test'),
-               reason: 'Provider ${strategy.providerName} should preserve custom headers');
+            reason:
+                'Provider ${strategy.providerName} should preserve custom headers');
       }
     });
 
-    test('should create new Dio when no custom Dio provided for all providers', () {
+    test('should create new Dio when no custom Dio provided for all providers',
+        () {
       final llmConfig = LLMConfig(
         baseUrl: 'https://api.example.com',
         apiKey: 'test-key',
@@ -351,15 +404,66 @@ void main() {
       );
 
       final providers = [
-        {'strategy': AnthropicDioStrategy(), 'config': AnthropicConfig.fromLLMConfig(llmConfig)},
-        {'strategy': OpenAIDioStrategy(), 'config': OpenAIConfig(apiKey: 'test-key', baseUrl: 'https://api.example.com', model: 'test-model', originalConfig: llmConfig)},
-        {'strategy': GoogleDioStrategy(), 'config': GoogleConfig(apiKey: 'test-key', baseUrl: 'https://api.example.com', model: 'test-model', originalConfig: llmConfig)},
-        {'strategy': XAIDioStrategy(), 'config': XAIConfig(apiKey: 'test-key', baseUrl: 'https://api.example.com', model: 'test-model', originalConfig: llmConfig)},
-        {'strategy': GroqDioStrategy(), 'config': GroqConfig(apiKey: 'test-key', baseUrl: 'https://api.example.com', model: 'test-model', originalConfig: llmConfig)},
-        {'strategy': DeepSeekDioStrategy(), 'config': DeepSeekConfig(apiKey: 'test-key', baseUrl: 'https://api.example.com', model: 'test-model', originalConfig: llmConfig)},
-        {'strategy': OllamaDioStrategy(), 'config': OllamaConfig(apiKey: 'test-key', baseUrl: 'https://api.example.com', model: 'test-model', originalConfig: llmConfig)},
-        {'strategy': PhindDioStrategy(), 'config': PhindConfig.fromLLMConfig(llmConfig)},
-        {'strategy': ElevenLabsDioStrategy(), 'config': ElevenLabsConfig.fromLLMConfig(llmConfig)},
+        {
+          'strategy': AnthropicDioStrategy(),
+          'config': AnthropicConfig.fromLLMConfig(llmConfig)
+        },
+        {
+          'strategy': OpenAIDioStrategy(),
+          'config': OpenAIConfig(
+              apiKey: 'test-key',
+              baseUrl: 'https://api.example.com',
+              model: 'test-model',
+              originalConfig: llmConfig)
+        },
+        {
+          'strategy': GoogleDioStrategy(),
+          'config': GoogleConfig(
+              apiKey: 'test-key',
+              baseUrl: 'https://api.example.com',
+              model: 'test-model',
+              originalConfig: llmConfig)
+        },
+        {
+          'strategy': XAIDioStrategy(),
+          'config': XAIConfig(
+              apiKey: 'test-key',
+              baseUrl: 'https://api.example.com',
+              model: 'test-model',
+              originalConfig: llmConfig)
+        },
+        {
+          'strategy': GroqDioStrategy(),
+          'config': GroqConfig(
+              apiKey: 'test-key',
+              baseUrl: 'https://api.example.com',
+              model: 'test-model',
+              originalConfig: llmConfig)
+        },
+        {
+          'strategy': DeepSeekDioStrategy(),
+          'config': DeepSeekConfig(
+              apiKey: 'test-key',
+              baseUrl: 'https://api.example.com',
+              model: 'test-model',
+              originalConfig: llmConfig)
+        },
+        {
+          'strategy': OllamaDioStrategy(),
+          'config': OllamaConfig(
+              apiKey: 'test-key',
+              baseUrl: 'https://api.example.com',
+              model: 'test-model',
+              originalConfig: llmConfig)
+        },
+        {
+          'strategy': PhindDioStrategy(),
+          'config': PhindConfig.fromLLMConfig(llmConfig)
+        },
+        {
+          'strategy': ElevenLabsDioStrategy(),
+          'config': ElevenLabsConfig.fromLLMConfig(llmConfig)
+        },
       ];
 
       for (final provider in providers) {
@@ -372,9 +476,11 @@ void main() {
         );
 
         // Should create new Dio instance
-        expect(dio, isA<Dio>(), reason: 'Provider ${strategy.providerName} should create new Dio');
+        expect(dio, isA<Dio>(),
+            reason: 'Provider ${strategy.providerName} should create new Dio');
         expect(dio.options.baseUrl, equals('https://api.example.com'),
-               reason: 'Provider ${strategy.providerName} should use correct base URL');
+            reason:
+                'Provider ${strategy.providerName} should use correct base URL');
       }
     });
 
@@ -390,26 +496,45 @@ void main() {
         {
           'strategy': AnthropicDioStrategy(),
           'config': AnthropicConfig.fromLLMConfig(llmConfig),
-          'expectedHeaders': {'x-api-key': 'test-key', 'anthropic-version': '2023-06-01'}
+          'expectedHeaders': {
+            'x-api-key': 'test-key',
+            'anthropic-version': '2023-06-01'
+          }
         },
         {
           'strategy': OpenAIDioStrategy(),
-          'config': OpenAIConfig(apiKey: 'test-key', baseUrl: 'https://api.example.com', model: 'test-model', originalConfig: llmConfig),
+          'config': OpenAIConfig(
+              apiKey: 'test-key',
+              baseUrl: 'https://api.example.com',
+              model: 'test-model',
+              originalConfig: llmConfig),
           'expectedHeaders': {'Authorization': 'Bearer test-key'}
         },
         {
           'strategy': XAIDioStrategy(),
-          'config': XAIConfig(apiKey: 'test-key', baseUrl: 'https://api.example.com', model: 'test-model', originalConfig: llmConfig),
+          'config': XAIConfig(
+              apiKey: 'test-key',
+              baseUrl: 'https://api.example.com',
+              model: 'test-model',
+              originalConfig: llmConfig),
           'expectedHeaders': {'Authorization': 'Bearer test-key'}
         },
         {
           'strategy': GroqDioStrategy(),
-          'config': GroqConfig(apiKey: 'test-key', baseUrl: 'https://api.example.com', model: 'test-model', originalConfig: llmConfig),
+          'config': GroqConfig(
+              apiKey: 'test-key',
+              baseUrl: 'https://api.example.com',
+              model: 'test-model',
+              originalConfig: llmConfig),
           'expectedHeaders': {'Authorization': 'Bearer test-key'}
         },
         {
           'strategy': DeepSeekDioStrategy(),
-          'config': DeepSeekConfig(apiKey: 'test-key', baseUrl: 'https://api.example.com', model: 'test-model', originalConfig: llmConfig),
+          'config': DeepSeekConfig(
+              apiKey: 'test-key',
+              baseUrl: 'https://api.example.com',
+              model: 'test-model',
+              originalConfig: llmConfig),
           'expectedHeaders': {'Authorization': 'Bearer test-key'}
         },
         {
@@ -427,7 +552,8 @@ void main() {
       for (final testCase in testCases) {
         final strategy = testCase['strategy'] as ProviderDioStrategy;
         final config = testCase['config'];
-        final expectedHeaders = testCase['expectedHeaders'] as Map<String, String>;
+        final expectedHeaders =
+            testCase['expectedHeaders'] as Map<String, String>;
 
         final dio = DioClientFactory.create(
           strategy: strategy,
@@ -436,7 +562,8 @@ void main() {
 
         for (final entry in expectedHeaders.entries) {
           expect(dio.options.headers[entry.key], equals(entry.value),
-                 reason: 'Provider ${strategy.providerName} should have ${entry.key} header');
+              reason:
+                  'Provider ${strategy.providerName} should have ${entry.key} header');
         }
       }
     });

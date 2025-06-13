@@ -20,14 +20,17 @@ void main() {
     });
 
     group('Anthropic Client', () {
-      test('should use unified HTTP configuration when originalConfig is available', () {
+      test(
+          'should use unified HTTP configuration when originalConfig is available',
+          () {
         final config = AnthropicConfig.fromLLMConfig(baseConfig);
         final client = AnthropicClient(config);
 
         expect(client.dio, isA<Dio>());
         expect(client.dio.options.baseUrl, equals('https://api.example.com'));
-        expect(client.dio.options.connectTimeout, equals(Duration(seconds: 30)));
-        
+        expect(
+            client.dio.options.connectTimeout, equals(Duration(seconds: 30)));
+
         // Check that logging interceptor is added (more interceptors than just the endpoint-specific one)
         expect(client.dio.interceptors.length, greaterThan(1));
       });
@@ -41,7 +44,8 @@ void main() {
         final client = AnthropicClient(config);
 
         expect(client.dio, isA<Dio>());
-        expect(client.dio.options.baseUrl, equals('https://api.anthropic.com/v1/'));
+        expect(client.dio.options.baseUrl,
+            equals('https://api.anthropic.com/v1/'));
 
         // Should have provider-specific interceptors but no logging interceptor
         // When using unified config, it would have more interceptors (provider + logging)
@@ -50,7 +54,9 @@ void main() {
     });
 
     group('OpenAI Client', () {
-      test('should use unified HTTP configuration when originalConfig is available', () {
+      test(
+          'should use unified HTTP configuration when originalConfig is available',
+          () {
         final config = OpenAIConfig(
           apiKey: 'test-key',
           baseUrl: 'https://api.example.com',
@@ -61,8 +67,9 @@ void main() {
 
         expect(client.dio, isA<Dio>());
         expect(client.dio.options.baseUrl, equals('https://api.example.com'));
-        expect(client.dio.options.connectTimeout, equals(Duration(seconds: 30)));
-        
+        expect(
+            client.dio.options.connectTimeout, equals(Duration(seconds: 30)));
+
         // Check that logging interceptor is added
         expect(client.dio.interceptors.length, greaterThan(0));
       });
@@ -76,22 +83,26 @@ void main() {
         final client = OpenAIClient(config);
 
         expect(client.dio, isA<Dio>());
-        expect(client.dio.options.baseUrl, equals('https://api.openai.com/v1/'));
-        
+        expect(
+            client.dio.options.baseUrl, equals('https://api.openai.com/v1/'));
+
         // Should have minimal interceptors in fallback mode
         expect(client.dio.interceptors.length, greaterThanOrEqualTo(0));
       });
     });
 
     group('DeepSeek Client', () {
-      test('should use unified HTTP configuration when originalConfig is available', () {
+      test(
+          'should use unified HTTP configuration when originalConfig is available',
+          () {
         final config = DeepSeekConfig.fromLLMConfig(baseConfig);
         final client = DeepSeekClient(config);
 
         expect(client.dio, isA<Dio>());
         expect(client.dio.options.baseUrl, equals('https://api.example.com'));
-        expect(client.dio.options.connectTimeout, equals(Duration(seconds: 30)));
-        
+        expect(
+            client.dio.options.connectTimeout, equals(Duration(seconds: 30)));
+
         // Check that logging interceptor is added
         expect(client.dio.interceptors.length, greaterThan(0));
       });
@@ -105,22 +116,26 @@ void main() {
         final client = DeepSeekClient(config);
 
         expect(client.dio, isA<Dio>());
-        expect(client.dio.options.baseUrl, equals('https://api.deepseek.com/v1/'));
-        
+        expect(
+            client.dio.options.baseUrl, equals('https://api.deepseek.com/v1/'));
+
         // Should have minimal interceptors in fallback mode
         expect(client.dio.interceptors.length, greaterThanOrEqualTo(0));
       });
     });
 
     group('Groq Client', () {
-      test('should use unified HTTP configuration when originalConfig is available', () {
+      test(
+          'should use unified HTTP configuration when originalConfig is available',
+          () {
         final config = GroqConfig.fromLLMConfig(baseConfig);
         final client = GroqClient(config);
 
         expect(client.dio, isA<Dio>());
         expect(client.dio.options.baseUrl, equals('https://api.example.com'));
-        expect(client.dio.options.connectTimeout, equals(Duration(seconds: 30)));
-        
+        expect(
+            client.dio.options.connectTimeout, equals(Duration(seconds: 30)));
+
         // Check that logging interceptor is added
         expect(client.dio.interceptors.length, greaterThan(0));
       });
@@ -134,22 +149,26 @@ void main() {
         final client = GroqClient(config);
 
         expect(client.dio, isA<Dio>());
-        expect(client.dio.options.baseUrl, equals('https://api.groq.com/openai/v1/'));
-        
+        expect(client.dio.options.baseUrl,
+            equals('https://api.groq.com/openai/v1/'));
+
         // Should have minimal interceptors in fallback mode
         expect(client.dio.interceptors.length, greaterThanOrEqualTo(0));
       });
     });
 
     group('xAI Client', () {
-      test('should use unified HTTP configuration when originalConfig is available', () {
+      test(
+          'should use unified HTTP configuration when originalConfig is available',
+          () {
         final config = XAIConfig.fromLLMConfig(baseConfig);
         final client = XAIClient(config);
 
         expect(client.dio, isA<Dio>());
         expect(client.dio.options.baseUrl, equals('https://api.example.com'));
-        expect(client.dio.options.connectTimeout, equals(Duration(seconds: 30)));
-        
+        expect(
+            client.dio.options.connectTimeout, equals(Duration(seconds: 30)));
+
         // Check that logging interceptor is added
         expect(client.dio.interceptors.length, greaterThan(0));
       });
@@ -164,21 +183,24 @@ void main() {
 
         expect(client.dio, isA<Dio>());
         expect(client.dio.options.baseUrl, equals('https://api.x.ai/v1/'));
-        
+
         // Should have minimal interceptors in fallback mode
         expect(client.dio.interceptors.length, greaterThanOrEqualTo(0));
       });
     });
 
     group('Google Client', () {
-      test('should use unified HTTP configuration when originalConfig is available', () {
+      test(
+          'should use unified HTTP configuration when originalConfig is available',
+          () {
         final config = GoogleConfig.fromLLMConfig(baseConfig);
         final client = GoogleClient(config);
 
         expect(client.dio, isA<Dio>());
         expect(client.dio.options.baseUrl, equals('https://api.example.com'));
-        expect(client.dio.options.connectTimeout, equals(Duration(seconds: 30)));
-        
+        expect(
+            client.dio.options.connectTimeout, equals(Duration(seconds: 30)));
+
         // Check that logging interceptor is added
         expect(client.dio.interceptors.length, greaterThan(0));
       });
@@ -192,22 +214,26 @@ void main() {
         final client = GoogleClient(config);
 
         expect(client.dio, isA<Dio>());
-        expect(client.dio.options.baseUrl, equals('https://generativelanguage.googleapis.com/v1beta/'));
-        
+        expect(client.dio.options.baseUrl,
+            equals('https://generativelanguage.googleapis.com/v1beta/'));
+
         // Should have minimal interceptors in fallback mode
         expect(client.dio.interceptors.length, greaterThanOrEqualTo(0));
       });
     });
 
     group('Ollama Client', () {
-      test('should use unified HTTP configuration when originalConfig is available', () {
+      test(
+          'should use unified HTTP configuration when originalConfig is available',
+          () {
         final config = OllamaConfig.fromLLMConfig(baseConfig);
         final client = OllamaClient(config);
 
         expect(client.dio, isA<Dio>());
         expect(client.dio.options.baseUrl, equals('https://api.example.com'));
-        expect(client.dio.options.connectTimeout, equals(Duration(seconds: 30)));
-        
+        expect(
+            client.dio.options.connectTimeout, equals(Duration(seconds: 30)));
+
         // Check that logging interceptor is added
         expect(client.dio.interceptors.length, greaterThan(0));
       });
@@ -221,7 +247,7 @@ void main() {
 
         expect(client.dio, isA<Dio>());
         expect(client.dio.options.baseUrl, equals('http://localhost:11434'));
-        
+
         // Should have minimal interceptors in fallback mode
         expect(client.dio.interceptors.length, greaterThanOrEqualTo(0));
       });

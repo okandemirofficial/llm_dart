@@ -31,8 +31,6 @@ class OpenAIClient {
     );
   }
 
-
-
   /// Get provider ID based on base URL for provider-specific behavior
   String get providerId {
     final baseUrl = config.baseUrl.toLowerCase();

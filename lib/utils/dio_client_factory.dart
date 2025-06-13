@@ -104,7 +104,8 @@ class DioClientFactory {
     ProviderDioStrategy strategy,
     dynamic config,
   ) {
-    final originalConfig = config.originalConfig ?? _createFallbackConfig(strategy, config);
+    final originalConfig =
+        config.originalConfig ?? _createFallbackConfig(strategy, config);
 
     final dio = BaseHttpProvider.createConfiguredDio(
       baseUrl: strategy.getBaseUrl(config),

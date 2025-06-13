@@ -45,14 +45,15 @@ void main() {
 
       // Should have logging interceptor
       expect(dio.interceptors.length, greaterThan(0));
-      
+
       // Check that the interceptor is an InterceptorsWrapper (our logging interceptor)
-      final hasLoggingInterceptor = dio.interceptors.any((interceptor) => 
-        interceptor is InterceptorsWrapper);
+      final hasLoggingInterceptor = dio.interceptors
+          .any((interceptor) => interceptor is InterceptorsWrapper);
       expect(hasLoggingInterceptor, isTrue);
     });
 
-    test('should not add logging interceptor when enableHttpLogging is false', () {
+    test('should not add logging interceptor when enableHttpLogging is false',
+        () {
       final config = LLMConfig(
         baseUrl: 'https://api.example.com',
         apiKey: 'test-key',
@@ -68,12 +69,13 @@ void main() {
       );
 
       // Should not have our custom logging interceptor (InterceptorsWrapper)
-      final hasLoggingInterceptor = dio.interceptors.any((interceptor) =>
-        interceptor is InterceptorsWrapper);
+      final hasLoggingInterceptor = dio.interceptors
+          .any((interceptor) => interceptor is InterceptorsWrapper);
       expect(hasLoggingInterceptor, isFalse);
     });
 
-    test('should not add logging interceptor when enableHttpLogging is not set', () {
+    test('should not add logging interceptor when enableHttpLogging is not set',
+        () {
       final config = LLMConfig(
         baseUrl: 'https://api.example.com',
         apiKey: 'test-key',
@@ -87,8 +89,8 @@ void main() {
       );
 
       // Should not have our custom logging interceptor (InterceptorsWrapper)
-      final hasLoggingInterceptor = dio.interceptors.any((interceptor) =>
-        interceptor is InterceptorsWrapper);
+      final hasLoggingInterceptor = dio.interceptors
+          .any((interceptor) => interceptor is InterceptorsWrapper);
       expect(hasLoggingInterceptor, isFalse);
     });
 
@@ -118,13 +120,15 @@ void main() {
       }
 
       // Should have logged the request
-      final requestLogs = logRecords.where((record) => 
-        record.message.contains('→ GET')).toList();
+      final requestLogs = logRecords
+          .where((record) => record.message.contains('→ GET'))
+          .toList();
       expect(requestLogs.length, greaterThan(0));
 
       // Should have logged headers
-      final headerLogs = logRecords.where((record) => 
-        record.message.contains('→ Headers:')).toList();
+      final headerLogs = logRecords
+          .where((record) => record.message.contains('→ Headers:'))
+          .toList();
       expect(headerLogs.length, greaterThan(0));
     });
 
@@ -149,20 +153,22 @@ void main() {
       try {
         // Make a test request to httpbin.org
         await dio.get('/get');
-        
+
         // Should have logged the response
-        final responseLogs = logRecords.where((record) => 
-          record.message.contains('← 200')).toList();
+        final responseLogs = logRecords
+            .where((record) => record.message.contains('← 200'))
+            .toList();
         expect(responseLogs.length, greaterThan(0));
 
         // Should have logged response headers
-        final responseHeaderLogs = logRecords.where((record) => 
-          record.message.contains('← Headers:')).toList();
+        final responseHeaderLogs = logRecords
+            .where((record) => record.message.contains('← Headers:'))
+            .toList();
         expect(responseHeaderLogs.length, greaterThan(0));
       } catch (e) {
         // If the request fails, we should still have error logs
-        final errorLogs = logRecords.where((record) => 
-          record.message.contains('✗')).toList();
+        final errorLogs =
+            logRecords.where((record) => record.message.contains('✗')).toList();
         expect(errorLogs.length, greaterThan(0));
       }
     });
@@ -193,13 +199,15 @@ void main() {
       }
 
       // Should have logged the error
-      final errorLogs = logRecords.where((record) => 
-        record.message.contains('✗ GET')).toList();
+      final errorLogs = logRecords
+          .where((record) => record.message.contains('✗ GET'))
+          .toList();
       expect(errorLogs.length, greaterThan(0));
 
       // Should have logged error details
-      final errorDetailLogs = logRecords.where((record) => 
-        record.message.contains('✗ Error:')).toList();
+      final errorDetailLogs = logRecords
+          .where((record) => record.message.contains('✗ Error:'))
+          .toList();
       expect(errorDetailLogs.length, greaterThan(0));
     });
 
@@ -229,8 +237,9 @@ void main() {
       }
 
       // Should have logged the request data
-      final dataLogs = logRecords.where((record) => 
-        record.message.contains('→ Data:')).toList();
+      final dataLogs = logRecords
+          .where((record) => record.message.contains('→ Data:'))
+          .toList();
       expect(dataLogs.length, greaterThan(0));
 
       // The data log should contain our test data
@@ -239,7 +248,8 @@ void main() {
       expect(dataLog.message, contains('data'));
     });
 
-    test('should use correct log levels for different types of information', () async {
+    test('should use correct log levels for different types of information',
+        () async {
       final config = LLMConfig(
         baseUrl: 'https://api.example.com',
         apiKey: 'test-key',
@@ -264,13 +274,13 @@ void main() {
       }
 
       // Request/response URLs should be INFO level
-      final infoLogs = logRecords.where((record) => 
-        record.level == Level.INFO).toList();
+      final infoLogs =
+          logRecords.where((record) => record.level == Level.INFO).toList();
       expect(infoLogs.length, greaterThan(0));
 
       // Headers and data should be FINE level
-      final fineLogs = logRecords.where((record) => 
-        record.level == Level.FINE).toList();
+      final fineLogs =
+          logRecords.where((record) => record.level == Level.FINE).toList();
       expect(fineLogs.length, greaterThan(0));
     });
   });

@@ -28,8 +28,6 @@ class GoogleClient {
     );
   }
 
-
-
   /// Get endpoint with API key authentication
   String _getEndpointWithAuth(String endpoint) {
     // Google uses query parameter authentication

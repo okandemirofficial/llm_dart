@@ -245,8 +245,10 @@ void main() {
         final resultDio = result['customDio'] as Dio;
         expect(resultDio.options.baseUrl, equals('https://custom.example.com'));
         expect(resultDio.options.connectTimeout, equals(Duration(seconds: 25)));
-        expect(resultDio.options.headers['Authorization'], equals('Bearer custom-token'));
-        expect(resultDio.options.headers['X-Custom-Header'], equals('custom-value'));
+        expect(resultDio.options.headers['Authorization'],
+            equals('Bearer custom-token'));
+        expect(resultDio.options.headers['X-Custom-Header'],
+            equals('custom-value'));
       });
 
       test('should work with method chaining', () {
@@ -272,9 +274,7 @@ void main() {
         final secondDio = Dio();
         secondDio.options.baseUrl = 'https://second.example.com';
 
-        final config = HttpConfig()
-            .dioClient(firstDio)
-            .dioClient(secondDio);
+        final config = HttpConfig().dioClient(firstDio).dioClient(secondDio);
 
         final result = config.build();
         final resultDio = result['customDio'] as Dio;

@@ -19,7 +19,7 @@ class GoogleDioStrategy extends BaseProviderDioStrategy {
   @override
   List<DioEnhancer> getEnhancers(dynamic config) {
     final googleConfig = config as GoogleConfig;
-    
+
     return [
       // Add query parameter authentication enhancer
       _GoogleAuthEnhancer(googleConfig.apiKey),

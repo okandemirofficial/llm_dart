@@ -30,8 +30,6 @@ class XAIClient {
     );
   }
 
-
-
   /// Make a POST request and return JSON response
   Future<Map<String, dynamic>> postJson(
     String endpoint,

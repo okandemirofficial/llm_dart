@@ -21,7 +21,9 @@ void main() {
         ).withExtensions({
           'customDio': customDio,
           'connectionTimeout': Duration(seconds: 30), // Should be ignored
-          'customHeaders': {'X-Should-Be-Ignored': 'ignored'}, // Should be ignored
+          'customHeaders': {
+            'X-Should-Be-Ignored': 'ignored'
+          }, // Should be ignored
           'enableHttpLogging': true, // Should be ignored
         });
 
@@ -31,11 +33,14 @@ void main() {
 
         // Custom Dio should be used directly
         expect(anthropicClient.dio, equals(customDio));
-        expect(anthropicClient.dio.options.connectTimeout, equals(Duration(seconds: 15)));
-        expect(anthropicClient.dio.options.headers['X-Custom'], equals('custom-value'));
-        
+        expect(anthropicClient.dio.options.connectTimeout,
+            equals(Duration(seconds: 15)));
+        expect(anthropicClient.dio.options.headers['X-Custom'],
+            equals('custom-value'));
+
         // Base URL should be preserved from custom Dio
-        expect(anthropicClient.dio.options.baseUrl, equals('https://custom.example.com'));
+        expect(anthropicClient.dio.options.baseUrl,
+            equals('https://custom.example.com'));
       });
 
       test('should fall back to HTTP configuration when no custom Dio', () {
@@ -54,10 +59,13 @@ void main() {
         final anthropicClient = AnthropicClient(anthropicConfig);
 
         // Should use HTTP configuration
-        expect(anthropicClient.dio.options.connectTimeout, equals(Duration(seconds: 30)));
-        expect(anthropicClient.dio.options.headers['X-Test'], equals('test-value'));
-        expect(anthropicClient.dio.options.baseUrl, equals('https://api.example.com'));
-        
+        expect(anthropicClient.dio.options.connectTimeout,
+            equals(Duration(seconds: 30)));
+        expect(anthropicClient.dio.options.headers['X-Test'],
+            equals('test-value'));
+        expect(anthropicClient.dio.options.baseUrl,
+            equals('https://api.example.com'));
+
         // Should have logging interceptor
         expect(anthropicClient.dio.interceptors.length, greaterThan(1));
       });
@@ -71,11 +79,14 @@ void main() {
         final anthropicClient = AnthropicClient(anthropicConfig);
 
         // Should use provider defaults
-        expect(anthropicClient.dio.options.baseUrl, equals('https://api.anthropic.com/v1/'));
-        expect(anthropicClient.dio.options.connectTimeout, equals(Duration(seconds: 60))); // Default timeout
-        
+        expect(anthropicClient.dio.options.baseUrl,
+            equals('https://api.anthropic.com/v1/'));
+        expect(anthropicClient.dio.options.connectTimeout,
+            equals(Duration(seconds: 60))); // Default timeout
+
         // Should only have provider-specific interceptors (may have more than 1)
-        expect(anthropicClient.dio.interceptors.length, greaterThanOrEqualTo(1));
+        expect(
+            anthropicClient.dio.interceptors.length, greaterThanOrEqualTo(1));
       });
     });
 
@@ -83,7 +94,7 @@ void main() {
       test('should add Anthropic-specific interceptors to custom Dio', () {
         final customDio = Dio();
         customDio.options.baseUrl = 'https://custom.anthropic.com';
-        
+
         // Add a custom interceptor
         customDio.interceptors.add(InterceptorsWrapper(
           onRequest: (options, handler) {
@@ -104,13 +115,16 @@ void main() {
         final anthropicClient = AnthropicClient(anthropicConfig);
 
         // Should have both custom interceptor and Anthropic-specific interceptor(s)
-        expect(anthropicClient.dio.interceptors.length, greaterThanOrEqualTo(2));
+        expect(
+            anthropicClient.dio.interceptors.length, greaterThanOrEqualTo(2));
         expect(anthropicClient.dio, equals(customDio));
       });
 
-      test('should preserve custom interceptors while adding provider interceptors', () {
+      test(
+          'should preserve custom interceptors while adding provider interceptors',
+          () {
         final customDio = Dio();
-        
+
         // Add multiple custom interceptors
         customDio.interceptors.add(InterceptorsWrapper(
           onRequest: (options, handler) {
@@ -118,7 +132,7 @@ void main() {
             handler.next(options);
           },
         ));
-        
+
         customDio.interceptors.add(InterceptorsWrapper(
           onRequest: (options, handler) {
             options.headers['X-Interceptor-2'] = 'active';
@@ -138,7 +152,8 @@ void main() {
         final anthropicClient = AnthropicClient(anthropicConfig);
 
         // Should have 2 custom interceptors + Anthropic interceptor(s) >= 3 total
-        expect(anthropicClient.dio.interceptors.length, greaterThanOrEqualTo(3));
+        expect(
+            anthropicClient.dio.interceptors.length, greaterThanOrEqualTo(3));
       });
     });
 
@@ -160,7 +175,8 @@ void main() {
         final anthropicClient = AnthropicClient(anthropicConfig);
 
         // Base URL should be applied from config
-        expect(anthropicClient.dio.options.baseUrl, equals('https://api.anthropic.com/v1/'));
+        expect(anthropicClient.dio.options.baseUrl,
+            equals('https://api.anthropic.com/v1/'));
       });
 
       test('should preserve custom Dio base URL when already set', () {
@@ -179,10 +195,12 @@ void main() {
         final anthropicClient = AnthropicClient(anthropicConfig);
 
         // Custom base URL should be preserved
-        expect(anthropicClient.dio.options.baseUrl, equals('https://custom.anthropic.com/v2/'));
+        expect(anthropicClient.dio.options.baseUrl,
+            equals('https://custom.anthropic.com/v2/'));
       });
 
-      test('should merge essential headers without overriding custom headers', () {
+      test('should merge essential headers without overriding custom headers',
+          () {
         final customDio = Dio();
         customDio.options.headers['Authorization'] = 'Bearer custom-key';
         customDio.options.headers['X-Custom'] = 'custom-value';
@@ -200,13 +218,19 @@ void main() {
         final anthropicClient = AnthropicClient(anthropicConfig);
 
         // Custom headers should be preserved (user's headers take precedence)
-        expect(anthropicClient.dio.options.headers['Authorization'], equals('Bearer custom-key'));
-        expect(anthropicClient.dio.options.headers['X-Custom'], equals('custom-value'));
-        expect(anthropicClient.dio.options.headers['Content-Type'], equals('application/custom'));
+        expect(anthropicClient.dio.options.headers['Authorization'],
+            equals('Bearer custom-key'));
+        expect(anthropicClient.dio.options.headers['X-Custom'],
+            equals('custom-value'));
+        expect(anthropicClient.dio.options.headers['Content-Type'],
+            equals('application/custom'));
 
         // Essential headers should be added only if not present
         // Since Authorization is already set, x-api-key should not be added
-        expect(anthropicClient.dio.options.headers.containsKey('anthropic-version'), isTrue);
+        expect(
+            anthropicClient.dio.options.headers
+                .containsKey('anthropic-version'),
+            isTrue);
       });
 
       test('should add missing essential headers to custom Dio', () {
@@ -226,12 +250,18 @@ void main() {
         final anthropicClient = AnthropicClient(anthropicConfig);
 
         // Should have both custom and essential headers
-        expect(anthropicClient.dio.options.headers['X-Custom'], equals('custom-value'));
+        expect(anthropicClient.dio.options.headers['X-Custom'],
+            equals('custom-value'));
         // Essential headers are added via putIfAbsent, so they should be present
         // Anthropic uses x-api-key instead of Authorization
-        expect(anthropicClient.dio.options.headers.containsKey('x-api-key'), isTrue);
-        expect(anthropicClient.dio.options.headers.containsKey('Content-Type'), isTrue);
-        expect(anthropicClient.dio.options.headers.containsKey('anthropic-version'), isTrue);
+        expect(anthropicClient.dio.options.headers.containsKey('x-api-key'),
+            isTrue);
+        expect(anthropicClient.dio.options.headers.containsKey('Content-Type'),
+            isTrue);
+        expect(
+            anthropicClient.dio.options.headers
+                .containsKey('anthropic-version'),
+            isTrue);
         expect(anthropicClient.dio.options.headers.length, greaterThan(1));
       });
     });
@@ -271,14 +301,20 @@ void main() {
         expect(xaiClient.dio, equals(customDio));
 
         // All should have the custom timeout
-        expect(anthropicClient.dio.options.connectTimeout, equals(Duration(seconds: 20)));
-        expect(openaiClient.dio.options.connectTimeout, equals(Duration(seconds: 20)));
-        expect(xaiClient.dio.options.connectTimeout, equals(Duration(seconds: 20)));
+        expect(anthropicClient.dio.options.connectTimeout,
+            equals(Duration(seconds: 20)));
+        expect(openaiClient.dio.options.connectTimeout,
+            equals(Duration(seconds: 20)));
+        expect(xaiClient.dio.options.connectTimeout,
+            equals(Duration(seconds: 20)));
 
         // All should have the custom header
-        expect(anthropicClient.dio.options.headers['X-Multi-Provider'], equals('test'));
-        expect(openaiClient.dio.options.headers['X-Multi-Provider'], equals('test'));
-        expect(xaiClient.dio.options.headers['X-Multi-Provider'], equals('test'));
+        expect(anthropicClient.dio.options.headers['X-Multi-Provider'],
+            equals('test'));
+        expect(openaiClient.dio.options.headers['X-Multi-Provider'],
+            equals('test'));
+        expect(
+            xaiClient.dio.options.headers['X-Multi-Provider'], equals('test'));
       });
 
       test('should add provider-specific interceptors to same custom Dio', () {
@@ -306,10 +342,12 @@ void main() {
         final openaiClient = OpenAIClient(openaiConfig);
 
         // Anthropic adds interceptors, OpenAI doesn't add provider-specific ones
-        expect(anthropicClient.dio.interceptors.length,
-               equals(initialInterceptorCount + 1)); // +1 for Anthropic interceptor
+        expect(
+            anthropicClient.dio.interceptors.length,
+            equals(
+                initialInterceptorCount + 1)); // +1 for Anthropic interceptor
         expect(openaiClient.dio.interceptors.length,
-               equals(initialInterceptorCount + 1)); // Same Dio instance
+            equals(initialInterceptorCount + 1)); // Same Dio instance
       });
     });
 
@@ -330,13 +368,15 @@ void main() {
 
         final anthropicClient = AnthropicClient(anthropicConfig);
         expect(anthropicClient.dio, isNotNull);
-        expect(anthropicClient.dio.options.baseUrl, equals('https://api.example.com'));
+        expect(anthropicClient.dio.options.baseUrl,
+            equals('https://api.example.com'));
       });
 
       test('should handle custom Dio with unusual configuration', () {
         final customDio = Dio();
         // Set some unusual but valid configuration
-        customDio.options.connectTimeout = Duration(milliseconds: 1); // Very short timeout
+        customDio.options.connectTimeout =
+            Duration(milliseconds: 1); // Very short timeout
 
         final llmConfig = LLMConfig(
           baseUrl: 'https://api.example.com',
@@ -354,7 +394,8 @@ void main() {
         final anthropicClient = AnthropicClient(anthropicConfig);
         expect(anthropicClient.dio, equals(customDio));
         // Unusual configuration should be preserved (user's responsibility)
-        expect(anthropicClient.dio.options.connectTimeout, equals(Duration(milliseconds: 1)));
+        expect(anthropicClient.dio.options.connectTimeout,
+            equals(Duration(milliseconds: 1)));
       });
     });
 

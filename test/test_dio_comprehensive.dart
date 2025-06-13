@@ -30,7 +30,8 @@ import 'integration/dio_end_to_end_test.dart' as end_to_end_tests;
 // Import existing HTTP-related tests
 import 'utils/http_config_utils_test.dart' as http_config_utils_tests;
 import 'utils/dio/dio_proxy_test.dart' as dio_proxy_tests;
-import 'integration/http_configuration_integration_test.dart' as http_integration_tests;
+import 'integration/http_configuration_integration_test.dart'
+    as http_integration_tests;
 import 'builder/http_config_test.dart' as http_builder_tests;
 
 void main() {
@@ -80,19 +81,19 @@ void main() {
 }
 
 /// Test Summary and Documentation
-/// 
+///
 /// This comprehensive test suite covers:
-/// 
+///
 /// ## 1. Client Configuration Tests
 /// - ✅ Anthropic client uses unified HTTP config when available
-/// - ✅ OpenAI client uses unified HTTP config when available  
+/// - ✅ OpenAI client uses unified HTTP config when available
 /// - ✅ DeepSeek client uses unified HTTP config when available
 /// - ✅ Groq client uses unified HTTP config when available
 /// - ✅ xAI client uses unified HTTP config when available
 /// - ✅ Google client uses unified HTTP config when available
 /// - ✅ Ollama client uses unified HTTP config when available
 /// - ✅ All clients fall back to simple Dio when no config available
-/// 
+///
 /// ## 2. HTTP Logging Tests
 /// - ✅ Logging interceptor added when enableHttpLogging=true
 /// - ✅ No logging interceptor when enableHttpLogging=false
@@ -101,7 +102,7 @@ void main() {
 /// - ✅ Error information logged (URL, error details)
 /// - ✅ Correct log levels used (INFO, FINE, SEVERE)
 /// - ✅ POST request data logged when available
-/// 
+///
 /// ## 3. Configuration Priority Tests
 /// - ✅ Custom timeouts override LLMConfig timeouts
 /// - ✅ LLMConfig timeouts override default timeouts
@@ -112,7 +113,7 @@ void main() {
 /// - ✅ Custom headers can override default headers
 /// - ✅ Empty/null custom headers handled gracefully
 /// - ✅ Multiple configurations applied together
-/// 
+///
 /// ## 4. Error Handling Tests
 /// - ✅ Connection timeout errors logged
 /// - ✅ HTTP status errors logged (404, 401, 500)
@@ -121,7 +122,7 @@ void main() {
 /// - ✅ Original error information preserved
 /// - ✅ Malformed response data handled gracefully
 /// - ✅ Large response data handled gracefully
-/// 
+///
 /// ## 5. Advanced Features Tests
 /// - ✅ HTTP proxy configuration
 /// - ✅ Proxy with authentication
@@ -132,39 +133,39 @@ void main() {
 /// - ✅ All advanced features together
 /// - ✅ Invalid configurations handled gracefully
 /// - ✅ HTTP client adapter configuration
-/// 
+///
 /// ## 6. End-to-End Integration Tests
 /// - ✅ HTTP config through LLMBuilder for all providers
 /// - ✅ Complex HTTP configuration scenarios
 /// - ✅ Works without HTTP configuration
 /// - ✅ Streaming with HTTP configuration
 /// - ✅ Error scenarios with HTTP configuration
-/// 
+///
 /// ## 7. Existing HTTP Configuration Tests
 /// - ✅ HttpConfigUtils functionality
 /// - ✅ Dio proxy configuration
 /// - ✅ HTTP configuration integration
 /// - ✅ HTTP builder configuration
-/// 
+///
 /// ## Key Benefits of This Test Suite:
-/// 
+///
 /// 1. **Complete Coverage**: Tests all aspects of HTTP configuration
 /// 2. **Provider Consistency**: Ensures all providers work the same way
 /// 3. **Regression Prevention**: Catches breaking changes early
 /// 4. **Documentation**: Serves as living documentation of features
 /// 5. **Debugging Aid**: Helps identify issues quickly
 /// 6. **Quality Assurance**: Ensures robust HTTP handling
-/// 
+///
 /// ## Running Tests:
-/// 
+///
 /// ```bash
 /// # Run all Dio tests
 /// dart test test/test_dio_comprehensive.dart
-/// 
+///
 /// # Run specific test groups
 /// dart test test/utils/dio_logging_test.dart
 /// dart test test/integration/dio_end_to_end_test.dart
-/// 
+///
 /// # Run with verbose output
 /// dart test test/test_dio_comprehensive.dart --reporter=expanded
 /// ```

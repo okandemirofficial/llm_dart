@@ -24,7 +24,7 @@ void main() {
 
         expect(dio, isA<Dio>());
         expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
-        
+
         // The adapter should be configured (we can't easily test the internal proxy settings
         // without making actual requests, but we can verify the adapter type)
       });
@@ -217,7 +217,7 @@ void main() {
 
         expect(dio, isA<Dio>());
         expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
-        
+
         // Check timeouts
         expect(dio.options.connectTimeout, equals(Duration(seconds: 30)));
         expect(dio.options.receiveTimeout, equals(Duration(seconds: 120)));
@@ -298,7 +298,9 @@ void main() {
     });
 
     group('HTTP Client Adapter Configuration', () {
-      test('should only configure custom adapter when HTTP client settings are present', () {
+      test(
+          'should only configure custom adapter when HTTP client settings are present',
+          () {
         final configWithoutHttpSettings = LLMConfig(
           baseUrl: 'https://api.example.com',
           apiKey: 'test-key',
@@ -329,7 +331,8 @@ void main() {
 
         // Both should have IOHttpClientAdapter, but the one with HTTP settings
         // should have a custom configured adapter
-        expect(dioWithoutHttpConfig.httpClientAdapter, isA<IOHttpClientAdapter>());
+        expect(
+            dioWithoutHttpConfig.httpClientAdapter, isA<IOHttpClientAdapter>());
         expect(dioWithHttpConfig.httpClientAdapter, isA<IOHttpClientAdapter>());
       });
     });

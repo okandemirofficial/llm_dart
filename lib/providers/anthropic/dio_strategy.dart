@@ -23,7 +23,7 @@ class AnthropicDioStrategy extends BaseProviderDioStrategy {
   @override
   List<DioEnhancer> getEnhancers(dynamic config) {
     final anthropicConfig = config as AnthropicConfig;
-    
+
     return [
       // Always add the endpoint-specific headers interceptor
       InterceptorEnhancer(
@@ -39,7 +39,8 @@ class AnthropicDioStrategy extends BaseProviderDioStrategy {
   /// - The specific endpoint being called
   /// - Configuration settings (interleaved thinking, MCP servers)
   /// - Available features
-  InterceptorsWrapper _createEndpointHeadersInterceptor(AnthropicConfig config) {
+  InterceptorsWrapper _createEndpointHeadersInterceptor(
+      AnthropicConfig config) {
     return InterceptorsWrapper(
       onRequest: (options, handler) {
         // Build headers based on endpoint and configuration

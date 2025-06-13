@@ -127,7 +127,8 @@ Future<void> demonstrateCustomDioClient(String apiKey) async {
         handler.next(options);
       },
       onResponse: (response, handler) {
-        final startTime = response.requestOptions.extra['start_time'] as DateTime?;
+        final startTime =
+            response.requestOptions.extra['start_time'] as DateTime?;
         if (startTime != null) {
           final duration = DateTime.now().difference(startTime);
           print('   ✅ Request completed in ${duration.inMilliseconds}ms');
@@ -163,7 +164,8 @@ Future<void> demonstrateCustomDioClient(String apiKey) async {
         .model('claude-3-5-haiku-20241022')
         .http((http) => http
             .dioClient(customDio) // 🎯 Custom Dio takes highest priority
-            .enableLogging(true)  // This will be ignored since custom Dio is used
+            .enableLogging(
+                true) // This will be ignored since custom Dio is used
             .connectionTimeout(Duration(seconds: 60))) // This will be ignored
         .build();
 
@@ -171,7 +173,8 @@ Future<void> demonstrateCustomDioClient(String apiKey) async {
     print('   📝 Making request with custom Dio client...\n');
 
     final response = await provider.chat([
-      ChatMessage.user('Hello! This request uses a custom Dio client with advanced monitoring and retry logic.'),
+      ChatMessage.user(
+          'Hello! This request uses a custom Dio client with advanced monitoring and retry logic.'),
     ]);
 
     print('   ✅ Custom Dio client demonstration successful');
@@ -184,7 +187,6 @@ Future<void> demonstrateCustomDioClient(String apiKey) async {
     print('   📝 • Custom retry and error handling logic');
     print('   📝 • Integration with existing HTTP infrastructure');
     print('   📝 • Perfect for production environments\n');
-
   } catch (e) {
     print('   ❌ Custom Dio client demonstration failed: $e\n');
   }
@@ -222,8 +224,6 @@ Future<void> demonstrateTimeoutPriorityInLayeredConfig(String apiKey) async {
     print('   ❌ Timeout priority demonstration failed: $e\n');
   }
 }
-
-
 
 /// Demonstrate HTTP configuration reusability
 Future<void> demonstrateConfigReusability() async {
@@ -288,7 +288,8 @@ Future<void> demonstrateConfigReusability() async {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
         // Log for production monitoring
-        print('   📊 Production request: ${options.method} ${options.uri.host}');
+        print(
+            '   📊 Production request: ${options.method} ${options.uri.host}');
         handler.next(options);
       },
     ));
@@ -321,5 +322,6 @@ Future<void> demonstrateConfigReusability() async {
 
   print('   ✅ Custom Dio factories created for different environments');
   print('   📝 Usage: .http((http) => http.dioClient(createProductionDio()))');
-  print('   📝 Benefits: Environment-specific optimizations, reusable across projects\n');
+  print(
+      '   📝 Benefits: Environment-specific optimizations, reusable across projects\n');
 }

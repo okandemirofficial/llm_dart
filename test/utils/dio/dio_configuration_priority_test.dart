@@ -25,7 +25,9 @@ void main() {
       expect(dio.options.connectTimeout, equals(Duration(seconds: 30)));
     });
 
-    test('should prioritize LLMConfig timeout over default timeout when no custom timeout', () {
+    test(
+        'should prioritize LLMConfig timeout over default timeout when no custom timeout',
+        () {
       final config = LLMConfig(
         baseUrl: 'https://api.example.com',
         apiKey: 'test-key',
@@ -94,7 +96,7 @@ void main() {
         timeout: Duration(seconds: 45), // LLMConfig timeout
       ).withExtensions({
         'connectionTimeout': Duration(seconds: 30), // Custom connection timeout
-        'receiveTimeout': Duration(seconds: 120),   // Custom receive timeout
+        'receiveTimeout': Duration(seconds: 120), // Custom receive timeout
         // No custom send timeout - should use LLMConfig timeout
       });
 
@@ -105,9 +107,12 @@ void main() {
         defaultTimeout: Duration(seconds: 60), // Default timeout
       );
 
-      expect(dio.options.connectTimeout, equals(Duration(seconds: 30)));  // Custom
-      expect(dio.options.receiveTimeout, equals(Duration(seconds: 120))); // Custom
-      expect(dio.options.sendTimeout, equals(Duration(seconds: 45)));     // LLMConfig
+      expect(
+          dio.options.connectTimeout, equals(Duration(seconds: 30))); // Custom
+      expect(
+          dio.options.receiveTimeout, equals(Duration(seconds: 120))); // Custom
+      expect(
+          dio.options.sendTimeout, equals(Duration(seconds: 45))); // LLMConfig
     });
 
     test('should merge custom headers with default headers', () {
@@ -161,7 +166,8 @@ void main() {
 
       // Custom header should override default
       expect(dio.options.headers['Authorization'], equals('Bearer test-key'));
-      expect(dio.options.headers['Content-Type'], equals('application/xml')); // Overridden
+      expect(dio.options.headers['Content-Type'],
+          equals('application/xml')); // Overridden
       expect(dio.options.headers['X-Custom-Header'], equals('custom-value'));
     });
 
