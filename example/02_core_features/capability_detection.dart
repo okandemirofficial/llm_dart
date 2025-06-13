@@ -54,17 +54,44 @@ void main() async {
 Future<Map<String, ProviderCapabilities>> createProviders() async {
   final providers = <String, ProviderCapabilities>{};
 
-  // OpenAI provider (full-featured)
+  // OpenAI provider (standard)
   final openaiKey = Platform.environment['OPENAI_API_KEY'];
   if (openaiKey != null) {
     try {
       final openai =
           await ai().openai().apiKey(openaiKey).model('gpt-4o-mini').build();
       if (openai is ProviderCapabilities) {
-        providers['OpenAI'] = openai as ProviderCapabilities;
+        providers['OpenAI Standard'] = openai as ProviderCapabilities;
       }
     } catch (e) {
       print('⚠️  Failed to create OpenAI provider: $e');
+    }
+
+    // OpenAI provider with Responses API (manual configuration)
+    try {
+      final openaiResponses = await ai()
+          .openai((openai) => openai.useResponsesAPI().webSearchTool())
+          .apiKey(openaiKey)
+          .model('gpt-4o')
+          .build();
+      if (openaiResponses is ProviderCapabilities) {
+        providers['OpenAI Responses (Manual)'] =
+            openaiResponses as ProviderCapabilities;
+      }
+    } catch (e) {
+      print('⚠️  Failed to create OpenAI Responses provider: $e');
+    }
+
+    // OpenAI provider with Responses API (using buildOpenAIResponses)
+    try {
+      final openaiResponsesAuto = await ai()
+          .openai((openai) => openai.webSearchTool())
+          .apiKey(openaiKey)
+          .model('gpt-4o')
+          .buildOpenAIResponses();
+      providers['OpenAI Responses (Auto)'] = openaiResponsesAuto;
+    } catch (e) {
+      print('⚠️  Failed to create OpenAI Responses auto provider: $e');
     }
   }
 
@@ -243,6 +270,24 @@ Future<void> demonstrateFeatureBasedSelection(
   } else {
     print('      ❌ No providers support image generation');
   }
+
+  // Scenario 5: Need OpenAI Responses API features
+  print(
+      '\n   Scenario 5: Building stateful conversation app with advanced features');
+  final responsesProviders = providers.entries
+      .where((entry) => entry.value.supports(LLMCapability.openaiResponses))
+      .map((entry) => entry.key)
+      .toList();
+
+  if (responsesProviders.isNotEmpty) {
+    print('      ✅ Recommended providers: ${responsesProviders.join(', ')}');
+    print(
+        '      💡 Features: Stateful conversations, background processing, built-in tools');
+  } else {
+    print('      ❌ No providers support OpenAI Responses API');
+    print(
+        '      💡 Tip: Enable with .openai((openai) => openai.useResponsesAPI())');
+  }
   print('');
 }
 
@@ -284,6 +329,14 @@ Future<void> demonstrateCapabilityValidation(
       print('      ❌ Vision capability not available - text-only messages');
     }
 
+    if (provider.supports(LLMCapability.openaiResponses)) {
+      print(
+          '      ✅ OpenAI Responses API available - can use stateful features');
+      print('      💡 Access via: (provider as OpenAIProvider).responses');
+    } else {
+      print('      ❌ OpenAI Responses API not available - standard chat only');
+    }
+
     print('');
   }
 
@@ -321,6 +374,8 @@ Future<void> demonstrateCapabilityValidation(
 /// - fileManagement: File operations
 /// - moderation: Content moderation
 /// - assistants: Assistant management
+/// - liveSearch: Real-time web search (xAI Grok)
+/// - openaiResponses: OpenAI Responses API (stateful conversations, background processing)
 ///
 /// **Important Limitations:**
 /// 1. **Model Variations**: Support varies by specific model within providers

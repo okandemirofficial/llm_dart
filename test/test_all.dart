@@ -26,6 +26,7 @@ import 'utils/utf8_stream_decoder_test.dart' as utf8_decoder_tests;
 import 'utils/http_config_utils_test.dart' as http_config_utils_tests;
 import 'utils/timeout_priority_test.dart' as timeout_priority_tests;
 import 'utils/dio/dio_proxy_test.dart' as dio_proxy_tests;
+import 'utils/capability_utils_test.dart' as capability_utils_tests;
 
 // Integration tests
 import 'integration/thinking_content_extraction_test.dart'
@@ -58,6 +59,17 @@ import 'providers/deepseek/deepseek_factory_test.dart'
 // Existing tests
 import 'providers/openai/openai_advanced_test.dart' as openai_advanced_tests;
 
+// OpenAI Responses API tests
+import 'providers/openai/responses_test.dart' as openai_responses_tests;
+import 'providers/openai/responses_stateful_test.dart'
+    as openai_responses_stateful_tests;
+import 'providers/openai/responses_comprehensive_test.dart'
+    as openai_responses_comprehensive_tests;
+import 'providers/openai/responses_error_handling_test.dart'
+    as openai_responses_error_tests;
+import 'providers/openai/responses_functionality_test.dart'
+    as openai_responses_functionality_tests;
+
 void main() {
   group('LLM Dart Library Tests', () {
     group('Core System Tests', () {
@@ -83,6 +95,7 @@ void main() {
       http_config_utils_tests.main();
       timeout_priority_tests.main();
       dio_proxy_tests.main();
+      capability_utils_tests.main();
     });
 
     group('Integration Tests', () {
@@ -99,6 +112,13 @@ void main() {
     group('Provider Tests', () {
       factory_tests.main();
       openai_advanced_tests.main();
+
+      // OpenAI Responses API tests
+      openai_responses_tests.main();
+      openai_responses_stateful_tests.main();
+      openai_responses_comprehensive_tests.main();
+      openai_responses_error_tests.main();
+      openai_responses_functionality_tests.main();
 
       // Anthropic provider tests
       anthropic_provider_tests.main();

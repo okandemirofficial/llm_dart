@@ -67,19 +67,22 @@ class OpenAICompletion implements CompletionCapability {
     final stream = client.postStreamRaw('chat/completions', requestBody);
 
     await for (final chunk in stream) {
-      final json = client.parseSSEChunk(chunk);
-      if (json == null) continue;
+      final jsonList = client.parseSSEChunk(chunk);
+      if (jsonList.isEmpty) continue;
 
-      final choices = json['choices'] as List?;
-      if (choices == null || choices.isEmpty) continue;
+      // Process each JSON object in the chunk
+      for (final json in jsonList) {
+        final choices = json['choices'] as List?;
+        if (choices == null || choices.isEmpty) continue;
 
-      final choice = choices.first as Map<String, dynamic>;
-      final delta = choice['delta'] as Map<String, dynamic>?;
-      if (delta == null) continue;
+        final choice = choices.first as Map<String, dynamic>;
+        final delta = choice['delta'] as Map<String, dynamic>?;
+        if (delta == null) continue;
 
-      final content = delta['content'] as String?;
-      if (content != null && content.isNotEmpty) {
-        yield content;
+        final content = delta['content'] as String?;
+        if (content != null && content.isNotEmpty) {
+          yield content;
+        }
       }
     }
   }

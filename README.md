@@ -29,6 +29,7 @@ A modular Dart library for AI provider interactions. This library provides a uni
 ## Features
 
 - **Multi-provider support**: OpenAI, Anthropic, Google, DeepSeek, Groq, Ollama, xAI, ElevenLabs
+- **OpenAI Responses API**: Stateful conversations with built-in tools (web search, file search, computer use)
 - **Thinking process access**: Model reasoning for Claude, DeepSeek, Gemini
 - **Unified capabilities**: Chat, streaming, tools, audio, images, files, web search, embeddings
 - **MCP integration**: Model Context Protocol for external tool access
@@ -63,7 +64,7 @@ Add this to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  llm_dart: ^0.6.0
+  llm_dart: ^0.7.2
 ```
 
 Then run:
@@ -310,6 +311,45 @@ final provider = await createProvider(
   temperature: 0.7,
   extensions: {'reasoningEffort': 'medium'}, // For reasoning models
 );
+```
+
+#### Responses API (Stateful Conversations)
+
+OpenAI's new Responses API provides stateful conversation management with built-in tools:
+
+```dart
+final provider = await ai()
+    .openai((openai) => openai
+        .useResponsesAPI()
+        .webSearchTool()
+        .fileSearchTool(vectorStoreIds: ['vs_123']))
+    .apiKey('your-key')
+    .model('gpt-4o')
+    .build();
+
+// Cast to access stateful features
+final responsesProvider = provider as OpenAIProvider;
+final responses = responsesProvider.responses!;
+
+// Stateful conversation with automatic context preservation
+final response1 = await responses.chat([
+  ChatMessage.user('My name is Alice. Tell me about quantum computing'),
+]);
+
+final responseId = (response1 as OpenAIResponsesResponse).responseId;
+final response2 = await responses.continueConversation(responseId!, [
+  ChatMessage.user('Remember my name and explain it simply'),
+]);
+
+// Background processing for long tasks
+final backgroundTask = await responses.chatWithToolsBackground([
+  ChatMessage.user('Write a detailed research report'),
+], null);
+
+// Response lifecycle management
+await responses.getResponse('resp_123');
+await responses.deleteResponse('resp_123');
+await responses.cancelResponse('resp_123');
 ```
 
 ### Anthropic (with Thinking Process)

@@ -23,6 +23,9 @@ class OpenAIClient {
   final Logger logger = Logger('OpenAIClient');
   late final Dio dio;
 
+  // Buffer for incomplete SSE chunks
+  final StringBuffer _sseBuffer = StringBuffer();
+
   OpenAIClient(this.config) {
     // Use unified Dio client factory with OpenAI-specific strategy
     dio = DioClientFactory.create(
@@ -56,22 +59,57 @@ class OpenAIClient {
 
   /// Parse a Server-Sent Events (SSE) chunk from OpenAI's streaming API
   ///
+  /// This method handles incomplete SSE chunks that can be split across network boundaries.
+  /// It maintains an internal buffer to reconstruct complete SSE events.
+  ///
   /// Returns:
-  /// - `Map<String, dynamic>` - Parsed JSON data if found
-  /// - `null` - If chunk should be skipped (e.g., ping, done signal)
+  /// - `List<Map<String, dynamic>>` - List of parsed JSON objects from the chunk
+  /// - Empty list if no valid data found or chunk should be skipped
   ///
   /// Throws:
   /// - `ResponseFormatError` - If critical parsing errors occur
-  Map<String, dynamic>? parseSSEChunk(String chunk) {
-    for (final line in chunk.split('\n')) {
+  List<Map<String, dynamic>> parseSSEChunk(String chunk) {
+    final results = <Map<String, dynamic>>[];
+
+    // Add new chunk to buffer efficiently
+    _sseBuffer.write(chunk);
+
+    // Convert to string only when we need to process
+    final bufferContent = _sseBuffer.toString();
+
+    // Find complete lines (ending with \n)
+    final lastNewlineIndex = bufferContent.lastIndexOf('\n');
+
+    if (lastNewlineIndex == -1) {
+      // No complete lines yet, keep buffering
+      return results;
+    }
+
+    // Extract complete lines for processing
+    final completeContent = bufferContent.substring(0, lastNewlineIndex + 1);
+    final remainingContent = bufferContent.substring(lastNewlineIndex + 1);
+
+    // Update buffer with remaining incomplete content
+    _sseBuffer.clear();
+    if (remainingContent.isNotEmpty) {
+      _sseBuffer.write(remainingContent);
+    }
+
+    // Process complete lines
+    final lines = completeContent.split('\n');
+    for (final line in lines) {
       final trimmedLine = line.trim();
+
+      if (trimmedLine.isEmpty) continue;
 
       if (trimmedLine.startsWith('data: ')) {
         final data = trimmedLine.substring(6).trim();
 
         // Handle completion signal
         if (data == '[DONE]') {
-          return null;
+          // Clear buffer and return empty list to signal completion
+          _sseBuffer.clear();
+          return [];
         }
 
         // Skip empty data
@@ -101,7 +139,7 @@ class OpenAIClient {
             }
           }
 
-          return json;
+          results.add(json);
         } catch (e) {
           if (e is LLMError) rethrow;
 
@@ -112,7 +150,12 @@ class OpenAIClient {
       }
     }
 
-    return null;
+    return results;
+  }
+
+  /// Reset SSE buffer (call when starting a new stream)
+  void resetSSEBuffer() {
+    _sseBuffer.clear();
   }
 
   /// Convert ChatMessage to OpenAI API format
@@ -380,6 +423,9 @@ class OpenAIClient {
     if (config.apiKey.isEmpty) {
       throw const AuthError('Missing OpenAI API key');
     }
+
+    // Reset SSE buffer for new stream
+    resetSSEBuffer();
 
     try {
       if (logger.isLoggable(Level.FINE)) {

@@ -7,6 +7,7 @@ import '../models/tool_models.dart';
 import '../models/chat_models.dart';
 import '../providers/google/builder.dart';
 import '../providers/openai/builder.dart';
+import '../providers/openai/provider.dart';
 import '../providers/anthropic/builder.dart';
 import '../providers/ollama/builder.dart';
 import '../providers/elevenlabs/builder.dart';
@@ -771,5 +772,62 @@ class LLMBuilder {
       );
     }
     return provider as ModelListingCapability;
+  }
+
+  /// Builds an OpenAI provider with Responses API enabled
+  ///
+  /// This is a convenience method that automatically:
+  /// - Ensures the provider is OpenAI
+  /// - Enables the Responses API (`useResponsesAPI(true)`)
+  /// - Returns a properly typed OpenAIProvider with Responses API access
+  /// - Ensures the `openaiResponses` capability is available
+  ///
+  /// Throws [UnsupportedCapabilityError] if the provider is not OpenAI.
+  ///
+  /// Example:
+  /// ```dart
+  /// final provider = await ai()
+  ///     .openai((openai) => openai
+  ///         .webSearchTool()
+  ///         .fileSearchTool(vectorStoreIds: ['vs_123']))
+  ///     .apiKey(apiKey)
+  ///     .model('gpt-4o')
+  ///     .buildOpenAIResponses();
+  ///
+  /// // Direct access to Responses API without casting
+  /// final responsesAPI = provider.responses!;
+  /// final response = await responsesAPI.chat(messages);
+  /// ```
+  ///
+  /// **Note**: This method automatically enables Responses API even if not
+  /// explicitly called with `useResponsesAPI()`. The returned provider will
+  /// always support `LLMCapability.openaiResponses`.
+  Future<OpenAIProvider> buildOpenAIResponses() async {
+    if (_providerId != 'openai') {
+      throw UnsupportedCapabilityError(
+        'buildOpenAIResponses() can only be used with OpenAI provider. '
+        'Current provider: $_providerId. Use .openai() first.',
+      );
+    }
+
+    // Automatically enable Responses API if not already enabled
+    final isResponsesAPIEnabled =
+        _config.getExtension<bool>('useResponsesAPI') ?? false;
+    if (!isResponsesAPIEnabled) {
+      extension('useResponsesAPI', true);
+    }
+
+    final provider = await build();
+
+    // Cast to OpenAI provider (safe since we checked provider ID)
+    final openaiProvider = provider as OpenAIProvider;
+
+    // Verify that Responses API is properly initialized
+    if (openaiProvider.responses == null) {
+      throw StateError('OpenAI Responses API not properly initialized. '
+          'This should not happen when using buildOpenAIResponses().');
+    }
+
+    return openaiProvider;
   }
 }

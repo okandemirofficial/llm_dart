@@ -101,7 +101,7 @@ Future<void> demoAnthropicBuilder(String? apiKey) async {
               applicationName: 'llm_dart_demo',
             )) // Convenience method
         .apiKey(apiKey)
-        .model('claude-3-5-sonnet-20241022')
+        .model('claude-sonnet-4-20250514')
         .temperature(0.5)
         .maxTokens(100)
         .build();

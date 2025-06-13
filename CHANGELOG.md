@@ -5,61 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - Not Released
+## [0.7.2] - 2025-6-13
+
+### Fixed
+
+- **OpenAI Streaming Response Issues**: Fixed another critical bug in SSE (Server-Sent Events) parsing that caused character loss in streaming responses
+  - Streaming responses should now be completely reliable without any character loss
+
+## [0.7.1] - 2025-6-13
+
+### Fixed
+
+- **OpenAI Streaming Response Issues**: Fixed critical bug in SSE (Server-Sent Events) parsing that caused missing content in streaming responses
+
+## [0.7.0] - 2025-6-13
 
 ### Added
 
 - **Custom Dio Client Support**: Advanced HTTP control with custom Dio client integration
-  - `HttpConfig.dioClient()` method for providing custom Dio instances with complete HTTP control
-  - Priority system: Custom Dio (highest) > HTTP configuration > Provider defaults
+  - `HttpConfig.dioClient()` method for providing custom Dio instances
+  - Priority system: Custom Dio > HTTP configuration > Provider defaults
+  - Provider-specific interceptors (like Anthropic's beta headers) are automatically added to custom Dio clients
   - Support for custom interceptors, adapters, and advanced HTTP configurations
-  - Provider-specific interceptors (like Anthropic's beta headers) are automatically added to custom Dio
-  - Perfect for production environments requiring monitoring, metrics, retry logic, or integration with existing HTTP infrastructure
-  - Comprehensive examples in `example/03_advanced_features/layered_http_config.dart`
-- **Unified Dio Client Factory**: Complete refactoring of HTTP client creation with strategy pattern
-  - **DioClientFactory**: Central factory class eliminating ~500 lines of duplicate code across all providers
-  - **ProviderDioStrategy Interface**: Strategy pattern for provider-specific HTTP requirements (headers, authentication, interceptors)
-  - **DioEnhancer System**: Composable enhancement system for flexible HTTP client customization
-  - **Unified Priority Logic**: Consistent priority handling across all providers: Custom Dio > HTTP Configuration > Provider Defaults
-  - **Provider Strategy Implementations**: Complete strategies for all 9 providers (Anthropic, OpenAI, Google, xAI, Groq, DeepSeek, Ollama, Phind, ElevenLabs)
-  - **Comprehensive Test Coverage**: 102 tests covering all providers' priority logic and HTTP client creation
-  - **Simplified Maintenance**: Single point of change for HTTP client logic updates and consistent behavior across providers
+  - Examples in `example/03_advanced_features/layered_http_config.dart`
 
-- **OpenAI Responses API Support**: Complete integration of OpenAI's new Responses API
-  - `OpenAIResponses` module implementing the new Responses API endpoint
-  - `OpenAIBuiltInTool` classes for web search, file search, and computer use built-in tools
-  - `OpenAIWebSearchTool` - Real-time web search powered by the same model as ChatGPT search
-  - `OpenAIFileSearchTool` - Document search through vector stores with query optimization
-  - `OpenAIComputerUseTool` - Computer interaction through mouse and keyboard actions (research preview)
-  - OpenAI-specific builder methods in `OpenAIBuilder`:
-    - `useResponsesAPI()` - Enable Responses API instead of Chat Completions API
-    - `webSearchTool()` - Add web search built-in tool
-    - `fileSearchTool()` - Add file search built-in tool with vector store configuration
-    - `computerUseTool()` - Add computer use built-in tool with display configuration
-    - `previousResponseId()` - Chain responses for multi-turn workflows
-  - Automatic API selection based on configuration (Chat Completions vs Responses API)
-  - Support for combining function tools with built-in tools in single requests
-  - Enhanced streaming support with built-in tool events
-  - Response chaining capabilities for complex multi-turn workflows
-  - Example implementation in `example/04_providers/openai/responses_api.dart`
+- **OpenAI Responses API Support**: Complete implementation of OpenAI's new stateful Responses API
+  - Full CRUD operations for responses (create, get, delete, cancel, list input items)
+  - Stateful conversation management with `continueConversation()` and `forkConversation()`
+  - Background processing for long-running tasks
+  - Built-in tools integration: web search, file search, computer use
+  - Enhanced builder methods: `useResponsesAPI()`, `webSearchTool()`, `fileSearchTool()`, `computerUseTool()`
+  - Type-safe response handling and comprehensive examples in `example/04_providers/openai/responses_api.dart`
 
-## Fixed
+### Fixed
 
-- **HTTP Client Creation Refactoring**: Complete overhaul of Dio client creation across all providers
-  - **Code Elimination**: Removed ~500 lines of duplicate HTTP client creation code across 9 providers
-  - **Unified Priority Logic**: All providers now consistently implement: Custom Dio (highest) > HTTP Configuration > Provider Defaults
-  - **Strategy Pattern Implementation**: Each provider now uses dedicated `ProviderDioStrategy` for specific requirements
-  - **Provider-Specific Requirements**: Properly handled unique needs (Anthropic beta headers, Phind empty User-Agent, ElevenLabs xi-api-key, Google query auth)
-  - **Consistency Improvements**: Phind and ElevenLabs migrated from custom implementations to unified approach
-  - **Simplified Client Constructors**: All provider clients now use single-line `DioClientFactory.create()` call
-  - **Enhanced Testing**: Added comprehensive test coverage for all providers' HTTP client priority logic
-  - **Maintenance Benefits**: HTTP client logic changes now require updates in only one place instead of 9+ files
+- **Google Provider ToolChoice Support**: Complete implementation of tool choice functionality
+  - Added `toolChoice` field to `GoogleConfig` with proper serialization
+  - Implemented `_convertToolChoice()` method for Google's API format conversion
+  - Fixed issue where SpecificToolChoice was ignored by Google provider
+  - **Special thanks to [@okandemirofficial](https://github.com/okandemirofficial) for reporting this issue ([#6](https://github.com/Latias94/llm_dart/issues/6)) and providing the fix ([#7](https://github.com/Latias94/llm_dart/pull/7))! 🎉**
 
-- **xAI User-Agent Cleanup**: Removed unnecessary custom User-Agent header
-  - Removed `'User-Agent': 'llm_dart/xai'` as it's not required by xAI API
-  - Maintains consistency with other providers (OpenAI, Anthropic, Google) that don't set custom User-Agent
-  - Only Phind retains empty User-Agent as it's specifically required by their API
+- **HTTP Client Architecture**: Unified Dio client creation across all providers
+  - Eliminated ~500 lines of duplicate code with new `DioClientFactory`
+  - Consistent priority logic across all providers
+  - Simplified maintenance and enhanced test coverage
 
+- **xAI User-Agent Cleanup**: Removed unnecessary custom User-Agent header for consistency
 
 ## [0.6.0] - 2025-6-12
 
@@ -73,7 +64,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Comprehensive test coverage in `enhanced_array_tools_test.dart`
   - Practical examples integrated into `enhanced_tool_calling.dart` demonstrating real-world usage scenarios
   - **Special thanks to [@okandemirofficial](https://github.com/okandemirofficial) for this valuable contribution as our first external contributor! 🎉**
-
 
 - **Anthropic MCP Connector**: Native support for Anthropic's Model Context Protocol connector
   - `AnthropicMCPServer` - Configuration for remote MCP servers with OAuth support

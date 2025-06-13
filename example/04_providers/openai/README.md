@@ -16,6 +16,9 @@ Assistants API and specialized model features.
 ### [responses_api.dart](responses_api.dart)
 OpenAI's new Responses API with built-in tools like web search, file search, and computer use.
 
+### [build_openai_responses_demo.dart](build_openai_responses_demo.dart)
+Type-safe `buildOpenAIResponses()` convenience method for automatic Responses API configuration.
+
 ## Setup
 
 ```bash
@@ -26,6 +29,7 @@ dart run image_generation.dart
 dart run audio_capabilities.dart
 dart run advanced_features.dart
 dart run responses_api.dart
+dart run build_openai_responses_demo.dart
 ```
 
 ## Unique Capabilities
@@ -94,7 +98,12 @@ final assistant = await assistantProvider.createAssistant(
 
 ### Responses API
 
+The Responses API is OpenAI's new stateful API that combines the simplicity of Chat Completions with advanced capabilities:
+
+#### Basic Usage
+
 ```dart
+// Traditional approach
 final provider = await ai()
     .openai((openai) => openai
         .useResponsesAPI()
@@ -103,6 +112,66 @@ final provider = await ai()
     .apiKey('your-key')
     .model('gpt-4o')
     .build();
+
+// New convenience method (recommended)
+final provider = await ai()
+    .openai((openai) => openai
+        .webSearchTool()
+        .fileSearchTool(vectorStoreIds: ['vs_123']))
+    .apiKey('your-key')
+    .model('gpt-4o')
+    .buildOpenAIResponses(); // Automatically enables Responses API
+```
+
+#### Stateful Conversations
+
+```dart
+// Using buildOpenAIResponses() - no casting needed!
+final provider = await ai().openai().apiKey('your-key')
+    .model('gpt-4o').buildOpenAIResponses();
+
+// Direct access to Responses API
+final responses = provider.responses!;
+
+// Create initial response
+final response1 = await responses.chat([
+  ChatMessage.user('My name is Alice. Tell me about AI'),
+]);
+
+// Continue conversation with state preservation
+final responseId = (response1 as OpenAIResponsesResponse).responseId;
+final response2 = await responses.continueConversation(responseId!, [
+  ChatMessage.user('Remember my name and explain machine learning'),
+]);
+```
+
+#### Background Processing
+
+```dart
+// Start long-running task in background
+final backgroundResponse = await responses.chatWithToolsBackground([
+  ChatMessage.user('Write a detailed research report'),
+], null);
+
+// Check status later
+final responseId = (backgroundResponse as OpenAIResponsesResponse).responseId;
+final result = await responses.getResponse(responseId!);
+```
+
+#### Response Lifecycle Management
+
+```dart
+// Retrieve response by ID
+final response = await responses.getResponse('resp_123');
+
+// List input items
+final inputItems = await responses.listInputItems('resp_123');
+
+// Delete response
+await responses.deleteResponse('resp_123');
+
+// Cancel background response
+await responses.cancelResponse('resp_123');
 
 final response = await provider.chat([
   ChatMessage.user('Search for recent AI developments'),
