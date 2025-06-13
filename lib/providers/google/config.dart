@@ -65,6 +65,7 @@ class GoogleConfig {
   final double? topP;
   final int? topK;
   final List<Tool>? tools;
+  final ToolChoice? toolChoice;
   final StructuredOutputFormat? jsonSchema;
   final ReasoningEffort? reasoningEffort;
   final int? thinkingBudgetTokens;
@@ -96,6 +97,7 @@ class GoogleConfig {
     this.topP,
     this.topK,
     this.tools,
+    this.toolChoice,
     this.jsonSchema,
     this.reasoningEffort,
     this.thinkingBudgetTokens,
@@ -126,6 +128,7 @@ class GoogleConfig {
       topP: config.topP,
       topK: config.topK,
       tools: config.tools,
+      toolChoice: config.toolChoice,
       // Google-specific extensions
       reasoningEffort: ReasoningEffort.fromString(
           config.getExtension<String>('reasoningEffort')),
@@ -218,6 +221,7 @@ class GoogleConfig {
     double? topP,
     int? topK,
     List<Tool>? tools,
+    ToolChoice? toolChoice,
     StructuredOutputFormat? jsonSchema,
     ReasoningEffort? reasoningEffort,
     int? thinkingBudgetTokens,
@@ -244,6 +248,7 @@ class GoogleConfig {
         topP: topP ?? this.topP,
         topK: topK ?? this.topK,
         tools: tools ?? this.tools,
+        toolChoice: toolChoice ?? this.toolChoice,
         jsonSchema: jsonSchema ?? this.jsonSchema,
         reasoningEffort: reasoningEffort ?? this.reasoningEffort,
         thinkingBudgetTokens: thinkingBudgetTokens ?? this.thinkingBudgetTokens,
