@@ -58,9 +58,10 @@ jobs:
       - name: Create GitHub release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_NOTES: ${{ steps.notes.outputs.release_notes }}
         run: |
           # Write release notes to temporary file to handle special characters safely
-          echo '${{ steps.notes.outputs.release_notes }}' > /tmp/release_notes.txt
+          printf '%s\n' "$RELEASE_NOTES" > /tmp/release_notes.txt
           gh release create "$GITHUB_REF_NAME" \
             --title "$GITHUB_REF_NAME" \
             --notes-file /tmp/release_notes.txt
