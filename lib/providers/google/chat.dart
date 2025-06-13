@@ -526,6 +526,13 @@ class GoogleChat implements ChatCapability {
               effectiveTools.map((t) => _convertTool(t)).toList(),
         },
       ];
+
+      // Add tool choice configuration
+      final effectiveToolChoice = config.toolChoice;
+      if (effectiveToolChoice != null) {
+        body['tool_config'] =
+            _convertToolChoice(effectiveToolChoice, effectiveTools);
+      }
     }
 
     return body;
@@ -665,6 +672,53 @@ class GoogleChat implements ChatCapability {
           'properties': {},
         },
       };
+    }
+  }
+
+  /// Convert ToolChoice to Google format
+  ///
+  /// https://ai.google.dev/gemini-api/docs/function-calling?example=meeting#function_calling_modes
+  ///
+  Map<String, dynamic> _convertToolChoice(
+      ToolChoice toolChoice, List<Tool> tools) {
+    switch (toolChoice) {
+      case AutoToolChoice():
+        return {
+          'function_calling_config': {
+            'mode': 'AUTO',
+          },
+        };
+      case AnyToolChoice():
+        return {
+          'function_calling_config': {
+            'mode': 'ANY',
+          },
+        };
+      case SpecificToolChoice(toolName: final toolName):
+        // Validate that the specified tool exists in the available tools
+        final toolExists = tools.any((tool) => tool.function.name == toolName);
+        if (!toolExists) {
+          client.logger.warning(
+              'Tool "$toolName" specified in SpecificToolChoice not found in available tools');
+          // Fall back to AUTO mode if tool not found
+          return {
+            'function_calling_config': {
+              'mode': 'AUTO',
+            },
+          };
+        }
+        return {
+          'function_calling_config': {
+            'mode': 'ANY',
+            'allowed_function_names': [toolName],
+          },
+        };
+      case NoneToolChoice():
+        return {
+          'function_calling_config': {
+            'mode': 'NONE',
+          },
+        };
     }
   }
 }
