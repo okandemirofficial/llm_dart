@@ -6,34 +6,63 @@ import 'package:llm_dart/llm_dart.dart';
 ///
 /// This example demonstrates the new layered approach to HTTP configuration,
 /// which provides a cleaner and more organized way to configure HTTP settings.
+///
+/// Before running, set API keys for the providers you want to test:
+/// export OPENAI_API_KEY="your-openai-key"
+/// export ANTHROPIC_API_KEY="your-anthropic-key"
+/// export DEEPSEEK_API_KEY="your-deepseek-key"
 Future<void> main() async {
   print('🏗️  Layered HTTP Configuration Demo\n');
 
-  // Get API key from environment
-  final apiKey = Platform.environment['OPENAI_API_KEY'];
-  if (apiKey == null) {
-    print('❌ Please set OPENAI_API_KEY environment variable');
+  // Get API keys from environment
+  final apiKeys = {
+    'openai': Platform.environment['OPENAI_API_KEY'],
+    'anthropic': Platform.environment['ANTHROPIC_API_KEY'],
+    'deepseek': Platform.environment['DEEPSEEK_API_KEY'],
+  };
+
+  // Check if we have at least one API key
+  final availableKeys = apiKeys.entries.where((e) => e.value != null).toList();
+  if (availableKeys.isEmpty) {
+    print('❌ Please set at least one API key:');
+    print('   OPENAI_API_KEY, ANTHROPIC_API_KEY, or DEEPSEEK_API_KEY');
     return;
   }
 
-  await demonstrateBasicLayeredConfig(apiKey);
-  await demonstrateAdvancedLayeredConfig(apiKey);
-  await demonstrateCustomDioClient(apiKey);
-  await demonstrateTimeoutPriorityInLayeredConfig(apiKey);
+  print('📋 Available providers:');
+  for (final entry in availableKeys) {
+    print('   ✅ ${entry.key.toUpperCase()}');
+  }
+  print('');
+
+  // Run demonstrations with available keys
+  if (apiKeys['openai'] != null) {
+    await demonstrateBasicLayeredConfig(apiKeys['openai']!);
+  }
+
+  if (apiKeys['anthropic'] != null) {
+    await demonstrateAdvancedLayeredConfig(apiKeys['anthropic']!);
+    await demonstrateCustomDioClient(apiKeys['anthropic']!);
+  }
+
+  if (apiKeys['deepseek'] != null) {
+    await demonstrateTimeoutPriorityInLayeredConfig(apiKeys['deepseek']!);
+  }
+
   await demonstrateConfigReusability();
 
   print('✅ Layered HTTP configuration demonstration completed!');
 }
 
 /// Demonstrate basic layered HTTP configuration
-Future<void> demonstrateBasicLayeredConfig(String apiKey) async {
-  print('🔧 Basic Layered HTTP Configuration:\n');
+Future<void> demonstrateBasicLayeredConfig(String openaiApiKey) async {
+  print('🔧 Basic Layered HTTP Configuration (OpenAI):\n');
 
   try {
     // Clean, organized HTTP configuration
     final provider = await ai()
         .openai()
-        .apiKey(apiKey)
+        .apiKey(openaiApiKey)
         .model('gpt-4o-mini')
         .http((http) => http
             .headers({'X-Request-ID': 'layered-demo-001'})
@@ -53,14 +82,14 @@ Future<void> demonstrateBasicLayeredConfig(String apiKey) async {
 }
 
 /// Demonstrate advanced layered HTTP configuration
-Future<void> demonstrateAdvancedLayeredConfig(String apiKey) async {
-  print('🚀 Advanced Layered HTTP Configuration:\n');
+Future<void> demonstrateAdvancedLayeredConfig(String anthropicApiKey) async {
+  print('🚀 Advanced Layered HTTP Configuration (Anthropic):\n');
 
   try {
     // Complex HTTP configuration with multiple settings
     final provider = await ai()
         .anthropic()
-        .apiKey(apiKey)
+        .apiKey(anthropicApiKey)
         .model('claude-3-5-haiku-20241022')
         .http((http) => http
                 // Headers configuration
@@ -98,8 +127,8 @@ Future<void> demonstrateAdvancedLayeredConfig(String apiKey) async {
 }
 
 /// Demonstrate custom Dio client for advanced HTTP control
-Future<void> demonstrateCustomDioClient(String apiKey) async {
-  print('🔧 Custom Dio Client for Advanced HTTP Control:\n');
+Future<void> demonstrateCustomDioClient(String anthropicApiKey) async {
+  print('🔧 Custom Dio Client for Advanced HTTP Control (Anthropic):\n');
 
   try {
     // Create custom Dio with advanced configuration
@@ -160,7 +189,7 @@ Future<void> demonstrateCustomDioClient(String apiKey) async {
     // Use custom Dio with the provider
     final provider = await ai()
         .anthropic()
-        .apiKey(apiKey)
+        .apiKey(anthropicApiKey)
         .model('claude-3-5-haiku-20241022')
         .http((http) => http
             .dioClient(customDio) // 🎯 Custom Dio takes highest priority
@@ -193,14 +222,15 @@ Future<void> demonstrateCustomDioClient(String apiKey) async {
 }
 
 /// Demonstrate timeout priority in layered configuration
-Future<void> demonstrateTimeoutPriorityInLayeredConfig(String apiKey) async {
-  print('⏱️  Timeout Priority in Layered Configuration:\n');
+Future<void> demonstrateTimeoutPriorityInLayeredConfig(
+    String deepseekApiKey) async {
+  print('⏱️  Timeout Priority in Layered Configuration (DeepSeek):\n');
 
   try {
     // Example: Global timeout with HTTP-specific overrides
     final provider = await ai()
         .deepseek()
-        .apiKey(apiKey)
+        .apiKey(deepseekApiKey)
         .model('deepseek-chat')
         .timeout(Duration(minutes: 2)) // Global timeout: 2 minutes
         .http((http) => http

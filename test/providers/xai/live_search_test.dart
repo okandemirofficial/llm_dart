@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:test/test.dart';
 import 'package:llm_dart/llm_dart.dart';
 
@@ -13,14 +12,15 @@ void main() {
           .build();
 
       expect(provider, isA<XAIProvider>());
-      
+
       // Access the internal config to verify live search is enabled
       final xaiProvider = provider as XAIProvider;
       expect(xaiProvider.config.liveSearch, isTrue);
       expect(xaiProvider.config.searchParameters, isNotNull);
       expect(xaiProvider.config.searchParameters!.mode, equals('auto'));
       expect(xaiProvider.config.searchParameters!.sources, isNotEmpty);
-      expect(xaiProvider.config.searchParameters!.sources!.first.sourceType, equals('web'));
+      expect(xaiProvider.config.searchParameters!.sources!.first.sourceType,
+          equals('web'));
     });
 
     test('should configure news search correctly', () async {
@@ -38,9 +38,11 @@ void main() {
       final xaiProvider = provider as XAIProvider;
       expect(xaiProvider.config.searchParameters, isNotNull);
       expect(xaiProvider.config.searchParameters!.maxSearchResults, equals(5));
-      expect(xaiProvider.config.searchParameters!.fromDate, equals('2024-01-01'));
+      expect(
+          xaiProvider.config.searchParameters!.fromDate, equals('2024-01-01'));
       expect(xaiProvider.config.searchParameters!.toDate, equals('2024-12-31'));
-      expect(xaiProvider.config.searchParameters!.sources!.first.sourceType, equals('news'));
+      expect(xaiProvider.config.searchParameters!.sources!.first.sourceType,
+          equals('news'));
     });
 
     test('should configure web search with custom parameters', () async {
@@ -69,7 +71,7 @@ void main() {
       );
 
       final json = searchParams.toJson();
-      
+
       expect(json['mode'], equals('auto'));
       expect(json['max_search_results'], equals(5));
       expect(json['sources'], isA<List>());
@@ -86,7 +88,7 @@ void main() {
       );
 
       final json = searchParams.toJson();
-      
+
       expect(json['mode'], equals('auto'));
       expect(json['max_search_results'], equals(3));
       expect(json['from_date'], equals('2024-01-01'));
@@ -101,7 +103,7 @@ void main() {
       );
 
       final json = searchParams.toJson();
-      
+
       expect(json['mode'], equals('auto'));
       expect(json['max_search_results'], equals(8));
       expect(json['sources'], hasLength(2));
@@ -116,7 +118,7 @@ void main() {
       );
 
       final json = source.toJson();
-      
+
       expect(json['type'], equals('web'));
       expect(json['excluded_websites'], contains('spam.com'));
       expect(json['excluded_websites'], contains('ads.com'));
@@ -126,7 +128,7 @@ void main() {
       final source = SearchSource(sourceType: 'news');
 
       final json = source.toJson();
-      
+
       expect(json['type'], equals('news'));
       expect(json.containsKey('excluded_websites'), isFalse);
     });
@@ -142,7 +144,8 @@ void main() {
       expect(provider.config.liveSearch, isTrue);
       expect(provider.config.searchParameters, isNotNull);
       expect(provider.config.searchParameters!.maxSearchResults, equals(7));
-      expect(provider.config.searchParameters!.sources!.first.excludedWebsites, contains('blocked.com'));
+      expect(provider.config.searchParameters!.sources!.first.excludedWebsites,
+          contains('blocked.com'));
     });
 
     test('should create search provider with convenience function', () {
@@ -163,7 +166,9 @@ void main() {
   });
 
   group('xAI Live Search Request Building', () {
-    test('should include search_parameters in request body when live search enabled', () {
+    test(
+        'should include search_parameters in request body when live search enabled',
+        () {
       final config = XAIConfig(
         apiKey: 'test-key',
         model: 'grok-3',
@@ -171,8 +176,8 @@ void main() {
         searchParameters: SearchParameters.webSearch(maxResults: 5),
       );
 
-      final chat = XAIChat(XAIClient(config), config);
-      
+      // final chat = XAIChat(XAIClient(config), config);
+
       // Use reflection or create a test method to access _buildRequestBody
       // For now, we'll test the config setup
       expect(config.liveSearch, isTrue);
