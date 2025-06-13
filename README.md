@@ -29,6 +29,7 @@ A modular Dart library for AI provider interactions. This library provides a uni
 ## Features
 
 - **Multi-provider support**: OpenAI, Anthropic, Google, DeepSeek, Groq, Ollama, xAI, ElevenLabs
+- **OpenAI Responses API**: Stateful conversations with built-in tools (web search, file search, computer use)
 - **Thinking process access**: Model reasoning for Claude, DeepSeek, Gemini
 - **Unified capabilities**: Chat, streaming, tools, audio, images, files, web search, embeddings
 - **MCP integration**: Model Context Protocol for external tool access
