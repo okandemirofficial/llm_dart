@@ -114,7 +114,7 @@ class OpenAICompatibleConfigs {
     supportsReasoningEffort: false,
     supportsStructuredOutput: true,
     modelConfigs: {
-      'grok-2-latest': ModelCapabilityConfig(
+      'grok-3': ModelCapabilityConfig(
         supportsReasoning: false,
         supportsVision: true,
         supportsToolCalling: true,

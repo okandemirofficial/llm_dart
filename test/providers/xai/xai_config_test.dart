@@ -11,7 +11,7 @@ void main() {
 
         expect(config.apiKey, equals('test-api-key'));
         expect(config.baseUrl, equals('https://api.x.ai/v1/'));
-        expect(config.model, equals('grok-2-latest'));
+        expect(config.model, equals('grok-3'));
         expect(config.maxTokens, isNull);
         expect(config.temperature, isNull);
         expect(config.systemPrompt, isNull);
@@ -69,7 +69,7 @@ void main() {
       test('should detect reasoning support for Grok models', () {
         const config = XAIConfig(
           apiKey: 'test-key',
-          model: 'grok-2-latest',
+          model: 'grok-3',
         );
 
         expect(config.supportsReasoning, isTrue);
@@ -87,7 +87,7 @@ void main() {
       test('should not support vision for regular models', () {
         const config = XAIConfig(
           apiKey: 'test-key',
-          model: 'grok-2-latest',
+          model: 'grok-3',
         );
 
         expect(config.supportsVision, isFalse);
@@ -96,7 +96,7 @@ void main() {
       test('should support tool calling', () {
         const config = XAIConfig(
           apiKey: 'test-key',
-          model: 'grok-2-latest',
+          model: 'grok-3',
         );
 
         expect(config.supportsToolCalling, isTrue);
@@ -105,7 +105,7 @@ void main() {
       test('should detect search support for Grok models', () {
         const config = XAIConfig(
           apiKey: 'test-key',
-          model: 'grok-2-latest',
+          model: 'grok-3',
         );
 
         expect(config.supportsSearch, isTrue);
@@ -123,7 +123,7 @@ void main() {
       test('should not support embeddings for chat models', () {
         const config = XAIConfig(
           apiKey: 'test-key',
-          model: 'grok-2-latest',
+          model: 'grok-3',
         );
 
         expect(config.supportsEmbeddings, isFalse);
@@ -164,7 +164,7 @@ void main() {
       test('should detect Grok family', () {
         const config = XAIConfig(
           apiKey: 'test-key',
-          model: 'grok-2-latest',
+          model: 'grok-3',
         );
 
         expect(config.modelFamily, equals('Grok'));
@@ -193,7 +193,7 @@ void main() {
       test('should copy config with new values', () {
         const original = XAIConfig(
           apiKey: 'original-key',
-          model: 'grok-2-latest',
+          model: 'grok-3',
           temperature: 0.5,
           liveSearch: false,
         );
@@ -205,7 +205,7 @@ void main() {
         );
 
         expect(copied.apiKey, equals('new-key'));
-        expect(copied.model, equals('grok-2-latest')); // Unchanged
+        expect(copied.model, equals('grok-3')); // Unchanged
         expect(copied.temperature, equals(0.8));
         expect(copied.liveSearch, isTrue);
       });
@@ -239,7 +239,7 @@ void main() {
         final llmConfig = LLMConfig(
           apiKey: 'test-key',
           baseUrl: 'https://api.x.ai/v1/',
-          model: 'grok-2-latest',
+          model: 'grok-3',
           maxTokens: 2000,
           temperature: 0.7,
           systemPrompt: 'You are helpful',
@@ -259,7 +259,7 @@ void main() {
 
         expect(xaiConfig.apiKey, equals('test-key'));
         expect(xaiConfig.baseUrl, equals('https://api.x.ai/v1/'));
-        expect(xaiConfig.model, equals('grok-2-latest'));
+        expect(xaiConfig.model, equals('grok-3'));
         expect(xaiConfig.maxTokens, equals(2000));
         expect(xaiConfig.temperature, equals(0.7));
         expect(xaiConfig.systemPrompt, equals('You are helpful'));
@@ -277,7 +277,7 @@ void main() {
         final llmConfig = LLMConfig(
           apiKey: 'test-key',
           baseUrl: 'https://api.x.ai/v1/',
-          model: 'grok-2-latest',
+          model: 'grok-3',
           extensions: {'customParam': 'customValue'},
         );
 
@@ -291,7 +291,7 @@ void main() {
         final llmConfig = LLMConfig(
           apiKey: 'test-key',
           baseUrl: 'https://api.x.ai/v1/',
-          model: 'grok-2-latest',
+          model: 'grok-3',
           extensions: {
             'webSearchEnabled': true,
           },

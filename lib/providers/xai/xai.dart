@@ -25,7 +25,7 @@
 /// // Use search with Grok
 /// final searchConfig = XAIConfig(
 ///   apiKey: 'your-api-key',
-///   model: 'grok-2-latest',
+///   model: 'grok-3',
 ///   searchParameters: SearchParameters(
 ///     mode: 'auto',
 ///     sources: [SearchSource(sourceType: 'web')],

@@ -203,7 +203,7 @@ void main() {
       final config = XAIConfig(
         baseUrl: 'https://api.x.ai/v1/',
         apiKey: 'test-key',
-        model: 'grok-2-latest',
+        model: 'grok-3',
       );
 
       final strategy = XAIDioStrategy();

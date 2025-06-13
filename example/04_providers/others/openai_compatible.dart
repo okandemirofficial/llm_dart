@@ -236,7 +236,7 @@ Future<void> demonstrateProviderComparison(Map<String, String> apiKeys) async {
             provider = await ai()
                 .xaiOpenAI()
                 .apiKey(apiKeys['xai']!)
-                .model('grok-2-latest')
+                .model('grok-3')
                 .temperature(0.8)
                 .maxTokens(150)
                 .build();

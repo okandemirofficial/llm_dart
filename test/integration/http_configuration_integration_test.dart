@@ -121,7 +121,7 @@ void main() {
         final builder = LLMBuilder()
             .xai()
             .apiKey('test-key')
-            .model('grok-2-latest')
+            .model('grok-3')
             .http((http) => http.headers({'X-xAI-Custom': 'value'}).sendTimeout(
                 Duration(seconds: 120)));
 
@@ -262,7 +262,7 @@ void main() {
         final builder = LLMBuilder()
             .xai()
             .apiKey('test-key')
-            .model('grok-2-latest')
+            .model('grok-3')
             .http((http) => http
                 .headers({'X-Search-Enabled': 'true'}).receiveTimeout(
                     Duration(minutes: 5)))

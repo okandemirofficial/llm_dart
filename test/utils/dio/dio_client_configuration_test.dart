@@ -177,7 +177,7 @@ void main() {
         final config = XAIConfig(
           apiKey: 'test-key',
           baseUrl: 'https://api.x.ai/v1/',
-          model: 'grok-2-latest',
+          model: 'grok-3',
         );
         final client = XAIClient(config);
 

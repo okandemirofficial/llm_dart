@@ -183,7 +183,7 @@ void main() {
           final provider = await ai()
               .xai()
               .apiKey('test-api-key')
-              .model('grok-2-latest')
+              .model('grok-3')
               .http((http) => http
                   .enableLogging(true)
                   .headers({'X-Test-Client': 'llm-dart-test'}))

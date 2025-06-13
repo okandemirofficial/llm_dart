@@ -90,7 +90,7 @@ class ProviderDefaults {
 
   // xAI
   static const String xaiBaseUrl = 'https://api.x.ai/v1/';
-  static const String xaiDefaultModel = 'grok-2-latest';
+  static const String xaiDefaultModel = 'grok-3';
 
   // Phind
   static const String phindBaseUrl = 'https://api.phind.com/v1/';
