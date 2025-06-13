@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:llm_dart/llm_dart.dart';
 
 /// xAI Grok Live Search Examples
@@ -43,15 +44,22 @@ Future<void> main() async {
 /// Initialize xAI provider with live search capabilities
 Future<ChatCapability?> initializeXAIProvider() async {
   try {
-    // xAI API key should be set in environment or passed directly
-    final apiKey = 'your-xai-api-key'; // Replace with actual key
+    // Get xAI API key from environment variable
+    final apiKey = Platform.environment['XAI_API_KEY'];
+
+    if (apiKey == null || apiKey.isEmpty) {
+      print('❌ XAI_API_KEY environment variable not set.');
+      print('💡 Please set your xAI API key:');
+      print('   export XAI_API_KEY="your-actual-xai-api-key"');
+      return null;
+    }
 
     return await ai()
         .xai()
         .apiKey(apiKey)
-        .model('grok-beta') // Use Grok model for live search
+        .model('grok-3') // Use latest Grok-3 model for live search
         .temperature(0.7)
-        // Note: Live search is enabled by default in xAI Grok models
+        .enableWebSearch() // Enable live search functionality
         .build();
   } catch (e) {
     print('⚠️  xAI provider initialization failed: $e');

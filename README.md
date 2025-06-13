@@ -208,7 +208,7 @@ print('DeepSeek reasoning: ${reasoningResponse.thinking}');
 final provider = await ai()
     .xai()
     .apiKey('your-xai-key')
-    .model('grok-2-latest')
+    .model('grok-3')
     .enableWebSearch()
     .build();
 
@@ -368,7 +368,7 @@ final provider = ollama(
 final provider = await ai()
     .xai()
     .apiKey('your-xai-key')
-    .model('grok-2-latest')
+    .model('grok-3')
     .enableWebSearch()
     .build();
 

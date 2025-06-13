@@ -16,7 +16,7 @@
 ///
 /// final provider = XAIProvider(XAIConfig(
 ///   apiKey: 'your-api-key',
-///   model: 'grok-2-latest',
+///   model: 'grok-3',
 /// ));
 ///
 /// // Use chat capability
@@ -53,7 +53,7 @@ export 'embeddings.dart';
 /// Create an xAI provider with default settings
 XAIProvider createXAIProvider({
   required String apiKey,
-  String model = 'grok-2-latest',
+  String model = 'grok-3',
   String baseUrl = 'https://api.x.ai/v1/',
   double? temperature,
   int? maxTokens,
@@ -78,7 +78,7 @@ XAIProvider createXAIProvider({
 /// Create an xAI provider with search capabilities
 XAIProvider createXAISearchProvider({
   required String apiKey,
-  String model = 'grok-2-latest',
+  String model = 'grok-3',
   double? temperature,
   int? maxTokens,
   String? systemPrompt,
@@ -118,7 +118,7 @@ XAIProvider createXAISearchProvider({
 /// ```dart
 /// final provider = createXAILiveSearchProvider(
 ///   apiKey: 'your-api-key',
-///   model: 'grok-2-latest',
+///   model: 'grok-3',
 ///   maxSearchResults: 5,
 /// );
 ///
@@ -128,7 +128,7 @@ XAIProvider createXAISearchProvider({
 /// ```
 XAIProvider createXAILiveSearchProvider({
   required String apiKey,
-  String model = 'grok-2-latest',
+  String model = 'grok-3',
   double? temperature,
   int? maxTokens,
   String? systemPrompt,

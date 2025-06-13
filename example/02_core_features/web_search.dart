@@ -70,7 +70,7 @@ Future<void> demoBasicWebSearch(String? xaiKey, String? anthropicKey,
       final provider = await ai()
           .xai()
           .apiKey(xaiKey)
-          .model('grok-2-latest')
+          .model('grok-3')
           .enableWebSearch()
           .build();
 

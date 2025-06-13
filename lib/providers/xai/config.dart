@@ -201,7 +201,7 @@ class XAIConfig {
   const XAIConfig({
     required this.apiKey,
     this.baseUrl = 'https://api.x.ai/v1/',
-    this.model = 'grok-2-latest',
+    this.model = 'grok-3',
     this.maxTokens,
     this.temperature,
     this.systemPrompt,

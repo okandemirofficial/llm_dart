@@ -214,7 +214,7 @@ Future<void> demonstrateComprehensiveConfig(String apiKey) async {
     final provider = await ai()
         .xai()
         .apiKey(apiKey)
-        .model('grok-2-latest')
+        .model('grok-3')
         // HTTP configuration using the new layered approach
         .http((http) => http
             .headers({

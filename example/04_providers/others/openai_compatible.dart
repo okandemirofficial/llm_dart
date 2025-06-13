@@ -63,7 +63,7 @@ Future<void> demonstrateAllProviders(Map<String, String> apiKeys) async {
     {
       'name': 'xAI Grok',
       'method': 'xaiOpenAI',
-      'model': 'grok-2-latest',
+      'model': 'grok-3',
       'key': apiKeys['xai']!,
       'description': 'Real-time info with personality'
     },
