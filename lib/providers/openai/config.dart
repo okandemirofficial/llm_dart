@@ -71,6 +71,9 @@ class OpenAIConfig {
   /// Get extension value from original config
   T? getExtension<T>(String key) => _originalConfig?.getExtension<T>(key);
 
+  /// Get the original LLMConfig for HTTP configuration
+  LLMConfig? get originalConfig => _originalConfig;
+
   OpenAIConfig copyWith({
     String? apiKey,
     String? baseUrl,

@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:logging/logging.dart';
 
+import '../../utils/dio_client_factory.dart';
 import '../../utils/utf8_stream_decoder.dart';
 import 'config.dart';
+import 'dio_strategy.dart';
 
 /// Core Google HTTP client shared across all capability modules
 ///
@@ -19,14 +21,14 @@ class GoogleClient {
   late final Dio dio;
 
   GoogleClient(this.config) {
-    dio = Dio(BaseOptions(
-      baseUrl: config.baseUrl,
-      headers: {'Content-Type': 'application/json'},
-      connectTimeout: config.timeout,
-      receiveTimeout: config.timeout,
-      sendTimeout: config.timeout,
-    ));
+    // Use unified Dio client factory with Google-specific strategy
+    dio = DioClientFactory.create(
+      strategy: GoogleDioStrategy(),
+      config: config,
+    );
   }
+
+
 
   /// Get endpoint with API key authentication
   String _getEndpointWithAuth(String endpoint) {

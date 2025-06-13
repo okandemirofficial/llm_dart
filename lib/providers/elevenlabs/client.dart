@@ -3,7 +3,9 @@ import 'package:dio/dio.dart';
 import 'package:logging/logging.dart';
 
 import '../../core/llm_error.dart';
+import '../../utils/dio_client_factory.dart';
 import 'config.dart';
+import 'dio_strategy.dart';
 
 /// ElevenLabs HTTP client implementation
 ///
@@ -13,9 +15,15 @@ class ElevenLabsClient {
   static final Logger _logger = Logger('ElevenLabsClient');
 
   final ElevenLabsConfig config;
-  final Dio _dio;
+  late final Dio _dio;
 
-  ElevenLabsClient(this.config) : _dio = _createDio(config);
+  ElevenLabsClient(this.config) {
+    // Use unified Dio client factory with ElevenLabs-specific strategy
+    _dio = DioClientFactory.create(
+      strategy: ElevenLabsDioStrategy(),
+      config: config,
+    );
+  }
 
   /// Logger instance for debugging
   Logger get logger => _logger;
@@ -133,20 +141,5 @@ class ElevenLabsClient {
     return response.headers.value('content-type');
   }
 
-  /// Create configured Dio instance for ElevenLabs API
-  static Dio _createDio(ElevenLabsConfig config) {
-    final dio = Dio(
-      BaseOptions(
-        baseUrl: config.baseUrl,
-        connectTimeout: config.timeout ?? const Duration(seconds: 60),
-        receiveTimeout: config.timeout ?? const Duration(seconds: 60),
-        headers: {
-          'xi-api-key': config.apiKey,
-          'Content-Type': 'application/json',
-        },
-      ),
-    );
 
-    return dio;
-  }
 }

@@ -85,6 +85,9 @@ class OllamaConfig {
   /// Get extension value from original config
   T? getExtension<T>(String key) => _originalConfig?.getExtension<T>(key);
 
+  /// Get the original LLMConfig for HTTP configuration
+  LLMConfig? get originalConfig => _originalConfig;
+
   /// Check if this model supports reasoning/thinking
   bool get supportsReasoning {
     // Some Ollama models support reasoning, especially newer ones

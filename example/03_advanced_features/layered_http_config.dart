@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:llm_dart/llm_dart.dart';
 
 /// Layered HTTP Configuration Example
@@ -17,8 +18,8 @@ Future<void> main() async {
 
   await demonstrateBasicLayeredConfig(apiKey);
   await demonstrateAdvancedLayeredConfig(apiKey);
+  await demonstrateCustomDioClient(apiKey);
   await demonstrateTimeoutPriorityInLayeredConfig(apiKey);
-  await demonstrateComparisonWithFlatAPI(apiKey);
   await demonstrateConfigReusability();
 
   print('✅ Layered HTTP configuration demonstration completed!');
@@ -96,6 +97,99 @@ Future<void> demonstrateAdvancedLayeredConfig(String apiKey) async {
   }
 }
 
+/// Demonstrate custom Dio client for advanced HTTP control
+Future<void> demonstrateCustomDioClient(String apiKey) async {
+  print('🔧 Custom Dio Client for Advanced HTTP Control:\n');
+
+  try {
+    // Create custom Dio with advanced configuration
+    final customDio = Dio();
+
+    // Configure custom timeouts
+    customDio.options.connectTimeout = Duration(seconds: 20);
+    customDio.options.receiveTimeout = Duration(minutes: 3);
+    customDio.options.sendTimeout = Duration(seconds: 30);
+
+    // Add custom headers
+    customDio.options.headers.addAll({
+      'X-Custom-Client': 'LLMDart-Advanced',
+      'X-Client-Version': '2.0.0',
+      'X-Request-Source': 'custom-dio-demo',
+    });
+
+    // Add monitoring interceptor
+    customDio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        final requestId = 'req-${DateTime.now().millisecondsSinceEpoch}';
+        options.headers['X-Request-ID'] = requestId;
+        print('   🚀 Starting request: $requestId to ${options.uri.host}');
+        options.extra['start_time'] = DateTime.now();
+        handler.next(options);
+      },
+      onResponse: (response, handler) {
+        final startTime = response.requestOptions.extra['start_time'] as DateTime?;
+        if (startTime != null) {
+          final duration = DateTime.now().difference(startTime);
+          print('   ✅ Request completed in ${duration.inMilliseconds}ms');
+        }
+        handler.next(response);
+      },
+      onError: (error, handler) {
+        final startTime = error.requestOptions.extra['start_time'] as DateTime?;
+        if (startTime != null) {
+          final duration = DateTime.now().difference(startTime);
+          print('   ❌ Request failed after ${duration.inMilliseconds}ms');
+        }
+        handler.next(error);
+      },
+    ));
+
+    // Add retry interceptor for production resilience
+    customDio.interceptors.add(InterceptorsWrapper(
+      onError: (error, handler) async {
+        if (error.response?.statusCode == 429) {
+          print('   ⏳ Rate limited, implementing backoff strategy...');
+          await Future.delayed(Duration(seconds: 1));
+          // In production, you might want to retry the request here
+        }
+        handler.next(error);
+      },
+    ));
+
+    // Use custom Dio with the provider
+    final provider = await ai()
+        .anthropic()
+        .apiKey(apiKey)
+        .model('claude-3-5-haiku-20241022')
+        .http((http) => http
+            .dioClient(customDio) // 🎯 Custom Dio takes highest priority
+            .enableLogging(true)  // This will be ignored since custom Dio is used
+            .connectionTimeout(Duration(seconds: 60))) // This will be ignored
+        .build();
+
+    print('   📝 Priority: Custom Dio > HTTP config > Provider defaults');
+    print('   📝 Making request with custom Dio client...\n');
+
+    final response = await provider.chat([
+      ChatMessage.user('Hello! This request uses a custom Dio client with advanced monitoring and retry logic.'),
+    ]);
+
+    print('   ✅ Custom Dio client demonstration successful');
+    print('   📝 Response: ${response.text}\n');
+
+    // Show the benefits
+    print('   🎯 Benefits of Custom Dio Client:');
+    print('   📝 • Complete HTTP control and customization');
+    print('   📝 • Advanced monitoring and metrics collection');
+    print('   📝 • Custom retry and error handling logic');
+    print('   📝 • Integration with existing HTTP infrastructure');
+    print('   📝 • Perfect for production environments\n');
+
+  } catch (e) {
+    print('   ❌ Custom Dio client demonstration failed: $e\n');
+  }
+}
+
 /// Demonstrate timeout priority in layered configuration
 Future<void> demonstrateTimeoutPriorityInLayeredConfig(String apiKey) async {
   print('⏱️  Timeout Priority in Layered Configuration:\n');
@@ -129,74 +223,7 @@ Future<void> demonstrateTimeoutPriorityInLayeredConfig(String apiKey) async {
   }
 }
 
-/// Compare layered API with flat API approach
-Future<void> demonstrateComparisonWithFlatAPI(String apiKey) async {
-  print('📊 Comparison: Layered vs Flat API:\n');
 
-  print('   🔹 Old Flat API approach would look like:');
-  print('   ```dart');
-  print('   final provider = await ai()');
-  print('       .openai()');
-  print('       .apiKey(apiKey)');
-  print('       .customHeaders({...})');
-  print('       .header("X-Extra", "value")');
-  print('       .connectionTimeout(Duration(seconds: 30))');
-  print('       .receiveTimeout(Duration(minutes: 2))');
-  print('       .enableHttpLogging(true)');
-  print('       .proxy("http://proxy:8080")');
-  print('       .bypassSSLVerification(false)');
-  print('       .build();');
-  print('   ```\n');
-
-  print('   🔹 New Layered API approach:');
-  print('   ```dart');
-  print('   final provider = await ai()');
-  print('       .openai()');
-  print('       .apiKey(apiKey)');
-  print('       .http((http) => http');
-  print('           .headers({...})');
-  print('           .header("X-Extra", "value")');
-  print('           .connectionTimeout(Duration(seconds: 30))');
-  print('           .receiveTimeout(Duration(minutes: 2))');
-  print('           .enableLogging(true)');
-  print('           .proxy("http://proxy:8080")');
-  print('           .bypassSSLVerification(false))');
-  print('       .build();');
-  print('   ```\n');
-
-  print('   ✅ Benefits of Layered Approach:');
-  print('   📝 • Cleaner organization of related settings');
-  print('   📝 • Reduced method count on main LLMBuilder');
-  print('   📝 • Better IDE autocomplete grouping');
-  print('   📝 • Easier to extend with new HTTP features');
-  print('   📝 • More maintainable codebase\n');
-
-  try {
-    // Demonstrate the actual layered approach
-    final provider = await ai()
-        .groq()
-        .apiKey(apiKey)
-        .model('llama-3.1-8b-instant')
-        .http((http) => http
-            .headers({
-              'X-Demo-Type': 'layered-comparison',
-              'X-Timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
-            })
-            .connectionTimeout(Duration(seconds: 25))
-            .enableLogging(false)) // Disable logging for cleaner output
-        .build();
-
-    final response = await provider.chat([
-      ChatMessage.user(
-          'This demonstrates the clean layered HTTP configuration approach!'),
-    ]);
-
-    print('   ✅ Layered approach demonstration successful');
-    print('   📝 Response: ${response.text}\n');
-  } catch (e) {
-    print('   ❌ Layered approach demonstration failed: $e\n');
-  }
-}
 
 /// Demonstrate HTTP configuration reusability
 Future<void> demonstrateConfigReusability() async {
@@ -241,4 +268,58 @@ Future<void> demonstrateConfigReusability() async {
       '   📊 Production config settings: ${prodConfig.build().keys.join(', ')}');
   print(
       '   📊 Development config settings: ${devConfig.build().keys.join(', ')}\n');
+
+  // Demonstrate reusable custom Dio factory
+  print('   🔧 Reusable Custom Dio Factory:\n');
+
+  // ignore: unused_element
+  Dio createProductionDio() {
+    final dio = Dio();
+
+    // Production-optimized settings
+    dio.options.connectTimeout = Duration(seconds: 30);
+    dio.options.receiveTimeout = Duration(minutes: 5);
+    dio.options.headers.addAll({
+      'User-Agent': 'LLMDart-Production/1.0',
+      'X-Environment': 'production',
+    });
+
+    // Add production monitoring
+    dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        // Log for production monitoring
+        print('   📊 Production request: ${options.method} ${options.uri.host}');
+        handler.next(options);
+      },
+    ));
+
+    return dio;
+  }
+
+  // ignore: unused_element
+  Dio createDevelopmentDio() {
+    final dio = Dio();
+
+    // Development-friendly settings
+    dio.options.connectTimeout = Duration(seconds: 10);
+    dio.options.receiveTimeout = Duration(seconds: 30);
+    dio.options.headers.addAll({
+      'User-Agent': 'LLMDart-Development/1.0',
+      'X-Environment': 'development',
+      'X-Debug': 'true',
+    });
+
+    // Add verbose logging for development
+    dio.interceptors.add(LogInterceptor(
+      requestBody: true,
+      responseBody: true,
+      logPrint: (obj) => print('   🔍 Dev HTTP: $obj'),
+    ));
+
+    return dio;
+  }
+
+  print('   ✅ Custom Dio factories created for different environments');
+  print('   📝 Usage: .http((http) => http.dioClient(createProductionDio()))');
+  print('   📝 Benefits: Environment-specific optimizations, reusable across projects\n');
 }

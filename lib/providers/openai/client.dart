@@ -4,9 +4,10 @@ import 'package:logging/logging.dart';
 
 import '../../core/llm_error.dart';
 import '../../models/chat_models.dart';
-import '../../utils/config_utils.dart';
+import '../../utils/dio_client_factory.dart';
 import '../../utils/utf8_stream_decoder.dart';
 import 'config.dart';
+import 'dio_strategy.dart';
 
 /// Core OpenAI HTTP client shared across all capability modules
 ///
@@ -23,14 +24,14 @@ class OpenAIClient {
   late final Dio dio;
 
   OpenAIClient(this.config) {
-    dio = Dio(BaseOptions(
-      baseUrl: config.baseUrl,
-      headers: ConfigUtils.buildOpenAIHeaders(config.apiKey),
-      connectTimeout: config.timeout,
-      receiveTimeout: config.timeout,
-      sendTimeout: config.timeout,
-    ));
+    // Use unified Dio client factory with OpenAI-specific strategy
+    dio = DioClientFactory.create(
+      strategy: OpenAIDioStrategy(),
+      config: config,
+    );
   }
+
+
 
   /// Get provider ID based on base URL for provider-specific behavior
   String get providerId {

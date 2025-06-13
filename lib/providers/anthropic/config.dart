@@ -141,6 +141,9 @@ class AnthropicConfig {
   /// Get extension value from original config
   T? getExtension<T>(String key) => _originalConfig?.getExtension<T>(key);
 
+  /// Get the original LLMConfig for HTTP configuration
+  LLMConfig? get originalConfig => _originalConfig;
+
   /// Check if this model supports reasoning/thinking
   ///
   /// **Reference:** https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking

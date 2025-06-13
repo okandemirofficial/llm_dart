@@ -3,7 +3,9 @@ import 'package:dio/dio.dart';
 import 'package:logging/logging.dart';
 
 import '../../core/llm_error.dart';
+import '../../utils/dio_client_factory.dart';
 import 'config.dart';
+import 'dio_strategy.dart';
 
 /// Phind HTTP client implementation
 ///
@@ -13,9 +15,15 @@ class PhindClient {
   static final Logger _logger = Logger('PhindClient');
 
   final PhindConfig config;
-  final Dio _dio;
+  late final Dio _dio;
 
-  PhindClient(this.config) : _dio = _createDio(config);
+  PhindClient(this.config) {
+    // Use unified Dio client factory with Phind-specific strategy
+    _dio = DioClientFactory.create(
+      strategy: PhindDioStrategy(),
+      config: config,
+    );
+  }
 
   /// Logger instance for debugging
   Logger get logger => _logger;
@@ -94,24 +102,7 @@ class PhindClient {
     }
   }
 
-  /// Create configured Dio instance for Phind API
-  static Dio _createDio(PhindConfig config) {
-    final dio = Dio(
-      BaseOptions(
-        baseUrl: config.baseUrl,
-        connectTimeout: config.timeout ?? const Duration(seconds: 60),
-        receiveTimeout: config.timeout ?? const Duration(seconds: 60),
-        headers: {
-          'Content-Type': 'application/json',
-          'User-Agent': '', // Phind requires empty User-Agent
-          'Accept': '*/*',
-          'Accept-Encoding': 'Identity',
-        },
-      ),
-    );
 
-    return dio;
-  }
 
   /// Parse the complete Phind streaming response into a single string
   String _parsePhindStreamResponse(String responseText) {

@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:logging/logging.dart';
 
+import '../../utils/dio_client_factory.dart';
 import '../../utils/utf8_stream_decoder.dart';
 import 'config.dart';
+import 'dio_strategy.dart';
 
 /// Core Ollama HTTP client shared across all capability modules
 ///
@@ -20,23 +22,14 @@ class OllamaClient {
   late final Dio dio;
 
   OllamaClient(this.config) {
-    dio = Dio(BaseOptions(
-      baseUrl: config.baseUrl,
-      headers: _buildHeaders(),
-      connectTimeout: config.timeout,
-      receiveTimeout: config.timeout,
-      sendTimeout: config.timeout,
-    ));
+    // Use unified Dio client factory with Ollama-specific strategy
+    dio = DioClientFactory.create(
+      strategy: OllamaDioStrategy(),
+      config: config,
+    );
   }
 
-  /// Build headers for Ollama API requests
-  Map<String, String> _buildHeaders() {
-    final headers = <String, String>{'Content-Type': 'application/json'};
-    if (config.apiKey != null) {
-      headers['Authorization'] = 'Bearer ${config.apiKey}';
-    }
-    return headers;
-  }
+
 
   /// Make a POST request and return JSON response
   Future<Map<String, dynamic>> postJson(

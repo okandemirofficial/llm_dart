@@ -3,8 +3,10 @@ import 'package:dio/dio.dart';
 import 'package:logging/logging.dart';
 
 import '../../core/llm_error.dart';
+import '../../utils/dio_client_factory.dart';
 import '../../utils/utf8_stream_decoder.dart';
 import 'config.dart';
+import 'dio_strategy.dart';
 
 /// Core xAI HTTP client shared across all capability modules
 ///
@@ -21,23 +23,14 @@ class XAIClient {
   late final Dio dio;
 
   XAIClient(this.config) {
-    dio = Dio(BaseOptions(
-      baseUrl: config.baseUrl,
-      headers: _buildXAIHeaders(config.apiKey),
-      connectTimeout: config.timeout,
-      receiveTimeout: config.timeout,
-      sendTimeout: config.timeout,
-    ));
+    // Use unified Dio client factory with xAI-specific strategy
+    dio = DioClientFactory.create(
+      strategy: XAIDioStrategy(),
+      config: config,
+    );
   }
 
-  /// Build xAI-specific HTTP headers
-  static Map<String, String> _buildXAIHeaders(String apiKey) {
-    return {
-      'Authorization': 'Bearer $apiKey',
-      'Content-Type': 'application/json',
-      'User-Agent': 'llm_dart/xai',
-    };
-  }
+
 
   /// Make a POST request and return JSON response
   Future<Map<String, dynamic>> postJson(

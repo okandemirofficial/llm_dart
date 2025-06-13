@@ -29,7 +29,7 @@ Real-time audio streaming and voice activity detection.
 Comprehensive HTTP configuration with proxy, SSL, and custom headers.
 
 ### [layered_http_config.dart](layered_http_config.dart)
-New layered HTTP configuration approach for cleaner code organization.
+New layered HTTP configuration approach with custom Dio client support for advanced HTTP control.
 
 ### [timeout_configuration.dart](timeout_configuration.dart)
 Comprehensive timeout configuration with priority hierarchy and best practices.
@@ -72,6 +72,7 @@ dart run performance_optimization.dart
 
 ### HTTP Configuration
 - **Layered Configuration**: Clean, organized HTTP settings
+- **Custom Dio Client**: Complete HTTP control with custom interceptors
 - **Proxy Support**: Corporate proxy and network configuration
 - **SSL Configuration**: Custom certificates and security settings
 - **Request Customization**: Headers, timeouts, and logging
@@ -146,6 +147,31 @@ final provider = await ai()
     .build();
 ```
 
+### Custom Dio Client (Advanced HTTP Control)
+```dart
+// Create custom Dio with advanced features
+final customDio = Dio();
+customDio.options.connectTimeout = Duration(seconds: 30);
+customDio.options.headers['X-Custom-Client'] = 'MyApp/1.0';
+
+// Add monitoring interceptor
+customDio.interceptors.add(InterceptorsWrapper(
+  onRequest: (options, handler) {
+    print('Request: ${options.method} ${options.uri}');
+    handler.next(options);
+  },
+));
+
+// Use custom Dio (highest priority)
+final provider = await ai()
+    .anthropic()
+    .apiKey('your-key')
+    .http((http) => http
+        .dioClient(customDio)  // Takes priority over other HTTP settings
+        .enableLogging(true))  // This will be ignored
+    .build();
+```
+
 ### Timeout Configuration (Priority Hierarchy)
 ```dart
 // Global timeout with HTTP-specific overrides
@@ -184,10 +210,12 @@ final provider = await ai()
 
 ### HTTP Configuration
 - Use layered configuration for better organization
+- Use custom Dio client for advanced HTTP control and monitoring
 - Disable SSL bypass in production environments
 - Configure appropriate timeouts for your use case
 - Enable logging only in development/debugging
 - Validate proxy and certificate configurations
+- Implement retry logic and error handling in custom interceptors
 
 ### Timeout Configuration
 - Use global timeout for simple scenarios

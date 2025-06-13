@@ -58,6 +58,9 @@ class PhindConfig {
   /// Get extension value from original config
   T? getExtension<T>(String key) => _originalConfig?.getExtension<T>(key);
 
+  /// Get the original LLMConfig for HTTP configuration
+  LLMConfig? get originalConfig => _originalConfig;
+
   /// Check if this model supports tool calling
   bool get supportsToolCalling {
     // Phind doesn't support tool calling yet

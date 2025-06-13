@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:logging/logging.dart';
 
-import '../../utils/config_utils.dart';
+import '../../utils/dio_client_factory.dart';
 import '../../utils/utf8_stream_decoder.dart';
 import 'config.dart';
+import 'dio_strategy.dart';
 
 /// Core Anthropic HTTP client shared across all capability modules
 ///
@@ -26,57 +27,14 @@ class AnthropicClient {
   late final Dio dio;
 
   AnthropicClient(this.config) {
-    dio = Dio(BaseOptions(
-      baseUrl: config.baseUrl,
-      headers: _buildHeaders(),
-      connectTimeout: config.timeout,
-      receiveTimeout: config.timeout,
-      sendTimeout: config.timeout,
-    ));
-
-    // Add request interceptor to set endpoint-specific headers
-    dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) {
-        // Update headers based on endpoint
-        final endpoint = options.path;
-        final headers = _buildHeaders(endpoint: endpoint);
-        options.headers.addAll(headers);
-        handler.next(options);
-      },
-    ));
+    // Use unified Dio client factory with Anthropic-specific strategy
+    dio = DioClientFactory.create(
+      strategy: AnthropicDioStrategy(),
+      config: config,
+    );
   }
 
-  /// Build headers for Anthropic API requests
-  Map<String, String> _buildHeaders({String? endpoint}) {
-    final headers = ConfigUtils.buildAnthropicHeaders(config.apiKey);
 
-    // Add beta headers for new features
-    final betaFeatures = <String>[];
-
-    // Note: Extended thinking is now generally available and doesn't require a beta header
-
-    // Add interleaved thinking if enabled (Claude 4 only)
-    if (config.interleavedThinking && config.supportsInterleavedThinking) {
-      betaFeatures.add('interleaved-thinking-2025-05-14');
-    }
-
-    // Add files API beta for file-related endpoints
-    if (endpoint != null && endpoint.startsWith('files')) {
-      betaFeatures.add('files-api-2025-04-14');
-    }
-
-    // Add MCP connector beta if MCP servers are configured
-    final mcpServers = config.getExtension<List>('mcpServers');
-    if (mcpServers != null && mcpServers.isNotEmpty) {
-      betaFeatures.add('mcp-client-2025-04-04');
-    }
-
-    if (betaFeatures.isNotEmpty) {
-      headers['anthropic-beta'] = betaFeatures.join(',');
-    }
-
-    return headers;
-  }
 
   /// Make a POST request and return JSON response
   Future<Map<String, dynamic>> postJson(
