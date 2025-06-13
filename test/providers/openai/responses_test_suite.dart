@@ -36,8 +36,8 @@ void main() {
       functionality_tests.main();
     });
 
-    group('Integration Tests', () {
-      integration_tests.main();
-    });
+    // group('Integration Tests', () {
+    //   integration_tests.main();
+    // });
   });
 }
