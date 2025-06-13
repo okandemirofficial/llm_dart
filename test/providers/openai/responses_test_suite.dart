@@ -12,7 +12,6 @@ import 'responses_stateful_test.dart' as stateful_tests;
 import 'responses_comprehensive_test.dart' as comprehensive_tests;
 import 'responses_error_handling_test.dart' as error_tests;
 import 'responses_functionality_test.dart' as functionality_tests;
-// import 'responses_integration_test.dart' as integration_tests;
 
 void main() {
   group('OpenAI Responses API Complete Test Suite', () {
@@ -35,9 +34,5 @@ void main() {
     group('Functionality Tests', () {
       functionality_tests.main();
     });
-
-    // group('Integration Tests', () {
-    //   integration_tests.main();
-    // });
   });
 }
