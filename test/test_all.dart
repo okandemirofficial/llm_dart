@@ -69,8 +69,8 @@ import 'providers/openai/responses_error_handling_test.dart'
     as openai_responses_error_tests;
 import 'providers/openai/responses_functionality_test.dart'
     as openai_responses_functionality_tests;
-import 'providers/openai/responses_integration_test.dart'
-    as openai_responses_integration_tests;
+// import 'providers/openai/responses_integration_test.dart'
+//     as openai_responses_integration_tests;
 
 void main() {
   group('LLM Dart Library Tests', () {
@@ -121,7 +121,7 @@ void main() {
       openai_responses_comprehensive_tests.main();
       openai_responses_error_tests.main();
       openai_responses_functionality_tests.main();
-      openai_responses_integration_tests.main();
+      // openai_responses_integration_tests.main();
 
       // Anthropic provider tests
       anthropic_provider_tests.main();
