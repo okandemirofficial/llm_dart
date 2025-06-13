@@ -50,7 +50,7 @@ void main() {
         final config = LLMConfig(
           apiKey: 'test-api-key',
           baseUrl: 'https://api.x.ai/v1/',
-          model: 'grok-2-latest',
+          model: 'grok-3',
         );
 
         final provider = factory.create(config);
@@ -63,7 +63,7 @@ void main() {
         final config = LLMConfig(
           apiKey: 'test-api-key',
           baseUrl: 'https://api.x.ai/v1/',
-          model: 'grok-2-latest',
+          model: 'grok-3',
           extensions: {
             'liveSearch': true,
           },
@@ -104,7 +104,7 @@ void main() {
       test('should handle missing API key gracefully', () {
         final config = LLMConfig(
           baseUrl: 'https://api.x.ai/v1/',
-          model: 'grok-2-latest',
+          model: 'grok-3',
         );
 
         expect(() => factory.create(config), throwsA(isA<LLMError>()));
@@ -114,7 +114,7 @@ void main() {
         final config = LLMConfig(
           apiKey: '',
           baseUrl: 'https://api.x.ai/v1/',
-          model: 'grok-2-latest',
+          model: 'grok-3',
         );
 
         expect(() => factory.create(config), throwsA(isA<LLMError>()));
@@ -153,7 +153,7 @@ void main() {
         final config = LLMConfig(
           apiKey: 'test-api-key',
           baseUrl: 'https://api.x.ai/v1/',
-          model: 'grok-2-latest',
+          model: 'grok-3',
         );
 
         expect(factory.validateConfig(config), isTrue);
@@ -162,7 +162,7 @@ void main() {
       test('should reject config without API key', () {
         final config = LLMConfig(
           baseUrl: 'https://api.x.ai/v1/',
-          model: 'grok-2-latest',
+          model: 'grok-3',
         );
 
         expect(factory.validateConfig(config), isFalse);
@@ -172,7 +172,7 @@ void main() {
         final config = LLMConfig(
           apiKey: '',
           baseUrl: 'https://api.x.ai/v1/',
-          model: 'grok-2-latest',
+          model: 'grok-3',
         );
 
         expect(factory.validateConfig(config), isFalse);
@@ -182,7 +182,7 @@ void main() {
         final config = LLMConfig(
           apiKey: 'test-api-key',
           baseUrl: 'https://api.x.ai/v1/',
-          model: 'grok-2-latest',
+          model: 'grok-3',
           extensions: {
             'liveSearch': true,
             'webSearchEnabled': true,
@@ -206,7 +206,7 @@ void main() {
         final config = LLMConfig(
           apiKey: 'test-api-key',
           baseUrl: 'https://api.x.ai/v1/',
-          model: 'grok-2-latest',
+          model: 'grok-3',
         );
 
         final provider = factory.create(config);
@@ -232,7 +232,7 @@ void main() {
         final config = LLMConfig(
           apiKey: 'test-api-key',
           baseUrl: 'invalid-url',
-          model: 'grok-2-latest',
+          model: 'grok-3',
         );
 
         // Should throw during creation due to URL validation

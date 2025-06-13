@@ -25,7 +25,7 @@ import 'builder/http_config_test.dart' as http_config_tests;
 import 'utils/utf8_stream_decoder_test.dart' as utf8_decoder_tests;
 import 'utils/http_config_utils_test.dart' as http_config_utils_tests;
 import 'utils/timeout_priority_test.dart' as timeout_priority_tests;
-import 'utils/dio_proxy_test.dart' as dio_proxy_tests;
+import 'utils/dio/dio_proxy_test.dart' as dio_proxy_tests;
 
 // Integration tests
 import 'integration/thinking_content_extraction_test.dart'

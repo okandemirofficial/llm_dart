@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:logging/logging.dart';
 
-import '../../utils/config_utils.dart';
+import '../../utils/dio_client_factory.dart';
 import '../../utils/utf8_stream_decoder.dart';
 import 'config.dart';
+import 'dio_strategy.dart';
 import 'error_handler.dart';
 
 /// Core DeepSeek HTTP client shared across all capability modules
@@ -21,13 +22,11 @@ class DeepSeekClient {
   late final Dio dio;
 
   DeepSeekClient(this.config) {
-    dio = Dio(BaseOptions(
-      baseUrl: config.baseUrl,
-      headers: ConfigUtils.buildOpenAIHeaders(config.apiKey),
-      connectTimeout: config.timeout,
-      receiveTimeout: config.timeout,
-      sendTimeout: config.timeout,
-    ));
+    // Use unified Dio client factory with DeepSeek-specific strategy
+    dio = DioClientFactory.create(
+      strategy: DeepSeekDioStrategy(),
+      config: config,
+    );
   }
 
   /// Make a POST request and return JSON response

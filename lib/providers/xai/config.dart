@@ -201,7 +201,7 @@ class XAIConfig {
   const XAIConfig({
     required this.apiKey,
     this.baseUrl = 'https://api.x.ai/v1/',
-    this.model = 'grok-2-latest',
+    this.model = 'grok-3',
     this.maxTokens,
     this.temperature,
     this.systemPrompt,
@@ -289,6 +289,9 @@ class XAIConfig {
 
   /// Get extension value from original config
   T? getExtension<T>(String key) => _originalConfig?.getExtension<T>(key);
+
+  /// Get the original LLMConfig for HTTP configuration
+  LLMConfig? get originalConfig => _originalConfig;
 
   /// Check if this model supports reasoning/thinking
   bool get supportsReasoning {

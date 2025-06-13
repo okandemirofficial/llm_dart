@@ -151,6 +151,9 @@ class GoogleConfig {
   /// Get extension value from original config
   T? getExtension<T>(String key) => _originalConfig?.getExtension<T>(key);
 
+  /// Get the original LLMConfig for HTTP configuration
+  LLMConfig? get originalConfig => _originalConfig;
+
   /// Check if this model supports reasoning/thinking
   bool get supportsReasoning {
     // Gemini 2.0 Flash Thinking models support reasoning

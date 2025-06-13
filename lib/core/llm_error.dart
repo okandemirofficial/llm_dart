@@ -350,11 +350,37 @@ class HttpErrorMapper {
   /// Map specific error types based on error content
   static LLMError? _mapSpecificError(
       String message, Map<String, dynamic> responseData) {
-    final error = responseData['error'] as Map<String, dynamic>?;
-    if (error == null) return null;
+    final errorField = responseData['error'];
 
-    final errorType = error['type'] as String?;
-    final errorCode = error['code'] as String?;
+    // Handle both Map and String error formats
+    Map<String, dynamic>? error;
+    String? errorType;
+    String? errorCode;
+
+    if (errorField is Map<String, dynamic>) {
+      error = errorField;
+      errorType = error['type'] as String?;
+      errorCode = error['code'] as String?;
+    } else if (errorField is String) {
+      // If error is a string, use it as the error message
+      // and try to extract type/code from the message
+      if (errorField.toLowerCase().contains('authentication') ||
+          errorField.toLowerCase().contains('api key')) {
+        return AuthError(errorField);
+      }
+      if (errorField.toLowerCase().contains('quota') ||
+          errorField.toLowerCase().contains('billing')) {
+        return QuotaExceededError(errorField);
+      }
+      if (errorField.toLowerCase().contains('model') &&
+          errorField.toLowerCase().contains('not found')) {
+        return ModelNotAvailableError('unknown');
+      }
+      // For other string errors, return null to use default handling
+      return null;
+    } else {
+      return null;
+    }
 
     // Content filter errors
     if (errorType == 'content_filter' ||

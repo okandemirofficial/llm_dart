@@ -377,7 +377,7 @@ Future<void> demonstrateDocumentProcessing(String apiKey) async {
     final provider = await ai()
         .anthropic()
         .apiKey(apiKey)
-        .model('claude-3-5-sonnet-20241022')
+        .model('claude-sonnet-4-20250514')
         .temperature(0.3)
         .maxTokens(1000)
         .build();

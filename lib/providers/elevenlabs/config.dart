@@ -52,6 +52,9 @@ class ElevenLabsConfig {
   /// Get extension value from original config
   T? getExtension<T>(String key) => _originalConfig?.getExtension<T>(key);
 
+  /// Get the original LLMConfig for HTTP configuration
+  LLMConfig? get originalConfig => _originalConfig;
+
   /// Check if this configuration supports text-to-speech
   bool get supportsTextToSpeech => true;
 

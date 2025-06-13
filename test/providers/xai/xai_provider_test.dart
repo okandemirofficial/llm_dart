@@ -10,7 +10,7 @@ void main() {
       config = const XAIConfig(
         apiKey: 'test-api-key',
         baseUrl: 'https://api.x.ai/v1/',
-        model: 'grok-2-latest',
+        model: 'grok-3',
         maxTokens: 1000,
         temperature: 0.7,
         liveSearch: true,
@@ -207,7 +207,7 @@ void main() {
     group('Configuration Integration', () {
       test('should use config properties correctly', () {
         expect(provider.config.apiKey, equals('test-api-key'));
-        expect(provider.config.model, equals('grok-2-latest'));
+        expect(provider.config.model, equals('grok-3'));
         expect(provider.config.maxTokens, equals(1000));
         expect(provider.config.temperature, equals(0.7));
         expect(provider.config.liveSearch, isTrue);

@@ -33,7 +33,7 @@ dart run live_search.dart
 ### Live Search Query
 ```dart
 final provider = await ai().xai().apiKey('your-key')
-    .model('grok-beta').build();
+    .model('grok-3').build();
 
 final response = await provider.chat([
   ChatMessage.user('What are the latest AI developments this week?'),
@@ -46,7 +46,7 @@ print('Current info: ${response.text}');
 ### Real-time Data Access
 ```dart
 final provider = await ai().xai().apiKey('your-key')
-    .model('grok-beta').build();
+    .model('grok-3').build();
 
 final response = await provider.chat([
   ChatMessage.user('Current Bitcoin price and market trends'),

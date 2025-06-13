@@ -36,7 +36,7 @@ Future<void> demonstrateBasicGrok(String apiKey) async {
     final provider = await ai()
         .xai()
         .apiKey(apiKey)
-        .model('grok-beta')
+        .model('grok-3')
         .temperature(0.7)
         .maxTokens(500)
         .build();
@@ -78,7 +78,7 @@ Future<void> demonstratePersonalityFeatures(String apiKey) async {
     final provider = await ai()
         .xai()
         .apiKey(apiKey)
-        .model('grok-beta')
+        .model('grok-3')
         .temperature(0.8) // Higher for more personality
         .maxTokens(400)
         .build();
@@ -121,7 +121,7 @@ Future<void> demonstrateRealTimeInformation(String apiKey) async {
     final provider = await ai()
         .xai()
         .apiKey(apiKey)
-        .model('grok-beta')
+        .model('grok-3')
         .temperature(0.3) // Lower for factual information
         .maxTokens(600)
         .build();
@@ -164,7 +164,7 @@ Future<void> demonstrateConversationalStyle(String apiKey) async {
     final provider = await ai()
         .xai()
         .apiKey(apiKey)
-        .model('grok-beta')
+        .model('grok-3')
         .temperature(0.7)
         .maxTokens(400)
         .build();
@@ -221,7 +221,7 @@ Future<void> demonstrateBestPractices(String apiKey) async {
     final provider = await ai()
         .xai()
         .apiKey('invalid-key') // Intentionally invalid
-        .model('grok-beta')
+        .model('grok-3')
         .build();
 
     await provider.chat([ChatMessage.user('Test')]);
@@ -237,7 +237,7 @@ Future<void> demonstrateBestPractices(String apiKey) async {
     final optimizedProvider = await ai()
         .xai()
         .apiKey(apiKey)
-        .model('grok-beta')
+        .model('grok-3')
         .temperature(0.7) // Balanced creativity
         .maxTokens(500) // Reasonable response length
         .systemPrompt('You are Grok, a helpful and witty AI assistant.')
@@ -259,7 +259,7 @@ Future<void> demonstrateBestPractices(String apiKey) async {
     final streamProvider = await ai()
         .xai()
         .apiKey(apiKey)
-        .model('grok-beta')
+        .model('grok-3')
         .temperature(0.7)
         .build();
 
