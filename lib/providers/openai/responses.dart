@@ -470,19 +470,23 @@ class OpenAIResponses implements ChatCapability, OpenAIResponsesCapability {
   List<ChatStreamEvent> _parseStreamEvents(String chunk) {
     final events = <ChatStreamEvent>[];
 
-    // Parse SSE chunk
-    final json = client.parseSSEChunk(chunk);
-    if (json == null) return events;
+    // Parse SSE chunk - now returns a list of JSON objects
+    final jsonList = client.parseSSEChunk(chunk);
+    if (jsonList.isEmpty) return events;
 
-    // Use existing stream parsing logic with proper state tracking
-    final parsedEvents = _parseStreamEventWithReasoning(
-      json,
-      _hasReasoningContent,
-      _lastChunk,
-      _thinkingBuffer,
-    );
+    // Process each JSON object in the chunk
+    for (final json in jsonList) {
+      // Use existing stream parsing logic with proper state tracking
+      final parsedEvents = _parseStreamEventWithReasoning(
+        json,
+        _hasReasoningContent,
+        _lastChunk,
+        _thinkingBuffer,
+      );
 
-    events.addAll(parsedEvents);
+      events.addAll(parsedEvents);
+    }
+
     return events;
   }
 

@@ -57,12 +57,14 @@ class OpenAIClient {
   /// Parse a Server-Sent Events (SSE) chunk from OpenAI's streaming API
   ///
   /// Returns:
-  /// - `Map<String, dynamic>` - Parsed JSON data if found
-  /// - `null` - If chunk should be skipped (e.g., ping, done signal)
+  /// - `List<Map<String, dynamic>>` - List of parsed JSON objects from the chunk
+  /// - Empty list if no valid data found or chunk should be skipped
   ///
   /// Throws:
   /// - `ResponseFormatError` - If critical parsing errors occur
-  Map<String, dynamic>? parseSSEChunk(String chunk) {
+  List<Map<String, dynamic>> parseSSEChunk(String chunk) {
+    final results = <Map<String, dynamic>>[];
+
     for (final line in chunk.split('\n')) {
       final trimmedLine = line.trim();
 
@@ -71,7 +73,8 @@ class OpenAIClient {
 
         // Handle completion signal
         if (data == '[DONE]') {
-          return null;
+          // Return empty list to signal completion
+          return [];
         }
 
         // Skip empty data
@@ -101,7 +104,7 @@ class OpenAIClient {
             }
           }
 
-          return json;
+          results.add(json);
         } catch (e) {
           if (e is LLMError) rethrow;
 
@@ -112,7 +115,7 @@ class OpenAIClient {
       }
     }
 
-    return null;
+    return results;
   }
 
   /// Convert ChatMessage to OpenAI API format
