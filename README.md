@@ -312,6 +312,45 @@ final provider = await createProvider(
 );
 ```
 
+#### Responses API (Stateful Conversations)
+
+OpenAI's new Responses API provides stateful conversation management with built-in tools:
+
+```dart
+final provider = await ai()
+    .openai((openai) => openai
+        .useResponsesAPI()
+        .webSearchTool()
+        .fileSearchTool(vectorStoreIds: ['vs_123']))
+    .apiKey('your-key')
+    .model('gpt-4o')
+    .build();
+
+// Cast to access stateful features
+final responsesProvider = provider as OpenAIProvider;
+final responses = responsesProvider.responses!;
+
+// Stateful conversation with automatic context preservation
+final response1 = await responses.chat([
+  ChatMessage.user('My name is Alice. Tell me about quantum computing'),
+]);
+
+final responseId = (response1 as OpenAIResponsesResponse).responseId;
+final response2 = await responses.continueConversation(responseId!, [
+  ChatMessage.user('Remember my name and explain it simply'),
+]);
+
+// Background processing for long tasks
+final backgroundTask = await responses.chatWithToolsBackground([
+  ChatMessage.user('Write a detailed research report'),
+], null);
+
+// Response lifecycle management
+await responses.getResponse('resp_123');
+await responses.deleteResponse('resp_123');
+await responses.cancelResponse('resp_123');
+```
+
 ### Anthropic (with Thinking Process)
 
 ```dart

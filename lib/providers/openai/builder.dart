@@ -2,6 +2,7 @@ import '../../builder/llm_builder.dart';
 import '../../core/capability.dart';
 import '../../core/web_search.dart';
 import 'builtin_tools.dart';
+import 'provider.dart';
 
 /// OpenAI-specific LLM builder with provider-specific configuration methods
 ///
@@ -344,5 +345,57 @@ class OpenAIBuilder {
   /// Builds a provider with ModelListingCapability
   Future<ModelListingCapability> buildModelListing() async {
     return _baseBuilder.buildModelListing();
+  }
+
+  /// Builds an OpenAI provider with Responses API enabled
+  ///
+  /// This is a convenience method that automatically:
+  /// - Enables the Responses API (`useResponsesAPI(true)`)
+  /// - Returns a properly typed OpenAIProvider with Responses API access
+  /// - Ensures the `openaiResponses` capability is available
+  ///
+  /// Example:
+  /// ```dart
+  /// final provider = await ai()
+  ///     .openai((openai) => openai
+  ///         .webSearchTool()
+  ///         .fileSearchTool(vectorStoreIds: ['vs_123']))
+  ///     .apiKey(apiKey)
+  ///     .model('gpt-4o')
+  ///     .buildOpenAIResponses();
+  ///
+  /// // Direct access to Responses API
+  /// final responsesAPI = provider.responses!;
+  /// final response = await responsesAPI.chat(messages);
+  /// ```
+  ///
+  /// **Note**: This method automatically enables Responses API even if not
+  /// explicitly called with `useResponsesAPI()`. The returned provider will
+  /// always support `LLMCapability.openaiResponses`.
+  Future<OpenAIProvider> buildOpenAIResponses() async {
+    // Automatically enable Responses API if not already enabled
+    final isResponsesAPIEnabled =
+        _baseBuilder.currentConfig.getExtension<bool>('useResponsesAPI') ??
+            false;
+    if (!isResponsesAPIEnabled) {
+      useResponsesAPI(true);
+    }
+
+    final provider = await build();
+
+    // Ensure we have an OpenAI provider
+    if (provider is! OpenAIProvider) {
+      throw StateError(
+          'Expected OpenAIProvider but got ${provider.runtimeType}. '
+          'This should not happen when using buildOpenAIResponses().');
+    }
+
+    // Verify that Responses API is properly initialized
+    if (provider.responses == null) {
+      throw StateError('OpenAI Responses API not properly initialized. '
+          'This should not happen when using buildOpenAIResponses().');
+    }
+
+    return provider;
   }
 }

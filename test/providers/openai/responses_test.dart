@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 import 'package:llm_dart/llm_dart.dart';
 
 void main() {
-  group('OpenAI Responses API', () {
+  group('OpenAI Responses API Configuration', () {
     test('should create OpenAI config with Responses API enabled', () {
       final config = OpenAIConfig(
         apiKey: 'test-key',

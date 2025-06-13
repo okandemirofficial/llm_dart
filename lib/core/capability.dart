@@ -92,6 +92,31 @@ enum LLMCapability {
   /// The actual search functionality is configured through provider-specific
   /// search parameters rather than through this capability declaration.
   liveSearch,
+
+  /// OpenAI Responses API capabilities
+  ///
+  /// This indicates the provider supports OpenAI's stateful Responses API,
+  /// which provides advanced features beyond standard chat completions:
+  ///
+  /// **Key Features:**
+  /// - **Stateful conversations**: Automatic conversation history management
+  /// - **Background processing**: Asynchronous response generation
+  /// - **Response lifecycle**: Get, delete, cancel operations on responses
+  /// - **Built-in tools**: Web search, file search, computer use
+  /// - **Response chaining**: Continue conversations from previous responses
+  ///
+  /// **Usage:**
+  /// ```dart
+  /// if (provider.supports(LLMCapability.openaiResponses)) {
+  ///   final openaiProvider = provider as OpenAIProvider;
+  ///   final responsesAPI = openaiProvider.responses;
+  ///   // Use advanced Responses API features
+  /// }
+  /// ```
+  ///
+  /// **Note**: This is currently OpenAI-specific as other providers don't
+  /// yet support similar stateful conversation APIs.
+  openaiResponses,
 }
 
 /// Audio features that providers can support

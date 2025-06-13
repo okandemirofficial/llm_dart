@@ -227,6 +227,7 @@ class ProviderDefaults {
           LLMCapability.textToSpeech,
           LLMCapability.speechToText,
           LLMCapability.imageGeneration,
+          // Note: openaiResponses is added dynamically based on configuration
         };
       case 'anthropic':
         return {

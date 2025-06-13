@@ -83,22 +83,31 @@ class OpenAIProvider
   // ========== ProviderCapabilities ==========
 
   @override
-  Set<LLMCapability> get supportedCapabilities => {
-        LLMCapability.chat,
-        LLMCapability.streaming,
-        LLMCapability.embedding,
-        LLMCapability.textToSpeech,
-        LLMCapability.speechToText,
-        LLMCapability.toolCalling,
-        LLMCapability.reasoning,
-        LLMCapability.vision,
-        LLMCapability.imageGeneration,
-        LLMCapability.fileManagement,
-        LLMCapability.moderation,
-        LLMCapability.assistants,
-        LLMCapability.completion,
-        LLMCapability.modelListing,
-      };
+  Set<LLMCapability> get supportedCapabilities {
+    final capabilities = {
+      LLMCapability.chat,
+      LLMCapability.streaming,
+      LLMCapability.embedding,
+      LLMCapability.textToSpeech,
+      LLMCapability.speechToText,
+      LLMCapability.toolCalling,
+      LLMCapability.reasoning,
+      LLMCapability.vision,
+      LLMCapability.imageGeneration,
+      LLMCapability.fileManagement,
+      LLMCapability.moderation,
+      LLMCapability.assistants,
+      LLMCapability.completion,
+      LLMCapability.modelListing,
+    };
+
+    // Add OpenAI Responses API capability if enabled
+    if (config.useResponsesAPI) {
+      capabilities.add(LLMCapability.openaiResponses);
+    }
+
+    return capabilities;
+  }
 
   @override
   bool supports(LLMCapability capability) {
@@ -401,6 +410,9 @@ class OpenAIProvider
 
   /// Get the underlying client for advanced usage
   OpenAIClient get client => _client;
+
+  /// Get the Responses API module (only available when useResponsesAPI is enabled)
+  OpenAIResponses? get responses => _responses;
 
   /// Get embedding dimensions for the configured model
   Future<int> getEmbeddingDimensions() async {

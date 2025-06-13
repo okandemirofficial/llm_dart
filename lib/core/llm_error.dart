@@ -250,6 +250,30 @@ class UnsupportedCapabilityError extends LLMError {
   }
 }
 
+/// OpenAI Responses API specific error
+class OpenAIResponsesError extends LLMError {
+  final String? responseId;
+  final String? errorType;
+
+  const OpenAIResponsesError(
+    super.message, {
+    this.responseId,
+    this.errorType,
+  });
+
+  @override
+  String toString() {
+    final parts = ['OpenAI Responses API error: $message'];
+    if (responseId != null) {
+      parts.add('Response ID: $responseId');
+    }
+    if (errorType != null) {
+      parts.add('Error type: $errorType');
+    }
+    return parts.join('. ');
+  }
+}
+
 /// Dio error handler utility for consistent error handling across providers
 class DioErrorHandler {
   /// Handle Dio errors and convert to appropriate LLM errors
