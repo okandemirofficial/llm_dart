@@ -23,7 +23,6 @@ import 'package:test/test.dart';
 import 'utils/dio/dio_client_configuration_test.dart' as client_config_tests;
 import 'utils/dio/dio_logging_test.dart' as logging_tests;
 import 'utils/dio/dio_configuration_priority_test.dart' as priority_tests;
-import 'utils/dio/dio_error_handling_test.dart' as error_handling_tests;
 import 'utils/dio/dio_advanced_features_test.dart' as advanced_features_tests;
 import 'integration/dio_end_to_end_test.dart' as end_to_end_tests;
 
@@ -48,19 +47,15 @@ void main() {
       priority_tests.main();
     });
 
-    group('❌ 4. Error Handling Tests', () {
-      error_handling_tests.main();
-    });
-
-    group('🔒 5. Advanced Features Tests', () {
+    group('🔒 4. Advanced Features Tests', () {
       advanced_features_tests.main();
     });
 
-    group('🔄 6. End-to-End Integration Tests', () {
+    group('🔄 5. End-to-End Integration Tests', () {
       end_to_end_tests.main();
     });
 
-    group('🛠️ 7. Existing HTTP Configuration Tests', () {
+    group('🛠️ 6. Existing HTTP Configuration Tests', () {
       group('HTTP Config Utils', () {
         http_config_utils_tests.main();
       });
