@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
 import 'package:llm_dart/llm_dart.dart';
-import 'package:llm_dart/providers/google/config.dart';
 
 void main() {
   group('Google Tool Calling Tests', () {
