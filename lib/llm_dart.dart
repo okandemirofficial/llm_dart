@@ -29,6 +29,7 @@ export 'providers/openai/openai.dart'
     hide createDeepSeekProvider, createGroqProvider;
 export 'providers/anthropic/anthropic.dart';
 export 'providers/google/google.dart';
+export 'providers/google/tts.dart';
 export 'providers/deepseek/deepseek.dart';
 export 'providers/ollama/ollama.dart';
 export 'providers/xai/xai.dart';

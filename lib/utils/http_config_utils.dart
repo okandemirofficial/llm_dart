@@ -1,9 +1,10 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
 import 'package:logging/logging.dart';
 
 import '../core/config.dart';
+import 'http_client_adapter_stub.dart'
+    if (dart.library.io) 'http_client_adapter_io.dart'
+    if (dart.library.html) 'http_client_adapter_web.dart';
 
 /// HTTP configuration utilities for unified Dio setup across providers
 ///
@@ -90,63 +91,8 @@ class HttpConfigUtils {
 
   /// Configure HTTP client adapter with proxy and SSL settings
   static void _configureHttpClientAdapter(Dio dio, LLMConfig config) {
-    final proxyUrl = config.getExtension<String>('httpProxy');
-    final bypassSSL =
-        config.getExtension<bool>('bypassSSLVerification') ?? false;
-    final certificatePath = config.getExtension<String>('sslCertificate');
-
-    // Only configure adapter if any HTTP client settings are specified
-    if ((proxyUrl != null && proxyUrl.isNotEmpty) ||
-        bypassSSL ||
-        (certificatePath != null && certificatePath.isNotEmpty)) {
-      if (proxyUrl != null) {
-        _logger.info('Configuring HTTP proxy: $proxyUrl');
-      }
-      if (bypassSSL) {
-        _logger.warning('⚠️ SSL certificate verification is disabled');
-      }
-      if (certificatePath != null) {
-        _logger.info('Loading SSL certificate from: $certificatePath');
-      }
-
-      // Set a new IOHttpClientAdapter with combined configuration
-      dio.httpClientAdapter = IOHttpClientAdapter(
-        createHttpClient: () {
-          final client = HttpClient();
-
-          // Configure proxy if specified
-          if (proxyUrl != null && proxyUrl.isNotEmpty) {
-            client.findProxy = (uri) {
-              return "PROXY $proxyUrl";
-            };
-          }
-
-          // Configure SSL settings if specified
-          if (bypassSSL) {
-            client.badCertificateCallback = (cert, host, port) => true;
-          }
-
-          if (certificatePath != null && certificatePath.isNotEmpty) {
-            try {
-              final certFile = File(certificatePath);
-              if (certFile.existsSync()) {
-                // Note: This is a simplified example. In practice, you might need
-                // more sophisticated certificate handling depending on the format.
-                // For now, we just log that the certificate file exists
-                _logger.info('SSL certificate loaded successfully');
-              } else {
-                _logger.warning(
-                    'SSL certificate file not found: $certificatePath');
-              }
-            } catch (e) {
-              _logger.severe('Failed to load SSL certificate: $e');
-            }
-          }
-
-          return client;
-        },
-      );
-    }
+    // Use platform-specific HTTP client adapter configuration
+    HttpClientAdapterConfig.configureHttpClientAdapter(dio, config);
   }
 
   /// Configure logging interceptor if enabled
@@ -202,6 +148,13 @@ class HttpConfigUtils {
     );
   }
 
+  /// Check if advanced HTTP features are supported on the current platform
+  ///
+  /// Returns true for platforms that support proxy, SSL configuration, etc.
+  /// Returns false for web platform where these features are browser-managed.
+  static bool get isAdvancedHttpSupported =>
+      HttpClientAdapterConfig.isAdvancedHttpSupported;
+
   /// Validate HTTP configuration
   ///
   /// Checks for common configuration issues and logs warnings.
@@ -228,14 +181,31 @@ class HttpConfigUtils {
     final bypassSSL =
         config.getExtension<bool>('bypassSSLVerification') ?? false;
     if (bypassSSL) {
-      _logger.warning(
-          '⚠️ SSL verification is disabled - use only for development');
+      if (isAdvancedHttpSupported) {
+        _logger.warning(
+            '⚠️ SSL verification is disabled - use only for development');
+      } else {
+        _logger.warning(
+            '⚠️ SSL verification bypass is not supported on this platform');
+      }
     }
 
     // Check proxy configuration
     final proxyUrl = config.getExtension<String>('httpProxy');
-    if (proxyUrl != null && !proxyUrl.startsWith('http')) {
-      _logger.warning('Proxy URL should start with http:// or https://');
+    if (proxyUrl != null) {
+      if (!isAdvancedHttpSupported) {
+        _logger.warning(
+            '⚠️ HTTP proxy configuration is not supported on this platform');
+      } else if (!proxyUrl.startsWith('http')) {
+        _logger.warning('Proxy URL should start with http:// or https://');
+      }
+    }
+
+    // Check SSL certificate configuration
+    final certificatePath = config.getExtension<String>('sslCertificate');
+    if (certificatePath != null && !isAdvancedHttpSupported) {
+      _logger.warning(
+          '⚠️ Custom SSL certificate loading is not supported on this platform');
     }
   }
 }

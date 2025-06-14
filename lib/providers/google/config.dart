@@ -189,6 +189,14 @@ class GoogleConfig {
     return model.contains('embedding') || model.contains('text-embedding');
   }
 
+  /// Check if this model supports text-to-speech
+  bool get supportsTTS {
+    // Google TTS models
+    return model.contains('tts') ||
+        model.contains('gemini-2.5-flash-preview-tts') ||
+        model.contains('gemini-2.5-pro-preview-tts');
+  }
+
   /// Get default safety settings (permissive for development)
   static List<SafetySetting> get defaultSafetySettings => [
         const SafetySetting(

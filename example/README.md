@@ -88,7 +88,7 @@ Practical examples for the LLM Dart library, organized by learning path and use 
 - [mcp_concept_demo.dart](06_mcp_integration/mcp_concept_demo.dart) - Core concepts
 - [simple_mcp_demo.dart](06_mcp_integration/simple_mcp_demo.dart) - Basic integration
 - [basic_mcp_client.dart](06_mcp_integration/basic_mcp_client.dart) - MCP client
-- [custom_mcp_server.dart](06_mcp_integration/custom_mcp_server.dart) - Custom server
+- [custom_mcp_server_stdio.dart](06_mcp_integration/custom_mcp_server_stdio.dart) - Custom server
 - [mcp_tool_bridge.dart](06_mcp_integration/mcp_tool_bridge.dart) - Tool bridging
 - [mcp_with_llm.dart](06_mcp_integration/mcp_with_llm.dart) - LLM integration
 - [test_all_examples.dart](06_mcp_integration/test_all_examples.dart) - Test runner

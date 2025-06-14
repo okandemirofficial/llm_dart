@@ -1,8 +1,10 @@
 import 'package:test/test.dart';
 import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
 import 'package:llm_dart/core/config.dart';
 import 'package:llm_dart/utils/http_config_utils.dart';
+import 'dio_proxy_test_stub.dart'
+    if (dart.library.io) 'dio_proxy_test_io.dart'
+    if (dart.library.html) 'dio_proxy_test_web.dart';
 
 void main() {
   group('Dio Advanced Features Tests', () {
@@ -23,7 +25,8 @@ void main() {
         );
 
         expect(dio, isA<Dio>());
-        expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+        PlatformHttpAdapterTests.expectCorrectAdapterType(
+            dio.httpClientAdapter);
 
         // The adapter should be configured (we can't easily test the internal proxy settings
         // without making actual requests, but we can verify the adapter type)
@@ -45,7 +48,8 @@ void main() {
         );
 
         expect(dio, isA<Dio>());
-        expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+        PlatformHttpAdapterTests.expectCorrectAdapterType(
+            dio.httpClientAdapter);
       });
 
       test('should handle HTTPS proxy', () {
@@ -64,7 +68,8 @@ void main() {
         );
 
         expect(dio, isA<Dio>());
-        expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+        PlatformHttpAdapterTests.expectCorrectAdapterType(
+            dio.httpClientAdapter);
       });
 
       test('should not configure proxy when not specified', () {
@@ -82,7 +87,8 @@ void main() {
 
         expect(dio, isA<Dio>());
         // Should use default adapter when no proxy is configured
-        expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+        PlatformHttpAdapterTests.expectCorrectAdapterType(
+            dio.httpClientAdapter);
       });
     });
 
@@ -103,7 +109,8 @@ void main() {
         );
 
         expect(dio, isA<Dio>());
-        expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+        PlatformHttpAdapterTests.expectCorrectAdapterType(
+            dio.httpClientAdapter);
       });
 
       test('should configure SSL certificate when specified', () {
@@ -122,7 +129,8 @@ void main() {
         );
 
         expect(dio, isA<Dio>());
-        expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+        PlatformHttpAdapterTests.expectCorrectAdapterType(
+            dio.httpClientAdapter);
       });
 
       test('should handle both SSL bypass and certificate', () {
@@ -142,7 +150,8 @@ void main() {
         );
 
         expect(dio, isA<Dio>());
-        expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+        PlatformHttpAdapterTests.expectCorrectAdapterType(
+            dio.httpClientAdapter);
       });
 
       test('should not configure SSL when not specified', () {
@@ -160,7 +169,8 @@ void main() {
 
         expect(dio, isA<Dio>());
         // Should use default adapter when no SSL configuration
-        expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+        PlatformHttpAdapterTests.expectCorrectAdapterType(
+            dio.httpClientAdapter);
       });
     });
 
@@ -183,7 +193,8 @@ void main() {
         );
 
         expect(dio, isA<Dio>());
-        expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+        PlatformHttpAdapterTests.expectCorrectAdapterType(
+            dio.httpClientAdapter);
       });
 
       test('should configure all advanced features together', () {
@@ -216,7 +227,8 @@ void main() {
         );
 
         expect(dio, isA<Dio>());
-        expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+        PlatformHttpAdapterTests.expectCorrectAdapterType(
+            dio.httpClientAdapter);
 
         // Check timeouts
         expect(dio.options.connectTimeout, equals(Duration(seconds: 30)));
@@ -329,11 +341,12 @@ void main() {
           config: configWithHttpSettings,
         );
 
-        // Both should have IOHttpClientAdapter, but the one with HTTP settings
+        // Both should have correct adapter type, but the one with HTTP settings
         // should have a custom configured adapter
-        expect(
-            dioWithoutHttpConfig.httpClientAdapter, isA<IOHttpClientAdapter>());
-        expect(dioWithHttpConfig.httpClientAdapter, isA<IOHttpClientAdapter>());
+        PlatformHttpAdapterTests.expectCorrectAdapterType(
+            dioWithoutHttpConfig.httpClientAdapter);
+        PlatformHttpAdapterTests.expectCorrectAdapterType(
+            dioWithHttpConfig.httpClientAdapter);
       });
     });
   });
