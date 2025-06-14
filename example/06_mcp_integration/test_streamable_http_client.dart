@@ -69,7 +69,6 @@ void main() async {
     print('');
 
     print('✅ All tests completed successfully!');
-
   } catch (e) {
     print('❌ Test failed: $e');
   } finally {

@@ -84,10 +84,10 @@ McpServer getServer() {
 
   // Register mathematical calculation tools
   _registerMathTools(server);
-  
+
   // Register utility tools
   _registerUtilityTools(server);
-  
+
   // Register streaming tools
   _registerStreamingTools(server);
 
@@ -183,8 +183,6 @@ void main() async {
     }
   }
 }
-
-
 
 // Handle POST requests
 Future<void> handlePostRequest(
@@ -348,8 +346,6 @@ Future<void> handleDeleteRequest(
     }
   }
 }
-
-
 
 /// Register mathematical calculation tools
 void _registerMathTools(McpServer server) {
