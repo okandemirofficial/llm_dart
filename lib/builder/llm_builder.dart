@@ -830,4 +830,54 @@ class LLMBuilder {
 
     return openaiProvider;
   }
+
+  /// Builds a Google provider with TTS capability
+  ///
+  /// This is a convenience method that automatically:
+  /// - Ensures the provider is Google
+  /// - Sets a TTS-compatible model if not already set
+  /// - Returns a properly typed GoogleTTSCapability
+  /// - Ensures the TTS functionality is available
+  ///
+  /// Throws [UnsupportedCapabilityError] if the provider is not Google or doesn't support TTS.
+  ///
+  /// Example:
+  /// ```dart
+  /// final ttsProvider = await ai()
+  ///     .google((google) => google
+  ///         .ttsModel('gemini-2.5-flash-preview-tts')
+  ///         .enableAudioOutput())
+  ///     .apiKey(apiKey)
+  ///     .buildGoogleTTS();
+  ///
+  /// // Direct usage without type casting
+  /// final response = await ttsProvider.generateSpeech(request);
+  /// ```
+  ///
+  /// **Note**: This method automatically sets a TTS model if none is specified.
+  Future<GoogleTTSCapability> buildGoogleTTS() async {
+    if (_providerId != 'google') {
+      throw UnsupportedCapabilityError(
+        'buildGoogleTTS() can only be used with Google provider. '
+        'Current provider: $_providerId. Use .google() first.',
+      );
+    }
+
+    // Set default TTS model if none specified
+    if (_config.model.isEmpty || !_config.model.contains('tts')) {
+      model('gemini-2.5-flash-preview-tts');
+    }
+
+    final provider = await build();
+
+    // Cast to Google TTS capability (safe since we checked provider ID)
+    if (provider is! GoogleTTSCapability) {
+      throw UnsupportedCapabilityError(
+        'Google provider does not support TTS capabilities. '
+        'Make sure you are using a TTS-compatible model.',
+      );
+    }
+
+    return provider as GoogleTTSCapability;
+  }
 }

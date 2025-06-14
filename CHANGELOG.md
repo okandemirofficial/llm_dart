@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Google TTS API Support**: Implemented Google Gemini TTS API with 30 prebuilt voices and streaming audio generation
+  - Documentation: [Speech Generation API](https://ai.google.dev/gemini-api/docs/speech-generation)
+  - Examples in `example/04_providers/google/google_tts_example.dart`
+
+- **Google Image Generation API Support**: Implemented Google Gemini image generation API with multiple aspect ratios
+  - Documentation: [Image Generation API](https://ai.google.dev/gemini-api/docs/image-generation)
+  - Examples in `example/04_providers/google/image_generation.dart`
+
+### Fixed
+
+- **Web Platform Compatibility**: Resolved `dart:io` compatibility issues to support Web platforms.
+
 ## [0.7.2] - 2025-6-13
 
 ### Fixed

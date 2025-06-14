@@ -1157,5 +1157,3 @@ class EnhancedWordTiming extends WordTiming {
         speakerId: json['speaker_id'] as String?,
       );
 }
-
-// UsageInfo is imported from chat_models.dart

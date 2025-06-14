@@ -1,5 +1,6 @@
 import '../../builder/llm_builder.dart';
 import '../../core/capability.dart';
+import '../../core/llm_error.dart';
 import '../../models/chat_models.dart';
 import 'config.dart';
 
@@ -172,5 +173,89 @@ class GoogleLLMBuilder {
   /// Builds a provider with ModelListingCapability
   Future<ModelListingCapability> buildModelListing() async {
     return _baseBuilder.buildModelListing();
+  }
+
+  /// Builds a provider with ImageGenerationCapability
+  Future<ImageGenerationCapability> buildImageGeneration() async {
+    return _baseBuilder.buildImageGeneration();
+  }
+
+  /// Builds a provider with GoogleTTSCapability
+  ///
+  /// Returns a provider that implements GoogleTTSCapability for
+  /// Google's native text-to-speech functionality.
+  ///
+  /// Throws [UnsupportedCapabilityError] if the provider doesn't support Google TTS.
+  ///
+  /// Example:
+  /// ```dart
+  /// final ttsProvider = await ai()
+  ///     .google((google) => google
+  ///         .ttsModel('gemini-2.5-flash-preview-tts'))
+  ///     .apiKey(apiKey)
+  ///     .buildGoogleTTS();
+  ///
+  /// // Direct usage without type casting
+  /// final response = await ttsProvider.generateSpeech(request);
+  /// ```
+  Future<GoogleTTSCapability> buildGoogleTTS() async {
+    final provider = await build();
+    if (provider is! GoogleTTSCapability) {
+      throw UnsupportedCapabilityError(
+        'Provider does not support Google TTS capabilities. '
+        'Make sure you are using a Google provider with a TTS-compatible model.',
+      );
+    }
+    return provider as GoogleTTSCapability;
+  }
+
+  // ========== TTS-specific configuration methods ==========
+
+  /// Sets the TTS model to use
+  ///
+  /// Supported models:
+  /// - 'gemini-2.5-flash-preview-tts' (default)
+  /// - 'gemini-2.5-pro-preview-tts'
+  GoogleLLMBuilder ttsModel(String model) {
+    _baseBuilder.model(model);
+    return this;
+  }
+
+  /// Configure for single-speaker TTS
+  GoogleLLMBuilder singleSpeakerTTS({
+    String voiceName = 'Kore',
+    String? model,
+  }) {
+    if (model != null) {
+      ttsModel(model);
+    }
+    _baseBuilder.extension('defaultVoiceName', voiceName);
+    return this;
+  }
+
+  /// Configure for multi-speaker TTS
+  GoogleLLMBuilder multiSpeakerTTS({
+    Map<String, String>? defaultSpeakerVoices,
+    String? model,
+  }) {
+    if (model != null) {
+      ttsModel(model);
+    }
+    if (defaultSpeakerVoices != null) {
+      _baseBuilder.extension('defaultSpeakerVoices', defaultSpeakerVoices);
+    }
+    return this;
+  }
+
+  /// Enable audio response modality for TTS
+  GoogleLLMBuilder enableAudioOutput() {
+    responseModalities(['AUDIO']);
+    return this;
+  }
+
+  /// Configure TTS with specific voice
+  GoogleLLMBuilder voice(String voiceName) {
+    _baseBuilder.extension('defaultVoiceName', voiceName);
+    return this;
   }
 }
