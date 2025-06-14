@@ -173,4 +173,9 @@ class GoogleLLMBuilder {
   Future<ModelListingCapability> buildModelListing() async {
     return _baseBuilder.buildModelListing();
   }
+
+  /// Builds a provider with ImageGenerationCapability
+  Future<ImageGenerationCapability> buildImageGeneration() async {
+    return _baseBuilder.buildImageGeneration();
+  }
 }

@@ -1,28 +1,32 @@
 import '../../core/capability.dart';
 import '../../models/chat_models.dart';
 import '../../models/tool_models.dart';
+import '../../models/image_models.dart';
 import 'client.dart';
 import 'config.dart';
 import 'chat.dart';
 import 'embeddings.dart';
+import 'images.dart';
 
 /// Google provider implementation
 ///
-/// This provider implements the ChatCapability and EmbeddingCapability interfaces
+/// This provider implements the ChatCapability, EmbeddingCapability, and ImageGenerationCapability interfaces
 /// and delegates to specialized capability modules for different functionalities.
 class GoogleProvider
-    implements ChatCapability, EmbeddingCapability, ProviderCapabilities {
+    implements ChatCapability, EmbeddingCapability, ImageGenerationCapability, ProviderCapabilities {
   final GoogleClient _client;
   final GoogleConfig config;
 
   // Capability modules
   late final GoogleChat _chat;
   late final GoogleEmbeddings _embeddings;
+  late final GoogleImages _images;
 
   GoogleProvider(this.config) : _client = GoogleClient(config) {
     // Initialize capability modules
     _chat = GoogleChat(_client, config);
     _embeddings = GoogleEmbeddings(_client, config);
+    _images = GoogleImages(_client, config);
   }
 
   @override
@@ -61,6 +65,68 @@ class GoogleProvider
   @override
   Future<List<List<double>>> embed(List<String> input) async {
     return _embeddings.embed(input);
+  }
+
+  // ========== ImageGenerationCapability (delegated to images module) ==========
+
+  @override
+  Future<ImageGenerationResponse> generateImages(
+    ImageGenerationRequest request,
+  ) async {
+    return _images.generateImages(request);
+  }
+
+  @override
+  Future<ImageGenerationResponse> editImage(ImageEditRequest request) async {
+    return _images.editImage(request);
+  }
+
+  @override
+  Future<ImageGenerationResponse> createVariation(
+    ImageVariationRequest request,
+  ) async {
+    return _images.createVariation(request);
+  }
+
+  @override
+  List<String> getSupportedSizes() {
+    return _images.getSupportedSizes();
+  }
+
+  @override
+  List<String> getSupportedFormats() {
+    return _images.getSupportedFormats();
+  }
+
+  @override
+  bool get supportsImageEditing => _images.supportsImageEditing;
+
+  @override
+  bool get supportsImageVariations => _images.supportsImageVariations;
+
+  @override
+  Future<List<String>> generateImage({
+    required String prompt,
+    String? model,
+    String? negativePrompt,
+    String? imageSize,
+    int? batchSize,
+    String? seed,
+    int? numInferenceSteps,
+    double? guidanceScale,
+    bool? promptEnhancement,
+  }) async {
+    return _images.generateImage(
+      prompt: prompt,
+      model: model,
+      negativePrompt: negativePrompt,
+      imageSize: imageSize,
+      batchSize: batchSize,
+      seed: seed,
+      numInferenceSteps: numInferenceSteps,
+      guidanceScale: guidanceScale,
+      promptEnhancement: promptEnhancement,
+    );
   }
 
   /// Get provider name

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Google Image Generation Support**: Complete implementation of Google's image generation capabilities through Gemini API
+  - Support for both Gemini 2.0 Flash Preview Image Generation (conversational approach) and Imagen 3 (dedicated model)
+  - Text-to-image generation, image editing, and image variations functionality
+  - Multiple aspect ratios support (1:1, 3:4, 4:3, 9:16, 16:9) with base64 output format
+  - Comprehensive examples in `example/04_providers/google/image_generation.dart`
+
 ### Fixed
 
 - **Web Platform Compatibility**: Resolved `dart:io` compatibility issues to support Web platforms.
