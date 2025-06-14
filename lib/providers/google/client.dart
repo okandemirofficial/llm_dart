@@ -35,17 +35,55 @@ class GoogleClient {
     return '$endpoint${separator}key=${config.apiKey}';
   }
 
+  /// Make a POST request and return response
+  Future<Response> post(
+    String endpoint, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    try {
+      final fullEndpoint = _getEndpointWithAuth(endpoint);
+      return await dio.post(
+        fullEndpoint,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+    } on DioException catch (e) {
+      logger.severe('HTTP request failed: ${e.message}');
+      rethrow;
+    }
+  }
+
   /// Make a POST request and return JSON response
   Future<Map<String, dynamic>> postJson(
     String endpoint,
     Map<String, dynamic> data,
   ) async {
+    final response = await post(endpoint, data: data);
+    return response.data as Map<String, dynamic>;
+  }
+
+  /// Make a POST request and return stream response
+  Stream<Response> postStream(
+    String endpoint, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async* {
     try {
       final fullEndpoint = _getEndpointWithAuth(endpoint);
-      final response = await dio.post(fullEndpoint, data: data);
-      return response.data as Map<String, dynamic>;
+      final response = await dio.post(
+        fullEndpoint,
+        data: data,
+        queryParameters: queryParameters,
+        options: options?.copyWith(responseType: ResponseType.stream) ??
+            Options(responseType: ResponseType.stream),
+      );
+      yield response;
     } on DioException catch (e) {
-      logger.severe('HTTP request failed: ${e.message}');
+      logger.severe('Stream request failed: ${e.message}');
       rethrow;
     }
   }

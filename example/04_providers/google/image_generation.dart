@@ -28,7 +28,8 @@ Future<void> main() async {
 
   try {
     await demonstrateGeminiImageGeneration(apiKey);
-    print('⚠️  Note: Imagen 3 requires a paid account and may not be available in all regions.');
+    print(
+        '⚠️  Note: Imagen 3 requires a paid account and may not be available in all regions.');
     await demonstrateImagenGeneration(apiKey);
     await demonstrateImageEditing(apiKey);
   } catch (e) {
@@ -55,7 +56,8 @@ Future<void> demonstrateGeminiImageGeneration(String apiKey) async {
     print('      Supported sizes: ${imageProvider.getSupportedSizes()}');
     print('      Supported formats: ${imageProvider.getSupportedFormats()}');
     print('      Supports editing: ${imageProvider.supportsImageEditing}');
-    print('      Supports variations: ${imageProvider.supportsImageVariations}');
+    print(
+        '      Supports variations: ${imageProvider.supportsImageVariations}');
 
     // Generate image with Gemini
     print('\n   🎨 Generating image with Gemini...');
@@ -77,7 +79,8 @@ Future<void> demonstrateGeminiImageGeneration(String apiKey) async {
         final bytes = base64Decode(base64Data);
         final filename = 'gemini_generated_${i + 1}.png';
         await File(filename).writeAsBytes(bytes);
-        print('         Image ${i + 1}: Saved as $filename (${bytes.length} bytes)');
+        print(
+            '         Image ${i + 1}: Saved as $filename (${bytes.length} bytes)');
       } else {
         print('         Image ${i + 1}: $imageData');
       }
@@ -117,13 +120,14 @@ Future<void> demonstrateImagenGeneration(String apiKey) async {
 
     print('      ✅ Generated ${response.images.length} image(s)');
     print('      Model used: ${response.model}');
-    
+
     for (int i = 0; i < response.images.length; i++) {
       final image = response.images[i];
       if (image.data != null) {
         final filename = 'imagen_generated_${i + 1}.png';
         await File(filename).writeAsBytes(image.data!);
-        print('         Image ${i + 1}: Saved as $filename (${image.data!.length} bytes)');
+        print(
+            '         Image ${i + 1}: Saved as $filename (${image.data!.length} bytes)');
         print('            Format: ${image.format}');
       }
     }
@@ -162,14 +166,15 @@ Future<void> demonstrateImageEditing(String apiKey) async {
       if (baseImageData.startsWith('data:image/')) {
         final base64Data = baseImageData.split(',')[1];
         final bytes = base64Decode(base64Data);
-        
+
         // Save base image
         await File('base_image.png').writeAsBytes(bytes);
         print('      ✅ Base image saved as base_image.png');
 
         // Edit the image
         print('\n   ✏️  Editing the image...');
-        final editPrompt = 'Add a red hat to the cat and change the chair to blue';
+        final editPrompt =
+            'Add a red hat to the cat and change the chair to blue';
         print('      Edit prompt: "$editPrompt"');
 
         final editResponse = await imageProvider.editImage(
@@ -180,7 +185,8 @@ Future<void> demonstrateImageEditing(String apiKey) async {
           ),
         );
 
-        print('      ✅ Generated ${editResponse.images.length} edited image(s)');
+        print(
+            '      ✅ Generated ${editResponse.images.length} edited image(s)');
         if (editResponse.revisedPrompt != null) {
           print('      Revised prompt: "${editResponse.revisedPrompt}"');
         }

@@ -9,11 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Google Image Generation Support**: Complete implementation of Google's image generation capabilities through Gemini API
-  - Support for both Gemini 2.0 Flash Preview Image Generation (conversational approach) and Imagen 3 (dedicated model)
-  - Text-to-image generation, image editing, and image variations functionality
-  - Multiple aspect ratios support (1:1, 3:4, 4:3, 9:16, 16:9) with base64 output format
-  - Comprehensive examples in `example/04_providers/google/image_generation.dart`
+- **Google TTS API Support**: Implemented Google Gemini TTS API with 30 prebuilt voices and streaming audio generation
+  - Documentation: [Speech Generation API](https://ai.google.dev/gemini-api/docs/speech-generation)
+  - Examples in `example/04_providers/google/google_tts_example.dart`
+
+- **Google Image Generation API Support**: Implemented Google Gemini image generation API with multiple aspect ratios
+  - Documentation: [Image Generation API](https://ai.google.dev/gemini-api/docs/image-generation)
+  - Examples in `example/04_providers/google/image_generation.dart`
 
 ### Fixed
 

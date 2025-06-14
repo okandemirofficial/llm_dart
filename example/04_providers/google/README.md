@@ -6,6 +6,7 @@ This directory contains specific usage examples for the Google (Gemini) provider
 
 - `embeddings.dart` - Google text embedding model usage examples
 - `image_generation.dart` - Google image generation functionality examples
+- `google_tts_example.dart` - Google native text-to-speech examples
 
 ## 🔢 Embeddings
 
@@ -293,6 +294,134 @@ final editResponse = await imageProvider.editImage(
 - All generated images include SynthID watermarks
 - Image generation may not be available in all regions
 - Recommend using Gemini 2.0 Flash Preview for image generation
+
+## 🎤 Text-to-Speech (TTS)
+
+Google's native text-to-speech capabilities using Gemini 2.5 models provide controllable, high-quality audio generation.
+
+### TTS Models
+
+- `gemini-2.5-flash-preview-tts` - Fast, efficient TTS
+- `gemini-2.5-pro-preview-tts` - Higher quality TTS
+
+### Basic Usage
+
+```dart
+import 'package:llm_dart/llm_dart.dart';
+
+// Build Google TTS provider
+final ttsProvider = await ai()
+    .google((google) => google
+        .ttsModel('gemini-2.5-flash-preview-tts'))
+    .apiKey(apiKey)
+    .buildGoogleTTS();
+
+// Single-speaker TTS
+final response = await ttsProvider.generateSpeech(
+  GoogleTTSRequest.singleSpeaker(
+    text: 'Say cheerfully: Have a wonderful day!',
+    voiceName: 'Kore',
+  ),
+);
+
+// Convert PCM data to WAV format and save
+final wavData = await createWavFile(response.audioData);
+await File('output.wav').writeAsBytes(wavData);
+```
+
+### Key Features
+
+- **Controllable Speech**: Use natural language to control style, accent, pace, and tone
+- **Single & Multi-Speaker**: Support for both single and multi-speaker scenarios
+- **30 Prebuilt Voices**: Wide variety of voice characteristics
+- **24 Languages**: Automatic language detection with broad language support
+- **Streaming Support**: Real-time audio generation
+- **High Quality**: Native integration with Gemini models
+
+### ⚠️ Important: Audio Format Handling
+
+**Google TTS API returns raw PCM audio data, not WAV files.**
+
+Audio specifications:
+
+- Sample rate: 24,000 Hz
+- Channels: 1 (mono)
+- Bit depth: 16-bit signed little-endian
+- Format: Raw PCM data (no file headers)
+
+To create playable audio files, you must add proper WAV headers:
+
+```dart
+// ❌ Wrong - creates unplayable file
+await File('output.wav').writeAsBytes(response.audioData);
+
+// ✅ Correct - creates playable WAV file
+final wavData = await createWavFile(response.audioData);
+await File('output.wav').writeAsBytes(wavData);
+```
+
+The `createWavFile()` function is included in the [TTS example](google_tts_example.dart).
+
+### Multi-Speaker Example
+
+```dart
+final request = GoogleTTSRequest.multiSpeaker(
+  text: '''TTS the following conversation between Joe and Jane:
+Joe: How's it going today Jane?
+Jane: Not too bad, how about you?''',
+  speakers: [
+    GoogleSpeakerVoiceConfig(
+      speaker: 'Joe',
+      voiceConfig: GoogleVoiceConfig.prebuilt('Kore'),
+    ),
+    GoogleSpeakerVoiceConfig(
+      speaker: 'Jane',
+      voiceConfig: GoogleVoiceConfig.prebuilt('Puck'),
+    ),
+  ],
+);
+```
+
+### Controllable Speech Style
+
+```dart
+// Style control with natural language
+final request = GoogleTTSRequest.singleSpeaker(
+  text: 'Say in a spooky whisper: "Something wicked this way comes"',
+  voiceName: 'Enceladus', // Breathy voice for whispers
+);
+```
+
+### Available Voices
+
+Popular voices include:
+
+- **Kore** (Firm), **Puck** (Upbeat), **Zephyr** (Bright)
+- **Enceladus** (Breathy), **Charon** (Informative), **Leda** (Youthful)
+- **Achernar** (Soft), **Gacrux** (Mature), **Sulafat** (Warm)
+
+See the [example file](google_tts_example.dart) for the complete list of 30 voices.
+
+### Streaming TTS
+
+```dart
+await for (final event in ttsProvider.generateSpeechStream(request)) {
+  switch (event) {
+    case GoogleTTSAudioDataEvent():
+      audioChunks.addAll(event.data);
+    case GoogleTTSCompletionEvent():
+      print('Audio generation completed');
+    case GoogleTTSErrorEvent():
+      print('Error: ${event.message}');
+  }
+}
+```
+
+### Try the Example
+
+```bash
+dart run example/04_providers/google/google_tts_example.dart
+```
 
 Explore other features:
 
