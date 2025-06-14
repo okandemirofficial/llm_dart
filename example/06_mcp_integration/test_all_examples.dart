@@ -128,13 +128,13 @@ Future<bool> runTest(
 Future<bool> testCustomServer() async {
   print('🔧 Testing: Custom MCP Server');
   print('   Description: Tests custom MCP server startup');
-  print('   File: custom_mcp_server.dart');
+  print('   File: custom_mcp_server_stdio.dart');
 
   try {
     // Start server process
     final serverProcess = await Process.start(
       'dart',
-      ['run', 'new_example/07_mcp_integration/custom_mcp_server.dart'],
+      ['run', 'new_example/07_mcp_integration/custom_mcp_server_stdio.dart'],
       workingDirectory: '.',
     );
 

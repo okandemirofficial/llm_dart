@@ -10,7 +10,7 @@ import 'package:mcp_dart/mcp_dart.dart';
 /// - Handling MCP responses and errors
 ///
 /// Before running:
-/// 1. Start a MCP server (use custom_mcp_server.dart or any MCP server)
+/// 1. Start a MCP server (use custom_mcp_server_stdio.dart or any MCP server)
 /// 2. Update the connection details below if needed
 void main() async {
   print('Basic MCP Client - Connecting to MCP Servers\n');
@@ -284,5 +284,5 @@ String _evaluateExpression(String expression) {
 ///
 /// Next Steps:
 /// - mcp_with_llm.dart: Integrate MCP with LLMs
-/// - custom_mcp_server.dart: Create your own MCP server
+/// - custom_mcp_server_stdio.dart: Create your own MCP server
 /// - Explore real MCP servers for production use
