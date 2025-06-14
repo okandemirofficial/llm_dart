@@ -1,25 +1,14 @@
-import 'dart:io';
 import 'package:test/test.dart';
-import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
 import 'package:llm_dart/llm_dart.dart';
+import 'dio_proxy_test_stub.dart'
+    if (dart.library.io) 'dio_proxy_test_io.dart'
+    if (dart.library.html) 'dio_proxy_test_web.dart';
 
 void main() {
   group('Dio Proxy Configuration Tests', () {
-    test('should configure proxy correctly using official Dio pattern', () {
-      // Test the official Dio proxy pattern
-      final dio = Dio();
-      dio.httpClientAdapter = IOHttpClientAdapter(
-        createHttpClient: () {
-          final client = HttpClient();
-          client.findProxy = (uri) {
-            return 'PROXY localhost:8888';
-          };
-          return client;
-        },
-      );
-
-      expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+    // Run platform-specific tests
+    group('Platform-Specific Tests', () {
+      PlatformHttpAdapterTests.runPlatformTests();
     });
 
     test('should configure proxy using HttpConfigUtils', () {
@@ -37,7 +26,7 @@ void main() {
         config: config,
       );
 
-      expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+      PlatformHttpAdapterTests.expectCorrectAdapterType(dio.httpClientAdapter);
     });
 
     test('should configure SSL bypass using HttpConfigUtils', () {
@@ -55,7 +44,7 @@ void main() {
         config: config,
       );
 
-      expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+      PlatformHttpAdapterTests.expectCorrectAdapterType(dio.httpClientAdapter);
     });
 
     test('should configure both proxy and SSL using HttpConfigUtils', () {
@@ -74,7 +63,7 @@ void main() {
         config: config,
       );
 
-      expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+      PlatformHttpAdapterTests.expectCorrectAdapterType(dio.httpClientAdapter);
     });
 
     test(
@@ -108,10 +97,11 @@ void main() {
         config: configWithProxy,
       );
 
-      // Both should be IOHttpClientAdapter, but they should be different instances
-      expect(
-          dioWithoutHttpConfig.httpClientAdapter, isA<IOHttpClientAdapter>());
-      expect(dioWithHttpConfig.httpClientAdapter, isA<IOHttpClientAdapter>());
+      // Both should be correct adapter type, but they should be different instances
+      PlatformHttpAdapterTests.expectCorrectAdapterType(
+          dioWithoutHttpConfig.httpClientAdapter);
+      PlatformHttpAdapterTests.expectCorrectAdapterType(
+          dioWithHttpConfig.httpClientAdapter);
       expect(
           identical(dioWithoutHttpConfig.httpClientAdapter,
               dioWithHttpConfig.httpClientAdapter),
@@ -133,7 +123,7 @@ void main() {
         config: config,
       );
 
-      expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+      PlatformHttpAdapterTests.expectCorrectAdapterType(dio.httpClientAdapter);
     });
 
     test('should handle comprehensive HTTP client configuration', () {
@@ -158,7 +148,7 @@ void main() {
         config: config,
       );
 
-      expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+      PlatformHttpAdapterTests.expectCorrectAdapterType(dio.httpClientAdapter);
       expect(dio.options.headers['Authorization'], equals('Bearer test-key'));
       expect(dio.options.headers['X-Corporate-ID'], equals('dept-123'));
       expect(dio.options.connectTimeout, equals(Duration(seconds: 30)));
@@ -235,8 +225,9 @@ void main() {
           config: config,
         );
 
-        // Should still be IOHttpClientAdapter (Dio's default), but not configured with proxy
-        expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+        // Should still be correct adapter type (Dio's default), but not configured with proxy
+        PlatformHttpAdapterTests.expectCorrectAdapterType(
+            dio.httpClientAdapter);
       });
 
       test('should handle null SSL certificate path', () {
@@ -254,8 +245,9 @@ void main() {
           config: config,
         );
 
-        // Should still be IOHttpClientAdapter (Dio's default), but not configured with SSL
-        expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+        // Should still be correct adapter type (Dio's default), but not configured with SSL
+        PlatformHttpAdapterTests.expectCorrectAdapterType(
+            dio.httpClientAdapter);
       });
 
       test('should handle false SSL bypass', () {
@@ -273,8 +265,9 @@ void main() {
           config: config,
         );
 
-        // Should still be IOHttpClientAdapter (Dio's default), but not configured with SSL bypass
-        expect(dio.httpClientAdapter, isA<IOHttpClientAdapter>());
+        // Should still be correct adapter type (Dio's default), but not configured with SSL bypass
+        PlatformHttpAdapterTests.expectCorrectAdapterType(
+            dio.httpClientAdapter);
       });
     });
   });

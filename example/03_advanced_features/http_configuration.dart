@@ -6,6 +6,10 @@ import 'package:llm_dart/llm_dart.dart';
 /// This example demonstrates how to configure HTTP settings for LLM providers,
 /// including proxy configuration, custom headers, SSL settings, and logging.
 ///
+/// Note: Advanced HTTP features (proxy, SSL bypass, custom certificates) are only
+/// available on IO platforms (Desktop/Mobile/Server). On Web platforms, these
+/// features are managed by the browser.
+///
 /// Before running, set API keys for the providers you want to test:
 /// export OPENAI_API_KEY="your-openai-key"
 /// export ANTHROPIC_API_KEY="your-anthropic-key"
@@ -95,6 +99,8 @@ Future<void> demonstrateBasicHttpConfig(String apiKey) async {
 /// Demonstrate proxy configuration
 Future<void> demonstrateProxyConfiguration(String apiKey) async {
   print('🔄 Proxy Configuration:\n');
+  print('   ℹ️  Note: Proxy configuration is only supported on IO platforms');
+  print('   📝 On Web platforms, proxy settings are managed by the browser\n');
 
   try {
     // Note: This example shows the API usage. In practice, you would
@@ -144,6 +150,8 @@ Future<void> demonstrateCustomHeaders(String anthropicApiKey) async {
 /// Demonstrate SSL configuration
 Future<void> demonstrateSSLConfiguration(String apiKey) async {
   print('🔒 SSL Configuration:\n');
+  print('   ℹ️  Note: SSL configuration is only supported on IO platforms');
+  print('   📝 On Web platforms, SSL/TLS is managed by the browser\n');
 
   try {
     // Example for local development with self-signed certificates

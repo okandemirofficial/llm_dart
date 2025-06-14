@@ -7,6 +7,10 @@ import 'package:llm_dart/llm_dart.dart';
 /// This example demonstrates the new layered approach to HTTP configuration,
 /// which provides a cleaner and more organized way to configure HTTP settings.
 ///
+/// Note: Advanced HTTP features (proxy, SSL bypass, custom certificates) are only
+/// available on IO platforms (Desktop/Mobile/Server). On Web platforms, these
+/// features are managed by the browser.
+///
 /// Before running, set API keys for the providers you want to test:
 /// export OPENAI_API_KEY="your-openai-key"
 /// export ANTHROPIC_API_KEY="your-anthropic-key"
@@ -105,10 +109,10 @@ Future<void> demonstrateAdvancedLayeredConfig(String anthropicApiKey) async {
                 .sendTimeout(Duration(seconds: 45))
                 // Debugging
                 .enableLogging(true)
-            // SSL configuration (example)
+            // SSL configuration (example - IO platforms only)
             // .bypassSSLVerification(false)
             // .sslCertificate('/path/to/cert.pem')
-            // Proxy configuration (example)
+            // Proxy configuration (example - IO platforms only)
             // .proxy('http://corporate-proxy:8080')
             )
         .build();
@@ -281,7 +285,7 @@ Future<void> demonstrateConfigReusability() async {
         .connectionTimeout(Duration(seconds: 10))
         .receiveTimeout(Duration(seconds: 30))
         .enableLogging(true) // Enable in development
-        .bypassSSLVerification(true); // For local testing
+        .bypassSSLVerification(true); // For local testing (IO platforms only)
   }
 
   print('   ✅ HTTP configurations can be created as reusable functions');
