@@ -139,10 +139,15 @@ class AnthropicChat implements ChatCapability {
       'messages': anthropicMessages,
     };
 
-    // Add system prompt
-    final systemPrompt = _buildSystemPrompt(systemMessages);
-    if (systemPrompt != null) {
-      body['system'] = systemPrompt;
+    // Add system prompt if present
+    final allSystemPrompts = <String>[];
+    if (config.systemPrompt != null && config.systemPrompt!.isNotEmpty) {
+      allSystemPrompts.add(config.systemPrompt!);
+    }
+    allSystemPrompts.addAll(systemMessages);
+
+    if (allSystemPrompts.isNotEmpty) {
+      body['system'] = allSystemPrompts.join('\n\n');
     }
 
     // Add tools if provided
@@ -423,10 +428,15 @@ class AnthropicChat implements ChatCapability {
       'stream': stream,
     };
 
-    // Add system prompt
-    final systemPrompt = _buildSystemPrompt(systemMessages);
-    if (systemPrompt != null) {
-      body['system'] = systemPrompt;
+    // Add system prompt - combine config system prompt with message system prompts
+    final allSystemPrompts = <String>[];
+    if (config.systemPrompt != null && config.systemPrompt!.isNotEmpty) {
+      allSystemPrompts.add(config.systemPrompt!);
+    }
+    allSystemPrompts.addAll(systemMessages);
+
+    if (allSystemPrompts.isNotEmpty) {
+      body['system'] = allSystemPrompts.join('\n\n');
     }
 
     // Add optional parameters with validation
@@ -542,41 +552,6 @@ class AnthropicChat implements ChatCapability {
     }
 
     return body;
-  }
-
-  /// Build system prompt for Anthropic API, supporting caching
-  dynamic _buildSystemPrompt(List<String> systemMessages) {
-    final systemPromptParts = <Map<String, dynamic>>[];
-
-    // Combine all non-cacheable system prompts into one block.
-    final allNonCachedPrompts = <String>[];
-    if (config.systemPrompt != null && config.systemPrompt!.isNotEmpty) {
-      allNonCachedPrompts.add(config.systemPrompt!);
-    }
-    allNonCachedPrompts.addAll(systemMessages);
-
-    if (allNonCachedPrompts.isNotEmpty) {
-      systemPromptParts.add({
-        'type': 'text',
-        'text': allNonCachedPrompts.join('\n\n'),
-      });
-    }
-
-    // Add the cacheable part of the system prompt
-    if (config.cachedSystemPrompt != null &&
-        config.cachedSystemPrompt!.isNotEmpty) {
-      systemPromptParts.add({
-        'type': 'text',
-        'text': config.cachedSystemPrompt,
-        'cache_control': {'type': 'ephemeral'}
-      });
-    }
-
-    if (systemPromptParts.isEmpty) {
-      return null;
-    }
-
-    return systemPromptParts;
   }
 
   /// Validate that messages follow Anthropic's requirements

@@ -15,7 +15,6 @@ import '../../core/web_search.dart';
 /// - Vision: https://docs.anthropic.com/en/docs/build-with-claude/vision
 /// - Tool Use: https://docs.anthropic.com/en/docs/tool-use
 /// - PDF Support: https://docs.anthropic.com/en/docs/build-with-claude/pdf-support
-/// - System Prompt Caching: https://docs.anthropic.com/en/docs/build-with-claude/system-prompt-caching
 class AnthropicConfig {
   final String apiKey;
   final String baseUrl;
@@ -23,7 +22,6 @@ class AnthropicConfig {
   final int? maxTokens;
   final double? temperature;
   final String? systemPrompt;
-  final String? cachedSystemPrompt;
   final Duration? timeout;
   final bool stream;
   final double? topP;
@@ -47,7 +45,6 @@ class AnthropicConfig {
     this.maxTokens,
     this.temperature,
     this.systemPrompt,
-    this.cachedSystemPrompt,
     this.timeout,
     this.stream = false,
     this.topP,
@@ -99,7 +96,6 @@ class AnthropicConfig {
       user: config.user,
       serviceTier: config.serviceTier,
       // Anthropic-specific extensions
-      cachedSystemPrompt: config.getExtension<String>('cachedSystemPrompt'),
       reasoning: config.getExtension<bool>('reasoning') ?? false,
       thinkingBudgetTokens: config.getExtension<int>('thinkingBudgetTokens'),
       interleavedThinking:
@@ -237,7 +233,6 @@ class AnthropicConfig {
     int? maxTokens,
     double? temperature,
     String? systemPrompt,
-    String? cachedSystemPrompt,
     Duration? timeout,
     bool? stream,
     double? topP,
@@ -258,7 +253,6 @@ class AnthropicConfig {
         maxTokens: maxTokens ?? this.maxTokens,
         temperature: temperature ?? this.temperature,
         systemPrompt: systemPrompt ?? this.systemPrompt,
-        cachedSystemPrompt: cachedSystemPrompt ?? this.cachedSystemPrompt,
         timeout: timeout ?? this.timeout,
         stream: stream ?? this.stream,
         topP: topP ?? this.topP,

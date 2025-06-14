@@ -7,7 +7,6 @@ import 'config.dart';
 import 'chat.dart';
 import 'files.dart';
 import 'models.dart';
-import 'package:dio/dio.dart';
 
 /// Anthropic provider implementation
 ///
@@ -202,15 +201,5 @@ class AnthropicProvider
   /// Batch delete multiple files
   Future<Map<String, bool>> deleteFiles(List<String> fileIds) async {
     return _files.deleteFiles(fileIds);
-  }
-
-  /// Add a Dio interceptor for testing purposes.
-  ///
-  /// This method provides a hook for tests to inspect or modify requests
-  /// without exposing the internal HTTP client.
-  void addInterceptorForTest(dynamic interceptor) {
-    if (interceptor is Interceptor) {
-      _client.dio.interceptors.add(interceptor);
-    }
   }
 }
