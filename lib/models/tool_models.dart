@@ -18,6 +18,12 @@ class ParameterProperty {
   /// When type is "object", this defines which properties are required
   final List<String>? required;
 
+  /// Minimum value for numeric parameters
+  final int? min;
+
+  /// Maximum value for numeric parameters
+  final int? max;
+
   const ParameterProperty({
     required this.propertyType,
     required this.description,
@@ -25,6 +31,8 @@ class ParameterProperty {
     this.enumList,
     this.properties,
     this.required,
+    this.min,
+    this.max,
   });
 
   Map<String, dynamic> toJson() {
@@ -48,6 +56,14 @@ class ParameterProperty {
 
     if (required != null) {
       json['required'] = required;
+    }
+
+    if (min != null) {
+      json['min'] = min;
+    }
+
+    if (max != null) {
+      json['max'] = max;
     }
 
     return json;
@@ -74,6 +90,8 @@ class ParameterProperty {
         required: json['required'] != null
             ? List<String>.from(json['required'] as List)
             : null,
+        min: json['min'] as int?,
+        max: json['max'] as int?,
       );
 }
 
